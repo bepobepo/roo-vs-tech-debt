@@ -1,0 +1,10 @@
+{
+  "meshopt_decoder": "meshoptimizer 0.18 (copy in three examples/jsm/libs)",
+  "three": "0.160.0",
+  "@dgreenheck/three-pinata": "2.0.1",
+  "zzfx": "1.4.0",
+  "@fontsource/bangers": "5.3.0",
+  "@fontsource/comic-neue": "5.3.0",
+  "@fontsource/inter": "5.3.0",
+  "pinataEntry": "three-pinata/three-pinata.es.js"
+}

@@ -1,0 +1,1016 @@
+{
+ "assets/audio/music/montage.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "ffmpeg silence via tools/gen-vo.py (tagged placeholder)",
+  "tag": "JUNE_PLACEHOLDER montage"
+ },
+ "assets/audio/vo/01_lauren_problem.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER lauren_problem"
+ },
+ "assets/audio/vo/02_roo_got_you.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER roo_got_you"
+ },
+ "assets/audio/vo/03_ops_help.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER ops_help"
+ },
+ "assets/audio/vo/04_ops_sob.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "ffmpeg silence via tools/gen-vo.py (tagged placeholder)",
+  "tag": "JUNE_PLACEHOLDER ops_sob"
+ },
+ "assets/audio/vo/05_roo_not_your_fault.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER roo_not_your_fault"
+ },
+ "assets/audio/vo/06_ops_thank_you.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER ops_thank_you"
+ },
+ "assets/audio/vo/07_roo_few_minutes.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER roo_few_minutes"
+ },
+ "assets/audio/vo/08_exec_how.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER exec_how"
+ },
+ "assets/audio/vo/09_roo_good_at.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER roo_good_at"
+ },
+ "assets/audio/vo/10_roo_dont_need_me.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER roo_dont_need_me"
+ },
+ "assets/audio/vo/bark_npc_heybaby.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
+ },
+ "assets/audio/vo/bark_npc_superhero.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
+ },
+ "assets/audio/vo/bark_roo_keyboard.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER bark_roo_keyboard"
+ },
+ "assets/audio/vo/gag_ops_wail.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "ffmpeg silence via tools/gen-vo.py (tagged placeholder)",
+  "tag": "JUNE_PLACEHOLDER gag_ops_wail"
+ },
+ "assets/audio/vo/gag_roo_feelings.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER gag_roo_feelings"
+ },
+ "assets/audio/vo/gag_roo_get_on.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER gag_roo_get_on"
+ },
+ "assets/audio/vo/stn_gossip_brenda.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER gossip_brenda"
+ },
+ "assets/audio/vo/stn_gossip_gary.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER gossip_gary"
+ },
+ "assets/audio/vo/stn_roo_hold_cup.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER roo_hold_cup"
+ },
+ "assets/audio/vo/stn_roo_obviously.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER roo_obviously"
+ },
+ "assets/audio/vo/stn_roo_rocket_fuel.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER roo_rocket_fuel"
+ },
+ "assets/audio/vo/stn_scanner_again.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER scanner_again"
+ },
+ "assets/audio/vo/stn_scanner_ok.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER scanner_ok"
+ },
+ "assets/fonts/bangers-400.woff2": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "@fontsource/bangers@5.3.0",
+    "url": "https://fontsource.org/fonts/bangers",
+    "licence": "OFL-1.1",
+    "author": "Google Inc.",
+    "files": [
+     "files/bangers-400.woff2"
+    ],
+    "licenceFile": "LICENSES/Bangers-OFL.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "assets/fonts/comic-neue-700.woff2": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "@fontsource/comic-neue@5.3.0",
+    "url": "https://fontsource.org/fonts/comic-neue",
+    "licence": "OFL-1.1",
+    "author": "Google Inc.",
+    "files": [
+     "files/comic-neue-700.woff2"
+    ],
+    "licenceFile": "LICENSES/ComicNeue-OFL.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "assets/fonts/inter-400.woff2": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "@fontsource/inter@5.3.0",
+    "url": "https://fontsource.org/fonts/inter",
+    "licence": "OFL-1.1",
+    "author": "Google Inc.",
+    "files": [
+     "files/inter-400.woff2"
+    ],
+    "licenceFile": "LICENSES/Inter-OFL.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "assets/fonts/inter-600.woff2": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "@fontsource/inter@5.3.0",
+    "url": "https://fontsource.org/fonts/inter",
+    "licence": "OFL-1.1",
+    "author": "Google Inc.",
+    "files": [
+     "files/inter-600.woff2"
+    ],
+    "licenceFile": "LICENSES/Inter-OFL.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "assets/img/keyart.webp": {
+  "class": "client-supplied",
+  "sources": [
+   {
+    "pack": "June key art (arms crossed)",
+    "url": null,
+    "licence": null,
+    "author": "June",
+    "files": [
+     "refs/keyart-arms-crossed.webp"
+    ]
+   }
+  ],
+  "modified": false,
+  "credit": null,
+  "owner": "June"
+ },
+ "assets/models/body-crowd-female.glb": {
+  "class": "third-party",
+  "modified": true,
+  "credit": null,
+  "sources": [
+   {
+    "pack": "mpfb-core",
+    "name": "MPFB 2.0.18 base mesh, targets, game_engine rig and weights",
+    "url": "https://extensions.blender.org/add-ons/mpfb/",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "data/3dobjs/base.obj",
+     "data/targets/macrodetails (sliders)",
+     "data/rigs/standard/rig.game_engine.json",
+     "data/rigs/standard/weights.game_engine.json"
+    ],
+    "note": "MPFB 2.0.18"
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "clothes/female_casualsuit01/female_casualsuit01.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "hair/ponytail01/ponytail01.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "hair/bob01/bob01.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "clothes/shoes02/shoes02.mhclo"
+    ]
+   },
+   {
+    "pack": "quaternius-ual1",
+    "name": "Universal Animation Library (Standard, free tier)",
+    "url": "https://quaternius.itch.io/universal-animation-library",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/quaternius-ual1/files/Universal Animation Library[Standard]/License.txt",
+    "author": "Quaternius",
+    "files": [
+     "Unreal-Godot/UAL1_Standard.glb"
+    ],
+    "note": "skeleton: joint names, hierarchy, rest rotations and leaf offsets"
+   }
+  ]
+ },
+ "assets/models/body-crowd-male.glb": {
+  "class": "third-party",
+  "modified": true,
+  "credit": null,
+  "sources": [
+   {
+    "pack": "mpfb-core",
+    "name": "MPFB 2.0.18 base mesh, targets, game_engine rig and weights",
+    "url": "https://extensions.blender.org/add-ons/mpfb/",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "data/3dobjs/base.obj",
+     "data/targets/macrodetails (sliders)",
+     "data/rigs/standard/rig.game_engine.json",
+     "data/rigs/standard/weights.game_engine.json"
+    ],
+    "note": "MPFB 2.0.18"
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "clothes/male_casualsuit04/male_casualsuit04.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "hair/short02/short02.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "hair/afro01/afro01.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "clothes/shoes02/shoes02.mhclo"
+    ]
+   },
+   {
+    "pack": "quaternius-ual1",
+    "name": "Universal Animation Library (Standard, free tier)",
+    "url": "https://quaternius.itch.io/universal-animation-library",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/quaternius-ual1/files/Universal Animation Library[Standard]/License.txt",
+    "author": "Quaternius",
+    "files": [
+     "Unreal-Godot/UAL1_Standard.glb"
+    ],
+    "note": "skeleton: joint names, hierarchy, rest rotations and leaf offsets"
+   }
+  ]
+ },
+ "assets/models/body-female.glb": {
+  "class": "third-party",
+  "modified": true,
+  "credit": null,
+  "sources": [
+   {
+    "pack": "mpfb-core",
+    "name": "MPFB 2.0.18 base mesh, targets, game_engine rig and weights",
+    "url": "https://extensions.blender.org/add-ons/mpfb/",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "data/3dobjs/base.obj",
+     "data/targets/macrodetails (sliders)",
+     "data/rigs/standard/rig.game_engine.json",
+     "data/rigs/standard/weights.game_engine.json"
+    ],
+    "note": "MPFB 2.0.18"
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "clothes/female_elegantsuit01/female_elegantsuit01.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "hair/long01/long01.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "hair/bob02/bob02.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "clothes/shoes04/shoes04.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "clothes/female_sportsuit01/female_sportsuit01.mhclo"
+    ]
+   },
+   {
+    "pack": "quaternius-ual1",
+    "name": "Universal Animation Library (Standard, free tier)",
+    "url": "https://quaternius.itch.io/universal-animation-library",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/quaternius-ual1/files/Universal Animation Library[Standard]/License.txt",
+    "author": "Quaternius",
+    "files": [
+     "Unreal-Godot/UAL1_Standard.glb"
+    ],
+    "note": "skeleton: joint names, hierarchy, rest rotations and leaf offsets"
+   }
+  ]
+ },
+ "assets/models/body-male.glb": {
+  "class": "third-party",
+  "modified": true,
+  "credit": null,
+  "sources": [
+   {
+    "pack": "mpfb-core",
+    "name": "MPFB 2.0.18 base mesh, targets, game_engine rig and weights",
+    "url": "https://extensions.blender.org/add-ons/mpfb/",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "data/3dobjs/base.obj",
+     "data/targets/macrodetails (sliders)",
+     "data/rigs/standard/rig.game_engine.json",
+     "data/rigs/standard/weights.game_engine.json"
+    ],
+    "note": "MPFB 2.0.18"
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "clothes/male_casualsuit05/male_casualsuit05.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "hair/short02/short02.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "hair/ponytail01/ponytail01.mhclo"
+    ]
+   },
+   {
+    "pack": "makehuman-system-assets",
+    "name": "MakeHuman system assets (CC0 pack): clothes, hair, eyebrows",
+    "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+    "licence": "CC0-1.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-24",
+    "author": "MakeHuman Community",
+    "files": [
+     "clothes/shoes04/shoes04.mhclo"
+    ]
+   },
+   {
+    "pack": "quaternius-ual1",
+    "name": "Universal Animation Library (Standard, free tier)",
+    "url": "https://quaternius.itch.io/universal-animation-library",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/quaternius-ual1/files/Universal Animation Library[Standard]/License.txt",
+    "author": "Quaternius",
+    "files": [
+     "Unreal-Godot/UAL1_Standard.glb"
+    ],
+    "note": "skeleton: joint names, hierarchy, rest rotations and leaf offsets"
+   }
+  ]
+ },
+ "assets/models/clips-ual1.glb": {
+  "class": "third-party",
+  "modified": true,
+  "credit": null,
+  "sources": [
+   {
+    "pack": "quaternius-ual1",
+    "name": "Universal Animation Library (Standard, free tier)",
+    "url": "https://quaternius.itch.io/universal-animation-library",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/quaternius-ual1/files/Universal Animation Library[Standard]/License.txt",
+    "author": "Quaternius",
+    "files": [
+     "Unreal-Godot/UAL1_Standard.glb"
+    ]
+   }
+  ]
+ },
+ "assets/models/clips-ual2.glb": {
+  "class": "third-party",
+  "modified": true,
+  "credit": null,
+  "sources": [
+   {
+    "pack": "quaternius-ual2",
+    "name": "Universal Animation Library 2 (Standard, free tier)",
+    "url": "https://quaternius.itch.io/universal-animation-library-2",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/quaternius-ual2/files/Universal Animation Library 2[Standard]/License.txt",
+    "author": "Quaternius",
+    "files": [
+     "Unreal-Godot/UAL2_Standard.glb"
+    ]
+   }
+  ]
+ },
+ "assets/models/kit-city.glb": {
+  "class": "third-party",
+  "modified": true,
+  "credit": null,
+  "sources": [
+   {
+    "pack": "kenney-city-roads",
+    "name": "City Kit (Roads) 2.2",
+    "url": "https://kenney.nl/assets/city-kit-roads",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/kenney-city-roads/files/License.txt",
+    "author": "Kenney",
+    "files": [
+     "road-straight.glb",
+     "road-crossroad.glb",
+     "road-intersection.glb",
+     "road-side.glb",
+     "road-crossing.glb",
+     "tile-low.glb",
+     "light-square.glb"
+    ]
+   },
+   {
+    "pack": "kenney-city-commercial",
+    "name": "City Kit (Commercial) 2.1",
+    "url": "https://kenney.nl/assets/city-kit-commercial",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/kenney-city-commercial/files/License.txt",
+    "author": "Kenney",
+    "files": [
+     "building-a.glb",
+     "building-c.glb",
+     "building-f.glb",
+     "building-skyscraper-a.glb",
+     "detail-awning-wide.glb",
+     "detail-overhang.glb",
+     "detail-parasol-a.glb"
+    ]
+   },
+   {
+    "pack": "kaykit-city-builder-bits",
+    "name": "KayKit City Builder Bits 1.0 (subset)",
+    "url": "https://kaylousberg.itch.io/city-builder-bits",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/kaykit-city-builder-bits/LICENSE.txt",
+    "author": "Kay Lousberg",
+    "files": [
+     "bench.gltf",
+     "citybits_texture.png",
+     "firehydrant.gltf",
+     "streetlight.gltf",
+     "trafficlight_A.gltf",
+     "dumpster.gltf",
+     "car_taxi.gltf",
+     "watertower.gltf"
+    ]
+   }
+  ]
+ },
+ "assets/models/kit-downtown.glb": {
+  "class": "third-party",
+  "modified": true,
+  "credit": null,
+  "sources": [
+   {
+    "pack": "quaternius-downtown",
+    "name": "Downtown City MegaKit (Standard, free tier)",
+    "url": "https://quaternius.itch.io/downtown-city-megakit",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/quaternius-downtown/files/License_Standard.txt",
+    "author": "Quaternius",
+    "files": [
+     "Exports/glTF (Godot)/Street_2Lane.gltf",
+     "Exports/glTF (Godot)/T_Concrete_Asphalt_BaseColor.png",
+     "Exports/glTF (Godot)/T_Street_Decals.png",
+     "Exports/glTF (Godot)/T_MetalConcrete_BaseColor.png",
+     "Exports/glTF (Godot)/Street_4WayIntersection.gltf",
+     "Exports/glTF (Godot)/Sidewalk_Straight_3m.gltf",
+     "Exports/glTF (Godot)/Sidewalk_Corner_Round_3m.gltf",
+     "Exports/glTF (Godot)/Brick_Plain_3.gltf",
+     "Exports/glTF (Godot)/T_RedBrick_BaseColor.png",
+     "Exports/glTF (Godot)/Brick_Inset_Window.gltf",
+     "Exports/glTF (Godot)/T_Trim_BaseColor.png",
+     "Exports/glTF (Godot)/Brick_CornerColumn_Bottom.gltf",
+     "Exports/glTF (Godot)/Brick_CornerColumn_Center.gltf",
+     "Exports/glTF (Godot)/Brick_CornerColumn_Cap.gltf",
+     "Exports/glTF (Godot)/Cornice_Brick_Center.gltf",
+     "Exports/glTF (Godot)/DoorFrame_Wooden.gltf",
+     "Exports/glTF (Godot)/Metal_FirstFloor_Window.gltf",
+     "Exports/glTF (Godot)/Prop_Bollard.gltf",
+     "Exports/glTF (Godot)/Prop_Planter_Single.gltf",
+     "Exports/glTF (Godot)/T_Dirt_BaseColor.png",
+     "Exports/glTF (Godot)/Prop_ManholeCover.gltf",
+     "Exports/glTF (Godot)/T_Ornaments_BaseColor.png",
+     "Exports/glTF (Godot)/Prop_ACUnit.gltf"
+    ]
+   }
+  ]
+ },
+ "assets/models/kit-office.glb": {
+  "class": "third-party",
+  "modified": true,
+  "credit": "\"Low Poly 3D Office Set [VNB]\" by VNBP - Leo (https://vnbp.itch.io/low-poly-3d-office-set-vnb), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), modified; \"Low Poly 3D Office Set #2 [VNB]\" by VNBP - Leo (https://vnbp.itch.io/low-poly-3d-office-set-2-vnb), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), modified",
+  "sources": [
+   {
+    "pack": "kenney-furniture",
+    "name": "Furniture Kit 2.0",
+    "url": "https://kenney.nl/assets/furniture-kit",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/kenney-furniture/files/License.txt",
+    "author": "Kenney",
+    "files": [
+     "computerScreen.glb",
+     "computerKeyboard.glb",
+     "computerMouse.glb",
+     "laptop.glb",
+     "plantSmall1.glb",
+     "bookcaseOpen.glb",
+     "bookcaseClosedDoors.glb",
+     "books.glb",
+     "rugRectangle.glb",
+     "kitchenCabinet.glb",
+     "cardboardBoxClosed.glb",
+     "coatRackStanding.glb",
+     "plantSmall2.glb",
+     "plantSmall3.glb",
+     "cardboardBoxOpen.glb"
+    ]
+   },
+   {
+    "pack": "mreliptik-office",
+    "name": "Office Low Poly Pack",
+    "url": "https://mreliptik.itch.io/office-low-poly-pack",
+    "licence": "CC0-1.0",
+    "licenceBasis": "assets-src/mreliptik-office/files/LICENSE.txt",
+    "author": "MrEliptik",
+    "files": [
+     "monitor.glb"
+    ]
+   },
+   {
+    "pack": "vnb-office-set",
+    "name": "Low Poly 3D Office Set [VNB] V1.1.0",
+    "url": "https://vnbp.itch.io/low-poly-3d-office-set-vnb",
+    "licence": "CC-BY-4.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-25",
+    "author": "VNBP - Leo",
+    "files": [
+     "FileCabinet_Standard.glb",
+     "FileCabinet_Standard_Drawer.glb",
+     "Nature_Deco.glb",
+     "Nature_Deco_Bamboo1.glb",
+     "Nature_Deco_Small.glb",
+     "Nature_Deco_3.glb",
+     "AirConditioner_A.glb",
+     "Clock.glb",
+     "CoffeeMachine.glb",
+     "Microwave_New.glb",
+     "WaterCup.glb",
+     "TrashBin.glb",
+     "Computer_Case.glb",
+     "Phone_A_Base.glb",
+     "Paper_Stray.glb",
+     "Lamp_1.glb",
+     "Painting.glb",
+     "Printer.glb",
+     "Office_Files_F.glb",
+     "Bookshelf.glb",
+     "Clock_A.glb",
+     "Table_Box.glb",
+     "Chair_A.glb",
+     "Office_CounterB1.glb",
+     "Office_Counter_Door.glb",
+     "Office_Desk_1.glb",
+     "Chair_Office_Base_B.glb",
+     "Chair_Office_Bottom.glb"
+    ],
+    "creditFields": {
+     "title": "Low Poly 3D Office Set [VNB]",
+     "author": "VNBP - Leo",
+     "url": "https://vnbp.itch.io/low-poly-3d-office-set-vnb"
+    },
+    "credit": "\"Low Poly 3D Office Set [VNB]\" by VNBP - Leo (https://vnbp.itch.io/low-poly-3d-office-set-vnb), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), modified"
+   },
+   {
+    "pack": "vnb-office-set-2",
+    "name": "Low Poly 3D Office Set #2 [VNB] V1.1.2",
+    "url": "https://vnbp.itch.io/low-poly-3d-office-set-2-vnb",
+    "licence": "CC-BY-4.0",
+    "licenceBasis": "no licence file in the download; licence stated on the publisher's page (saved copy kept with the sources); released by the project owner's decision of 2026-11-25",
+    "author": "VNBP - Leo",
+    "files": [
+     "Sofa_1.glb",
+     "Sofa_1_Alt.glb",
+     "Coffee_Table.glb",
+     "Book_Pile_1.glb",
+     "Book_Pile_2_Alt.glb",
+     "Simple_Donut.glb",
+     "Plate.glb",
+     "Vent.glb",
+     "Table_Lamp_1.glb",
+     "Table_Lamp_1_Ac.glb"
+    ],
+    "creditFields": {
+     "title": "Low Poly 3D Office Set #2 [VNB]",
+     "author": "VNBP - Leo",
+     "url": "https://vnbp.itch.io/low-poly-3d-office-set-2-vnb"
+    },
+    "credit": "\"Low Poly 3D Office Set #2 [VNB]\" by VNBP - Leo (https://vnbp.itch.io/low-poly-3d-office-set-2-vnb), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), modified"
+   }
+  ]
+ },
+ "assets/video/tv-game.mp4": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "dev/scratch/city-tv/make-tv-video.mjs (headless capture of our own city set + canvas HUD, ffmpeg H.264)",
+  "tag": "JUNE_PLACEHOLDER"
+ },
+ "vendor/VERSIONS.json": {
+  "class": "first-party",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "tools/sync-vendor.mjs"
+ },
+ "vendor/addons/effects/OutlineEffect.js": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "three@0.160.0",
+    "url": "https://threejs.org/",
+    "licence": "MIT",
+    "author": "mrdoob",
+    "files": [
+     "examples/jsm/effects/OutlineEffect.js"
+    ],
+    "licenceFile": "LICENSES/three.js-MIT.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "vendor/addons/libs/meshopt_decoder.module.js": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "three@0.160.0",
+    "url": "https://threejs.org/",
+    "licence": "MIT",
+    "author": "mrdoob",
+    "files": [
+     "examples/jsm/libs/meshopt_decoder.module.js"
+    ],
+    "licenceFile": "LICENSES/meshoptimizer-MIT.txt",
+    "note": "part of meshoptimizer (MIT, Arseny Kapoulkine), shipped inside three"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "vendor/addons/loaders/GLTFLoader.js": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "three@0.160.0",
+    "url": "https://threejs.org/",
+    "licence": "MIT",
+    "author": "mrdoob",
+    "files": [
+     "examples/jsm/loaders/GLTFLoader.js"
+    ],
+    "licenceFile": "LICENSES/three.js-MIT.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "vendor/addons/utils/BufferGeometryUtils.js": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "three@0.160.0",
+    "url": "https://threejs.org/",
+    "licence": "MIT",
+    "author": "mrdoob",
+    "files": [
+     "examples/jsm/utils/BufferGeometryUtils.js"
+    ],
+    "licenceFile": "LICENSES/three.js-MIT.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "vendor/addons/utils/SkeletonUtils.js": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "three@0.160.0",
+    "url": "https://threejs.org/",
+    "licence": "MIT",
+    "author": "mrdoob",
+    "files": [
+     "examples/jsm/utils/SkeletonUtils.js"
+    ],
+    "licenceFile": "LICENSES/three.js-MIT.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "vendor/three-pinata/three-pinata.es.js": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "@dgreenheck/three-pinata@2.0.1",
+    "url": "https://github.com/dgreenheck/three-pinata#readme",
+    "licence": "MIT",
+    "author": "Dan Greenheck",
+    "files": [
+     "build/three-pinata.es.js"
+    ],
+    "licenceFile": "LICENSES/three-pinata-MIT.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "vendor/three.module.min.js": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "three@0.160.0",
+    "url": "https://threejs.org/",
+    "licence": "MIT",
+    "author": "mrdoob",
+    "files": [
+     "build/three.module.min.js"
+    ],
+    "licenceFile": "LICENSES/three.js-MIT.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ },
+ "vendor/zzfx.js": {
+  "class": "third-party",
+  "sources": [
+   {
+    "pack": "zzfx@1.4.0",
+    "url": "https://github.com/KilledByAPixel/ZzFX#readme",
+    "licence": "MIT",
+    "author": "Frank Force",
+    "files": [
+     "ZzFX.js"
+    ],
+    "licenceFile": "LICENSES/zzfx-MIT.txt"
+   }
+  ],
+  "modified": false,
+  "credit": null
+ }
+}

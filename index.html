@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Roo vs. Tech Debt</title>
+<style>
+  :root { --blue: #1F4FD8; --yellow: #FFD21F; --magenta: #E0218A; --ink: #111; --paper: #FFF8E7; }
+  html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink); font: 16px/1.4 system-ui, sans-serif; overflow: hidden; }
+  #game { position: relative; width: 100%; height: 100%; min-height: 200px; overflow: hidden; }
+  .jg-notice { position: absolute; inset: auto 16px 50% 16px; transform: translateY(50%); padding: 16px; background: #fff; border: 3px solid var(--ink); text-align: center; z-index: 50; }
+</style>
+<!-- Plan section 5: the import map, the one module, then every classic script with defer, in plan order. -->
+<script type="importmap">
+  {"imports": {"three": "./vendor/three.module.min.js", "three/addons/": "./vendor/addons/",
+               "three-pinata": "./vendor/three-pinata/three-pinata.es.js"}}
+</script>
+<script type="module" src="js/core/three-boot.mjs"></script>
+<!-- core (E1) -->
+<script defer src="js/core/ns.js"></script>
+<script defer src="js/core/assets.js"></script>
+<script defer src="js/core/clock.js"></script>
+<script defer src="js/core/loop.js"></script>
+<script defer src="js/core/input.js"></script>
+<script defer src="js/core/player.js"></script>
+<script defer src="js/core/camera.js"></script>
+<script defer src="js/core/kit.js"></script>
+<script defer src="js/core/world.js"></script>
+<script defer src="js/core/director.js"></script>
+<script defer src="js/core/stubs.js"></script>
+<!-- story (E2) -->
+<script defer src="js/story/contract.js"></script>
+<script defer src="js/story/lines.js"></script>
+<script defer src="js/story/order.js"></script>
+<script defer src="js/story/credits.js"></script>
+<script defer src="js/story/shots.js"></script>
+<script defer src="js/story/act1.js"></script>
+<script defer src="js/story/act2.js"></script>
+<script defer src="js/story/act3.js"></script>
+<script defer src="js/story/act4.js"></script>
+<!-- scenes (E4) -->
+<script defer src="js/scenes/kit-city.js"></script>
+<script defer src="js/scenes/kit-interior.js"></script>
+<script defer src="js/scenes/city.js"></script>
+<script defer src="js/scenes/subway.js"></script>
+<script defer src="js/scenes/office-props.js"></script>
+<script defer src="js/scenes/office.js"></script>
+<!-- characters (E3 engines and Roo/exec, E7 supporting cast) -->
+<script defer src="js/characters/rig.js"></script>
+<script defer src="js/characters/clips.js"></script>
+<script defer src="js/characters/anim.js"></script>
+<script defer src="js/characters/face.js"></script>
+<script defer src="js/characters/secondary.js"></script>
+<script defer src="js/characters/dress.js"></script>
+<script defer src="js/characters/roo.js"></script>
+<script defer src="js/characters/cast-roo.js"></script>
+<script defer src="js/characters/cast-exec.js"></script>
+<script defer src="js/characters/clips-roo.js"></script>
+<script defer src="js/characters/clips-exec.js"></script>
+<script defer src="js/characters/cast-ops.js"></script>
+<script defer src="js/characters/cast-oldlady.js"></script>
+<script defer src="js/characters/cast-extras.js"></script>
+<script defer src="js/characters/clips-cast.js"></script>
+<script defer src="js/characters/clips-gaming.js"></script>
+<script defer src="js/characters/crowd.js"></script>
+<!-- audio (E6) -->
+<script defer src="js/audio/audio.js"></script>
+<script defer src="js/audio/sfx.js"></script>
+<script defer src="js/audio/music.js"></script>
+<!-- ui (E5) -->
+<script defer src="js/ui/hud.js"></script>
+<script defer src="js/ui/touch.js"></script>
+<script defer src="js/ui/title-end.js"></script>
+<script defer src="js/ui/radar.js"></script>
+<!-- last: the test hook, then boot -->
+<script defer src="js/core/debug.js"></script>
+<script defer src="js/core/boot.js"></script>
+</head>
+<body>
+<div id="game" data-beat="" data-phase="loading"></div>
+</body>
+</html>
