@@ -36,7 +36,7 @@
   'use strict';
   var JG = window.JG = window.JG || {};
 
-  var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3';
+  var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3', INTRO_URL = 'assets/audio/music/intro.mp3';
   var BUS = { master: 0.9, vo: 1.0, sfx: 0.8, music: 0.5, amb: 0.4 };
   var DUCK = { music: 0.35, amb: 0.65 };
   var FX = {
@@ -74,6 +74,7 @@
     music: { want: null, opts: {}, cur: null, fade: 0.6, fxWant: null, fxCur: 'none', fxFade: 0 },
     amb: { want: null, cur: null, fade: 1 },
     montage: { state: 'idle', reason: null, abuf: null, dur: 0 },
+    intro: { state: 'idle', decoded: null },   // file-only music slot (the owner's intro track); silent when missing
     errors: 0
   };
 
@@ -305,6 +306,16 @@
       warn('montage-file', 'JG.audio: ' + MONTAGE_URL + ' could not be used (' + dbg(e) + '); the stand-in plays');
     });
   }
+  // intro slot: the owner's track under the gaming opening of rooftop-call. No stand-in: without the file, silence.
+  function loadIntro() {
+    var I = st.intro;
+    if (I.state !== 'idle') return;
+    I.state = 'loading';
+    Promise.resolve().then(function () { return JG.assets.load({ 'music:intro': INTRO_URL }); }).then(function () {
+      return decode(JG.assets.get('music:intro').buffer.slice(0));
+    }).then(function (ab) { I.decoded = ab; I.state = 'file'; if (st.music.want === 'intro') syncMusic(); })
+      .catch(function (e) { I.state = 'missing'; warn('intro-file', 'JG.audio: ' + INTRO_URL + ' could not be used (' + dbg(e) + '); the intro plays without music'); });
+  }
   function montageBuffer() {
     var M = st.montage;
     if (M.state !== 'file' || !M.decoded || !st.ctx) return null;
@@ -324,7 +335,7 @@
     M.restart = false;
     if (cur) { stopSrc(cur, M.fade); M.cur = null; }
     if (!M.want) return;
-    var file = M.want === 'montage' ? montageBuffer() : null, ab = file || buffer('music', M.want);
+    var file = M.want === 'montage' ? montageBuffer() : (M.want === 'intro' ? st.intro.decoded : null), ab = file || (M.want === 'intro' ? null : buffer('music', M.want));
     if (!ab) return;
     var vol = M.opts.volume === undefined ? 1 : M.opts.volume;
     var h = startSrc(ab, st.n.musicIn, { loop: true, vol: vol, fade: M.opts.fadeIn === undefined ? 0.05 : M.opts.fadeIn });
@@ -438,7 +449,7 @@
         } catch (e) { /* ignore */ }
       });
       // the montage file decodes lazily from desk-sit (or a jump to the beats that use it)
-      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); });
+      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); });
     }
   });
 
@@ -594,7 +605,8 @@
   api.music = {
     play: guard('music.play', function (id, o) {
       o = o || {};
-      if (!JG.musicLib || JG.musicLib.ids.indexOf(id) < 0) { warn('music-unknown:' + id, 'JG.audio.music: unknown id "' + id + '"'); return { duration: Infinity, stop: noop }; }
+      if (id === 'intro') loadIntro();
+      else if (!JG.musicLib || JG.musicLib.ids.indexOf(id) < 0) { warn('music-unknown:' + id, 'JG.audio.music: unknown id "' + id + '"'); return { duration: Infinity, stop: noop }; }
       if (id === 'montage') loadMontage();
       var M = st.music;
       if (M.want !== id || o.restart) M.restart = !!o.restart && !!(M.cur && M.cur.id === id);

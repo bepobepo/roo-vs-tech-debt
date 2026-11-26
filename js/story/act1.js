@@ -38,7 +38,7 @@
   // assets/video/tv-game.mp4, lazily loaded by the set). The phone rings, he pauses the game (the PAUSED lettering on
   // the screen, the video frozen), puts the pad down, answers seated, stands up and strikes the hero pose.
   var callDef = {
-    id: 'rooftop-call', kind: 'cine', skippable: true, est: 17.5,
+    id: 'rooftop-call', kind: 'cine', skippable: true, est: 23,
     needs: {
       markers: ['roof.couch', 'roof.tv'], lines: ['lauren_problem', 'roo_got_you'], props: ['phone'],
       anims: ['roo.seatedGaming', 'roo.seatedIdle', 'roo.seatedPhone', 'roo.standUp', 'roo.idle', 'roo.heroCrossed'],
@@ -65,12 +65,16 @@
       // over his shoulder: the game on the TV, Roo a silhouette against it
       // (2026-11-26: the game gets 5 s before the first ring, 2.8 s on the screen and 2.2 s on the player; it was 1.8 s)
       w.cut('rooftop-call.tv');
+      // the owner's intro track under the gaming opening; it fades out as the phone rings
+      w.music('intro', { fadeIn: 0.8, volume: 0.8 });
+      w.onCancel(function () { try { if (JG.audio && JG.audio.music) JG.audio.music.stop(0.3); } catch (e) { /* audio never gates */ } });
       w.fork(async function (w2) { await w2.fadeIn(0.8); });
       await w.wait(2.8);
       w.cut('rooftop-call.gamer');
       w.mark('gaming');
       await w.wait(2.2);
       // the phone rings over the game
+      w.music(null, { fade: 1.5 });
       var ring = w.loop('ringtone');
       S.ui('callerCard.show', { name: T('callerName'), level: 1 });
       w.lettering(T('lettering.ring'), 'roo.head', 1.4);

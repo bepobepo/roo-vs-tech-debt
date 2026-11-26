@@ -1,4 +1,19 @@
 {
+ "assets/audio/music/intro.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
+ },
  "assets/audio/music/montage.mp3": {
   "class": "generated-placeholder",
   "sources": [],
@@ -8,12 +23,19 @@
   "tag": "JUNE_PLACEHOLDER montage"
  },
  "assets/audio/vo/01_lauren_problem.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER lauren_problem"
+  "owner": null
  },
  "assets/audio/vo/02_roo_got_you.mp3": {
   "class": "generated-placeholder",
