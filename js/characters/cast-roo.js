@@ -24,16 +24,26 @@
     function poseClip(name) {
       if ((port.poses || []).indexOf(name) < 0) return null;
       if (poseClips[name]) return poseClips[name];
+      // reading the pose writes it into the rig (so does taking the cape back to the root): the bones go back
+      // afterwards (onBase applies a pose that snaps), or the first use of a blended pose showed it finished for one
+      // frame before the blend began
+      var keep = keepBones();
       capeToRoot();
       port.pose(name);
       var tracks = rig.bones.map(function (b) { return new THREE.QuaternionKeyframeTrack(b.name + '.quaternion', [0], b.quaternion.toArray()); });
       var h = rig.byName.pelvis.position;
       tracks.push(new THREE.VectorKeyframeTrack('pelvis.position', [0], [h.x, h.y, h.z]));
+      keep();
       var clip = new THREE.AnimationClip('roo.pose.' + name, 1, tracks);
       clip.userData = { loop: true, pose: name };
       return (poseClips[name] = clip);
     }
 
+    /** remembers every bone's rotation and the pelvis position; the returned function puts them back */
+    function keepBones() {
+      var q = rig.bones.map(function (b) { return b.quaternion.clone(); }), hp = rig.byName.pelvis.position.clone();
+      return function () { rig.bones.forEach(function (b, i) { b.quaternion.copy(q[i]); }); rig.byName.pelvis.position.copy(hp); };
+    }
     // the cape goes back to the root only from the rest pose, where cape_root sits where it was attached
     function capeToRoot() { if (capeOn === 'clip') { port.clipMode(false); capeOn = 'pose'; } }
 
@@ -45,8 +55,17 @@
       anchors: port.anchors, headBone: rig.byName.Head, lookLimit: 1.1, defaultClip: 'idle', always: ['breath'],
       natural: { walk: 1.45 * (rig.legRatio || 1), run: 3.9 * (rig.legRatio || 1) },
       poseClip: poseClip, face: face,
-      onBase: function (e) {
-        if (e.pose) { capeToRoot(); port.pose(e.pose); }
+      onBase: function (e, fade) {
+        // A blended pose (fade > 0) keeps the bones where they are: port.pose() writes the whole pose into the rig at
+        // once, after this tick's mixer update, so the frame of the call showed the finished pose and the next one
+        // fell back to the start of the blend (rooftop-call: the hero pose flashed on the first frame of its shot,
+        // then Roo took it a second time). The mixer blends the pose clip in from the next tick.
+        if (e.pose) {
+          var keep = fade > 0 ? keepBones() : null;
+          capeToRoot();
+          port.pose(e.pose);
+          if (keep) keep();
+        }
         else if (capeOn !== 'clip') { port.clipMode(true); capeOn = 'clip'; }
       },
       afterMixer: function (dt, ctl, reset) {

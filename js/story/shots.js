@@ -42,6 +42,13 @@
     'rooftop-call.hero': function () { var S = JG.story; return { pos: S.couch([-1.7, 0.45, 2.1]), look: S.couch([0, 1.4, 0]), fov: 42 }; },
 
     'rooftop-walk.edge': { rel: 'roof.spawn', pos: [0.9, 2.1, -1.8], look: [0, 0.6, 6], fov: 50 },
+    // the couch gag (2026-11-26): from the middle of the roof, back at Roo wherever he stands behind the couch, the
+    // couch, the paused TV and the console behind him. A function shot in his own frame (he may stand anywhere in
+    // roof.console); fit keeps his head and both hands in a portrait frame
+    'rooftop-walk.joking': function () {
+      var p = JG.world.actor('roo').root.position;
+      return { pos: [p.x + 1.55, p.y + 1.5, p.z - 2.75], look: [p.x - 0.1, p.y + 1.22, p.z], fov: 40, fit: ['roo.head', 'roo.handL', 'roo.handR'] };
+    },
     'rooftop-jump.edge': { rel: 'roof.edgeStand', pos: [-1.1, 1.95, -2.7], look: [0.2, 0.4, 5.5], fov: 48 },
     'rooftop-jump.front': { rel: 'roof.jumpFrom', pos: [1.4, -0.7, 3.6], look: [0, 1.0, 0], fov: 44 },
     // the fall: a fixed camera on the street that tilts from the jump point down to the landing mark with the arc

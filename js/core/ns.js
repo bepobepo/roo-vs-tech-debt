@@ -141,7 +141,7 @@
     start: 'CLICK TO START',
     replay: 'Play again',
     credits: 'Credits',
-    prompts: { jump: 'Press X to jump', calm: 'Push X to calm down', getOn: 'Press Y to get on with it', sit: 'Push X to sit down',
+    prompts: { jump: 'Press X to jump', calm: 'Push X to calm down', getOn: 'Press Y to get on with it', sit: 'Push X to sit down', keepPlaying: 'Push X to continue playing',
       scan: 'Push Y to scan your face', drink: 'Push Y for a drink', coffee: 'Push Y to make a coffee' },
     objectives: {
       'rooftop-walk': 'Get to the edge of the roof',

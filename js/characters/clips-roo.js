@@ -149,6 +149,34 @@
     { t: 0.9, pose: function (P) { salute(P, 2); } }, { t: 1.4, pose: function (P) { salute(P, 0); } }
   ] });
 
+  // rooftop-walk's couch gag (2026-11-26, "You're joking, right? These people need us! We're their only hope!"):
+  // both palms turned up and out (k: 0 arms down .. 1 the full "seriously?"), then the left arm thrown out at the
+  // city he is needed in (p: 0..1; the left, so in the gag's shot he points away from the TV) while the right stays half open, then both hands open at the chest (h: 0..1)
+  function kidding(P, k, p, h) {
+    A().stand(P, { lean: 0.03 * k - 0.02 * p, arms: false, spread: 0.03 });
+    if (!k && !p && !h) { A().armDown(P, 'l'); A().armDown(P, 'r'); A().head(P, 0, 0, 0); return; }
+    var open = function (s, a) {
+      A().arm(P, s, [0.1 + 0.26 * a, -0.42 + 0.2 * a, 0.06 + 0.24 * a], { clav: [0.2 * a, 0], elbow: [0.5, -1, -0.3], hand: { dir: [0.6, 0.1, 1], palm: [0, 1, 0] }, curl: 0.1 });
+    };
+    if (h) {
+      ['l', 'r'].forEach(function (s) {
+        A().arm(P, s, [0.02, -0.2 + 0.03 * h, 0.3], { elbow: [0.8, -0.8, -0.2], hand: { dir: [-0.3, 0.5, 1], palm: [-0.5, 0.6, -0.3] }, curl: 0.2 });
+      });
+      A().head(P, 0.08 * h, 0, 0);
+      return;
+    }
+    open('r', p ? 0.45 : k);
+    if (p) A().arm(P, 'l', [0.34 * p, -0.04, 0.5], { clav: [0.1, 0.25 * p], elbow: [1, -0.5, -0.2], hand: { dir: [0.5, 0, 1], palm: [0, -1, 0] }, curl: 0.05 });
+    else open('l', k);
+    A().head(P, p ? 0.02 : -0.06 * k, p ? 0.16 * p : 0, p ? 0 : 0.16 * k);
+  }
+  C.define('roo.youKidding', { duration: 3.7, loop: false, keys: [
+    { t: 0, pose: function (P) { kidding(P, 0, 0, 0); } }, { t: 0.3, pose: function (P) { kidding(P, 1, 0, 0); } },
+    { t: 1.0, pose: function (P) { kidding(P, 0.9, 0, 0); } }, { t: 1.3, pose: function (P) { kidding(P, 0, 1, 0); } },
+    { t: 2.05, pose: function (P) { kidding(P, 0, 0.92, 0); } }, { t: 2.4, pose: function (P) { kidding(P, 0, 0, 1); } },
+    { t: 3.2, pose: function (P) { kidding(P, 0, 0, 0.9); } }, { t: 3.7, pose: function (P) { kidding(P, 0, 0, 0); } }
+  ] });
+
   // overlay for the composed seatedType: forearms to a keyboard (only the arm tracks are used)
   function typing(P, b) {
     seat(P, { arms: false });

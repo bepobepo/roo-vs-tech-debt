@@ -42,7 +42,7 @@
         'streetB.elevatorMark': { pos: [60, 0, 13.7], yaw: PI }
       },
       zones: {
-        'roof.edge': { type: 'box', min: [-3, -7.6], max: [3, -5.6] },
+        'roof.edge': { type: 'box', min: [-3, -7.6], max: [3, -5.6] }, 'roof.console': { type: 'box', min: [-5.5, 2.2], max: [-2.5, 3.4] },
         'streetA.stairsTop': { type: 'box', min: [7, -22.5], max: [9, -20.5] },
         'streetB.elevator': { type: 'box', min: [58.5, 11], max: [61.5, 13] }
       },

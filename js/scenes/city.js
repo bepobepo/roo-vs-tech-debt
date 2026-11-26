@@ -48,6 +48,9 @@
   };
   var ZONES = {
     'roof.edge': { type: 'box', min: [-3, -7.6], max: [3, -5.6] },
+    // rooftop-walk's optional gag (2026-11-26): the strip of roof behind the couch, inside the walk rects (the deck
+    // itself is outside them), where "continue playing" is offered; far from roof.edge, so the two X prompts never meet
+    'roof.console': { type: 'box', min: [-5.5, 2.2], max: [-2.5, 3.4] },
     'streetA.stairsTop': { type: 'box', min: [7, -22.5], max: [9, -20.5] },
     'streetB.elevator': { type: 'box', min: [58.5, 11], max: [61.5, 13] }
   };
@@ -169,7 +172,17 @@
     var at = SK.atlas(kit, cells);
 
     // ------------------------------------------------------------------------------------------- ground
-    B.box(-320, -0.62, -320, 420, -0.42, 300, 0x5a5d66, { group: 'far', hull: false, cam: false });
+    // the far ground slab (top at y -0.42), cut open over the two subway stairwells (2026-11-26): it used to run
+    // straight through both wells, a flat sheet of lit grey 0.4 m down that hid every step (and that Roo sank through).
+    // Six pieces around the two openings, each the stairwell's outer wall line (stairs() below).
+    var WELLS = [[6.7, -27.3, 9.3, -21], [58.7, -5.8, 61.3, -0.8]], gx = -320;
+    WELLS.forEach(function (h) {
+      B.box(gx, -0.62, -320, h[0], -0.42, 300, 0x5a5d66, { group: 'far', hull: false, cam: false });
+      B.box(h[0], -0.62, -320, h[2], -0.42, h[1], 0x5a5d66, { group: 'far', hull: false, cam: false });
+      B.box(h[0], -0.62, h[3], h[2], -0.42, 300, 0x5a5d66, { group: 'far', hull: false, cam: false });
+      gx = h[2];
+    });
+    B.box(gx, -0.62, -320, 420, -0.42, 300, 0x5a5d66, { group: 'far', hull: false, cam: false });
     // pavement blocks: [x0, z0, x1, z1, group, tile cell or null]; tiled blocks sit 2 cm low under their quads
     var PAVE = [
       [-44, -28.5, -21, 34.5, 'gA', 'walk'], [-44, -64.5, -21, -37.5, 'gA', null],
@@ -784,17 +797,31 @@
     var o = { group: s.group || 'main' }, n = 16, rise = 3 / n, run = (s.zBottom - s.zTop) / n, i;
     var zTopEdge = s.dir < 0 ? -21 : s.zTop;   // the pavement edge (stairs A start 0.5 m in from it)
     if (s.dir < 0) B.box(s.x0, -0.25, zTopEdge, s.x1, 0, s.zTop, C.pavement, o);
+    // 2026-11-26: a dark, shadowed well (it was pavement and stone, light all the way down). The steps go from a mid
+    // grey under the street to near-dark at the landing, every other one a touch lighter so the treads still count
+    // under their ink lines; the walls are two dark bands under a light stone coping flush with the pavement.
+    var STEP_HI = new B.THREE.Color(0x6e7079), STEP_LO = new B.THREE.Color(0x2e3038), sc = new B.THREE.Color();
+    var WALL_HI = 0x4b4e58, WALL_LO = 0x34363f, FLOOR = 0x2a2c33, COPE = 0.06, BAND = -1.3;
     for (i = 0; i < n; i++) {
       var za = s.zTop + i * run, zb = s.zTop + (i + 1) * run, top = -(i + 1) * rise;
-      B.box(s.x0, top - 0.25, Math.min(za, zb), s.x1, top, Math.max(za, zb), i % 2 ? C.stone : C.pavement, o);
+      sc.copy(STEP_HI).lerp(STEP_LO, i / (n - 1));
+      if (i % 2) sc.multiplyScalar(1.16);
+      B.box(s.x0, top - 0.25, Math.min(za, zb), s.x1, top, Math.max(za, zb), sc.getHex(), o);
     }
-    B.box(s.x0, -3.25, Math.min(s.zBottom, s.zEnd), s.x1, -3, Math.max(s.zBottom, s.zEnd), C.stone, o);
+    B.box(s.x0, -3.25, Math.min(s.zBottom, s.zEnd), s.x1, -3, Math.max(s.zBottom, s.zEnd), FLOOR, o);
     var zw = s.zEnd, sg = s.dir < 0 ? -1 : 1;
-    B.box(s.x0 - 0.3, -3.25, s.zEnd - 0.3, s.x1 + 0.3, 0, s.zEnd, C.stone, o);
-    B.box(s.x0 + 0.2, -3, zw - 0.02 * sg, s.x1 - 0.2, -0.9, zw + 0.03, 0x14161c, Object.assign({ hull: false }, o));
+    // in: how far the dark bands stand proud of the coping on the well side (6 mm on the side walls: the pavement
+    // blocks' own side faces lie in the wall plane down to y -0.4 and would flicker light through a flush dark face)
+    function wall(x0, z0, x1, z1, inL, inR) {
+      B.box(x0 - (inL || 0), -3.25, z0, x1 + (inR || 0), BAND, z1, WALL_LO, o);
+      B.box(x0 - (inL || 0), BAND, z0, x1 + (inR || 0), -COPE, z1, WALL_HI, o);
+      B.box(x0, -COPE, z0, x1, 0, z1, C.stone, o);
+    }
+    wall(s.x0 - 0.3, s.zEnd - 0.3, s.x1 + 0.3, s.zEnd);
+    B.box(s.x0 + 0.2, -3, zw - 0.02 * sg, s.x1 - 0.2, -0.9, zw + 0.03, 0x0c0d11, Object.assign({ hull: false }, o));
     var zMin = Math.min(zTopEdge, s.zEnd) - 0.3, zMax = Math.max(zTopEdge, s.zEnd);
-    B.box(s.x0 - 0.3, -3.25, zMin, s.x0, 0, zMax, C.stone, o);
-    B.box(s.x1, -3.25, zMin, s.x1 + 0.3, 0, zMax, C.stone, o);
+    wall(s.x0 - 0.3, zMin, s.x0, zMax, 0, 0.006);
+    wall(s.x1, zMin, s.x1 + 0.3, zMax, 0.006, 0);
     B.box(s.x0 - 0.02, -2.2, zMin + 0.3, s.x0 + 0.01, -1.9, zMax - 0.1, 0x3f7a5a, Object.assign({ hull: false }, o));
     B.box(s.x1 - 0.01, -2.2, zMin + 0.3, s.x1 + 0.02, -1.9, zMax - 0.1, 0x3f7a5a, Object.assign({ hull: false }, o));
     var RAIL = 0x2f4a3a, rz0 = Math.min(zTopEdge, s.zEnd), rz1 = Math.max(zTopEdge, s.zEnd);

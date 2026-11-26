@@ -62,7 +62,12 @@
     roo_hold_cup: { speaker: 'ROO', branch: 'station', file: 'stn_roo_hold_cup.mp3', est: 1.3,
       text: 'Tech debt? Hold my cup.' },
     roo_rocket_fuel: { speaker: 'ROO', branch: 'station', file: 'stn_roo_rocket_fuel.mp3', est: 1.2,
-      text: 'Ahh. Rocket fuel.' }
+      text: 'Ahh. Rocket fuel.' },
+    // rooftop-walk's optional gag (2026-11-26): the player walks Roo back to the couch and asks to keep playing; he
+    // turns to the player and refuses. A station line like the office's (branch 'station': never in auto mode, never
+    // in golden's scripted list); an unnumbered gag_* file
+    gag_roo_joking: { speaker: 'ROO', branch: 'station', file: 'gag_roo_joking.mp3', est: 3.3,
+      text: "You're joking, right? These people need us! We're their only hope!" }
   };
 
   JG.TEXT = {
@@ -70,7 +75,7 @@
     start: 'CLICK TO START',
     replay: 'Play again',
     credits: 'Credits',
-    prompts: { jump: 'Press X to jump', calm: 'Push X to calm down', getOn: 'Press Y to get on with it', sit: 'Push X to sit down',
+    prompts: { jump: 'Press X to jump', calm: 'Push X to calm down', getOn: 'Press Y to get on with it', sit: 'Push X to sit down', keepPlaying: 'Push X to continue playing',
       scan: 'Push Y to scan your face', drink: 'Push Y for a drink', coffee: 'Push Y to make a coffee' },
     objectives: {
       'rooftop-walk': 'Get to the edge of the roof',

@@ -33,12 +33,12 @@
     }
   });
 
-  // ---------------------------------------------------------------- 1. rooftop-call (cine, 18 s)
+  // ---------------------------------------------------------------- 1. rooftop-call (cine, 17.5 s)
   // Round 2: Roo opens on the couch at roof.couch, playing the console on the rooftop TV (props.tv; the footage slot is
   // assets/video/tv-game.mp4, lazily loaded by the set). The phone rings, he pauses the game (the PAUSED lettering on
   // the screen, the video frozen), puts the pad down, answers seated, stands up and strikes the hero pose.
   var callDef = {
-    id: 'rooftop-call', kind: 'cine', skippable: true, est: 18,
+    id: 'rooftop-call', kind: 'cine', skippable: true, est: 17.5,
     needs: {
       markers: ['roof.couch', 'roof.tv'], lines: ['lauren_problem', 'roo_got_you'], props: ['phone'],
       anims: ['roo.seatedGaming', 'roo.seatedIdle', 'roo.seatedPhone', 'roo.standUp', 'roo.idle', 'roo.heroCrossed'],
@@ -46,7 +46,7 @@
       shots: ['rooftop-call.tv', 'rooftop-call.gamer', 'rooftop-call.paused', 'rooftop-call.wide', 'rooftop-call.phone', 'rooftop-call.stand', 'rooftop-call.hero']
     },
     play: async function (w) {
-      var S = K(), t0 = JG.clock.t, roo = w.actor('roo'), tv = S.tv(), G = JG.gaming;
+      var S = K(), roo = w.actor('roo'), tv = S.tv(), G = JG.gaming;
       function tvCall(fn) { try { fn(); } catch (e) { JG.error('rooftop-call tv', e); } }
       if (tv && tv.on) tvCall(function () { tv.on(true); if (tv.pause) tv.pause(false); });
       // the pad rides between his hands while he plays, then lies on the cushion beside him
@@ -63,12 +63,13 @@
         if (tv && tv.pause) tvCall(function () { tv.pause(false); });
       });
       // over his shoulder: the game on the TV, Roo a silhouette against it
+      // (2026-11-26: the game gets 5 s before the first ring, 2.8 s on the screen and 2.2 s on the player; it was 1.8 s)
       w.cut('rooftop-call.tv');
       w.fork(async function (w2) { await w2.fadeIn(0.8); });
-      await w.wait(1.15);
+      await w.wait(2.8);
       w.cut('rooftop-call.gamer');
       w.mark('gaming');
-      await w.wait(0.65);
+      await w.wait(2.2);
       // the phone rings over the game
       var ring = w.loop('ringtone');
       S.ui('callerCard.show', { name: T('callerName'), level: 1 });
@@ -116,7 +117,8 @@
       w.cut('rooftop-call.hero');
       await w.pose(roo, 'heroCrossed', 0.3);
       w.mark('hero');
-      await S.hold(w, t0, 18);
+      // 2 s on the landed hero pose, then the beat ends (2026-11-26: it used to be padded out to 18 s, about 6 s here)
+      await w.wait(2.0);
     }
   };
   callDef.stage = {
@@ -128,6 +130,39 @@
   JG.beats.register(callDef);
 
   // ---------------------------------------------------------------- 2. rooftop-walk (play)
+  // The optional couch gag (2026-11-26; a w.roam station like the office's: never in auto mode, and never while Roo is
+  // in the goal zone, so its X and the jump's X cannot meet). Back behind the couch the prompt offers to continue
+  // playing; X does not: Roo turns to the player and refuses, then control and the objective come back. Repeatable;
+  // from the second time a NICE TRY goes up with it.
+  function couchGag() {
+    async function refuse(w2, o) {
+      var S = K(), roo = w2.actor('roo'), shot = JG.shots['rooftop-walk.joking'](), p = roo.root.position;
+      var clean = false;
+      try {
+        w2.sfx('ui_deny');
+        // a cut, not a move: the follow camera sits behind him and a move to this front shot would swing through his cape
+        w2.cut('rooftop-walk.joking');
+        await w2.turnTo(roo, Math.atan2(shot.pos[0] - p.x, shot.pos[2] - p.z), 0.35);
+        w2.look(roo, 'camera');
+        w2.express(roo, 'worried');
+        if (o.count) w2.lettering(T('niceTry'), 'roo.head', 1.3);
+        S.start(w2, roo, 'youKidding', { loop: false, fade: 0.2 });
+        await w2.say('gag_roo_joking', { actor: roo, gap: 0.25 });
+        w2.look(roo, null);
+        w2.express(roo, 'smirk');
+        S.start(w2, roo, 'idle', { fade: 0.25 });
+        clean = true;
+      } finally {
+        // cut off mid-run (watchdog, an error): the scope is cancelled, so put the actor back directly
+        if (!clean) {
+          try { roo.lookAt(JG.world.lookTarget(null)); } catch (e) { /* best effort */ }
+          try { roo.setExpression('smirk'); } catch (e) { /* best effort */ }
+          try { roo.pose('idle', 0.25); } catch (e) { /* best effort */ }
+        }
+      }
+    }
+    return [{ id: 'keepPlaying', zone: 'roof.console', action: 'x', text: T('prompts.keepPlaying'), limit: 14, run: refuse }];
+  }
   JG.beats.register({
     id: 'rooftop-walk', kind: 'play', skippable: false, est: 12,
     stage: {
@@ -135,9 +170,20 @@
       cast: { roo: { at: 'roof.spawn', pose: 'idle', expr: 'smirk', cape: 'sim' } },
       audio: { ambience: 'roof' }
     },
-    needs: { markers: ['roof.spawn'], zones: ['roof.edge'], sfx: ['step_hard', 'fallwind'], anims: ['roo.idle', 'roo.walk'], shots: ['rooftop-walk.edge'] },
+    needs: { markers: ['roof.spawn'], zones: ['roof.edge', 'roof.console'], sfx: ['step_hard', 'fallwind', 'ui_deny'], anims: ['roo.idle', 'roo.walk', 'roo.youKidding'],
+      lines: ['gag_roo_joking'], shots: ['rooftop-walk.edge', 'rooftop-walk.joking'] },
     play: async function (w) {
-      var roo = w.actor('roo');
+      var roo = w.actor('roo'), S = K(), tv = S.tv(), G = JG.gaming, paused = null;
+      // the game he left stays paused on the TV (the couch gag's shot sees the screen)
+      function tvCall(fn) { try { fn(); } catch (e) { JG.error('rooftop-walk tv', e); } }
+      if (tv && tv.pause) tvCall(function () {
+        tv.pause(true);
+        if (tv.screen && G && G.pauseOverlay) paused = G.pauseOverlay(JG.world.kit, tv.screen, T('lettering.paused'));
+      });
+      w.onCancel(function () {
+        if (paused) tvCall(function () { paused.remove(); });
+        if (tv && tv.pause) tvCall(function () { tv.pause(false); });
+      });
       // wind rising toward the edge: a quiet fallwind loop whose level follows the distance to the edge zone
       w.fork(async function (w2) {
         var wind = w2.loop('fallwind', { volume: 0 }), c = JG.world.zoneCenter('roof.edge');
@@ -152,7 +198,7 @@
       // a beat to take in the drop before control: the edge, then the follow camera
       w.cut('rooftop-walk.edge');
       await w.wait(1.0);
-      await w.roam({ actor: 'roo', goal: { zone: 'roof.edge', action: 'x', text: T('prompts.jump') } });
+      await w.roam({ actor: 'roo', goal: { zone: 'roof.edge', action: 'x', text: T('prompts.jump') }, stations: couchGag() });
       w.mark('jump-pressed');
     }
   });

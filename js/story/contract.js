@@ -32,7 +32,9 @@
         // round 2 (rooftop-call on the couch): clips-gaming.js
         'seatedGaming', 'seatedPhone', 'standUp',
         // office-walk's stations (2026-11-25): clips-roo.js
-        'reachPress', 'drinkCup', 'holdCup', 'offerCup'],
+        'reachPress', 'drinkCup', 'holdCup', 'offerCup',
+        // rooftop-walk's couch gag (2026-11-26): clips-roo.js
+        'youKidding'],
       exec: ['walk', 'armsCrossedIdle', 'disbelief'],
       ops: ['runPanic', 'pleadTalk', 'breakdown', 'cryLoop', 'wailLoud', 'hugReceive', 'wipeTears', 'thankful'],
       oldlady: ['seatedPurseIdle', 'seatedLadyReact', 'seatedKnit'],
@@ -66,7 +68,7 @@
     // VO ids: the keys of JG.LINES (site/js/story/lines.js), in manifest order
     lines: ['lauren_problem', 'roo_got_you', 'bark_npc_superhero', 'bark_roo_keyboard', 'bark_npc_heybaby', 'ops_help', 'ops_sob', 'roo_not_your_fault', 'ops_thank_you',
       'roo_few_minutes', 'exec_how', 'roo_good_at', 'roo_dont_need_me', 'gag_roo_get_on', 'gag_ops_wail', 'gag_roo_feelings',
-      'scanner_ok', 'scanner_again', 'roo_obviously', 'gossip_brenda', 'gossip_gary', 'roo_hold_cup', 'roo_rocket_fuel'],
+      'scanner_ok', 'scanner_again', 'roo_obviously', 'gossip_brenda', 'gossip_gary', 'roo_hold_cup', 'roo_rocket_fuel', 'gag_roo_joking'],
     actions: ['x', 'y', 'skip', 'start', 'mute'],
 
     scenes: ['city', 'subway', 'office'],
@@ -90,7 +92,7 @@
         // the office life pass (2026-11-25): the third typist's island seat, the three stations' stand marks
         'office.extraDesk3', 'office.scanStand', 'office.coolerStand', 'office.coffeeStand']
     },
-    zones: { city: ['roof.edge', 'streetA.stairsTop', 'streetB.elevator'], office: ['office.desk', 'office.scanner', 'office.cooler', 'office.coffee'] },
+    zones: { city: ['roof.edge', 'roof.console', 'streetA.stairsTop', 'streetB.elevator'], office: ['office.desk', 'office.scanner', 'office.cooler', 'office.coffee'] },
     paths: { city: ['streetA.stairsDown', 'streetB.subwayUp'], office: ['office.toHug', 'office.windowRun'] },
     camPresets: ['rooftop-walk', 'street-subway', 'plaza-walk', 'office-walk'],
     anchors: ['head', 'eyes', 'earR', 'chest', 'backUpper', 'handL', 'handR', 'hip', 'seat'],

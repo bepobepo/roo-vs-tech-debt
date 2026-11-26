@@ -112,11 +112,20 @@
     var T = over.duration || 1, fps = 30, n = Math.max(2, Math.round(T * fps) + 1), times = [], i;
     for (i = 0; i < n; i++) times.push(i * T / (n - 1));
     var tracks = over.tracks.filter(function (t) { return set.has(t.name.split('.')[0]); }).map(function (t) { return t.clone(); });
-    // base tracks outside the mask, resampled over the overlay's length, wrapping at the base's own length
+    // base tracks outside the mask, resampled over the overlay's length, wrapping at the base's own length. A sample
+    // that lands on a whole number of base lengths reads the base's LAST frame, not its first: the modulo used to
+    // wrap the final key to t = 0, so a one-shot (roo.standUp: Sitting_Exit over itself) ended on its first frame,
+    // seated again, and Roo got up a second time in the crossfade to idle. A loop's last frame is its first, so
+    // looping composes are unchanged.
+    function baseT(t) {
+      if (!base.duration) return 0;
+      var m = t % base.duration;
+      return t > 0 && m < 1e-6 ? base.duration : m;
+    }
     base.tracks.forEach(function (t) {
       if (set.has(t.name.split('.')[0])) return;
       var it = t.createInterpolant(), size = t.getValueSize(), vals = new Float32Array(n * size);
-      for (i = 0; i < n; i++) { var r = it.evaluate(base.duration ? times[i] % base.duration : 0); vals.set(r, i * size); }
+      for (i = 0; i < n; i++) { var r = it.evaluate(baseT(times[i])); vals.set(r, i * size); }
       tracks.push(new t.constructor(t.name, times.slice(), vals));
     });
     var clip = new THREE.AnimationClip(id, T, tracks);

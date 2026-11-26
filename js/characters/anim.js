@@ -118,7 +118,7 @@
         e.additive.forEach(function (id) { var la = startAdditive(id.replace(/^[a-z]+\./, ''), { fade: fade }); if (la) layerActs.push(la); });
       }
       evAct = a; evPrev = a.time;
-      if (o.onBase) o.onBase(e);
+      if (o.onBase) o.onBase(e, fade);
     }
 
     var ctl = {

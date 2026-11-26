@@ -149,6 +149,14 @@
   "tool": "Kokoro-82M via tools/gen-vo.py",
   "tag": "JUNE_PLACEHOLDER gag_roo_get_on"
  },
+ "assets/audio/vo/gag_roo_joking.mp3": {
+  "class": "generated-placeholder",
+  "sources": [],
+  "modified": false,
+  "credit": null,
+  "tool": "Kokoro-82M via tools/gen-vo.py",
+  "tag": "JUNE_PLACEHOLDER gag_roo_joking"
+ },
  "assets/audio/vo/stn_gossip_brenda.mp3": {
   "class": "generated-placeholder",
   "sources": [],
