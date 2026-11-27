@@ -12,8 +12,8 @@
   'use strict';
   var JG = window.JG = window.JG || {};
   JG.LINES = {
-    lauren_problem: { speaker: 'LAUREN', fx: 'phone', file: '01_lauren_problem.mp3', est: 8.5,
-      text: "Roo, we got a problem. It's a big one. Massive. Huge. The size of 10 years of CRM changes." },
+    lauren_problem: { speaker: 'LAUREN', fx: 'phone', file: '01_lauren_problem.mp3', est: 8.3,
+      text: "Roo, we got a problem. It's a big one. Massive. Like... the size of 10 YEARS of CRM changes." },
     roo_got_you: { speaker: 'ROO', file: '02_roo_got_you.mp3', est: 9.6,
       text: "You did the right thing by calling me Lauren! I got you! I'll be right there. And please, tell Eric to take a break from breaking changes!" },
     // street barks (round 2): non-blocking, played as Roo walks past a crowd NPC (act1 street-subway, act2 plaza-walk).
