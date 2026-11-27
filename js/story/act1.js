@@ -27,7 +27,8 @@
       await w.until(function () { return go; });
       off();
       w.mark('start');
-      w.music('theme');                 // the theme sting after the click
+      // 2026-11-27: no theme sting here; the owner's gaming track starts on the click and carries on into rooftop-call
+      w.music('intro', { fadeIn: 0.3, volume: 0.8 });
       await w.fadeOut(0.7);             // over the key art, then the call opens from black
       S.ui('title.hide');
     }
