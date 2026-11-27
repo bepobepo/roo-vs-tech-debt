@@ -68,28 +68,49 @@
   "owner": null
  },
  "assets/audio/vo/03_ops_help.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER ops_help"
+  "owner": null
  },
  "assets/audio/vo/04_ops_sob.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "ffmpeg silence via tools/gen-vo.py (tagged placeholder)",
-  "tag": "JUNE_PLACEHOLDER ops_sob"
+  "owner": null
  },
  "assets/audio/vo/05_roo_not_your_fault.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER roo_not_your_fault"
+  "owner": null
  },
  "assets/audio/vo/06_ops_thank_you.mp3": {
   "class": "generated-placeholder",
@@ -177,28 +198,49 @@
   "owner": null
  },
  "assets/audio/vo/gag_ops_wail.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "ffmpeg silence via tools/gen-vo.py (tagged placeholder)",
-  "tag": "JUNE_PLACEHOLDER gag_ops_wail"
+  "owner": null
  },
  "assets/audio/vo/gag_roo_feelings.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER gag_roo_feelings"
+  "owner": null
  },
  "assets/audio/vo/gag_roo_get_on.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER gag_roo_get_on"
+  "owner": null
  },
  "assets/audio/vo/gag_roo_joking.mp3": {
   "class": "user-licensed",
