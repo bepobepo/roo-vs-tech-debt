@@ -36,7 +36,8 @@
   'use strict';
   var JG = window.JG = window.JG || {};
 
-  var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3', INTRO_URL = 'assets/audio/music/intro.mp3', ELEVATOR_URL = 'assets/audio/music/elevator.mp3';
+  var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3', INTRO_URL = 'assets/audio/music/intro.mp3', ELEVATOR_URL = 'assets/audio/music/elevator.mp3',
+      AMB_FILES = { roof: 'assets/audio/ambience/roof.mp3' };   // recorded beds (seamless loops); the code-made bed plays if one is missing
   var BUS = { master: 0.9, vo: 1.0, sfx: 0.8, music: 0.5, amb: 0.4 };
   var DUCK = { music: 0.35, amb: 0.65 };
   var FX = {
@@ -75,6 +76,7 @@
     amb: { want: null, cur: null, fade: 1 },
     montage: { state: 'idle', reason: null, abuf: null, dur: 0 },
     intro: { state: 'idle', decoded: null },   // file-only music slot (the owner's intro track); silent when missing
+    ambFile: {},                // id -> {state: 'loading'|'file'|'missing', decoded}: recorded ambience beds
     elevator: { state: 'idle', decoded: null }, // the owner's elevator track (plays once, 9.3 s); the code-made "Going Up" plays if it is missing
     errors: 0
   };
@@ -328,6 +330,17 @@
       .catch(function (e) { E.state = 'missing'; warn('elevator-file', 'JG.audio: ' + ELEVATOR_URL + ' could not be used (' + dbg(e) + '); the stand-in plays'); })
       .then(function () { if (st.music.want === 'elevator') syncMusic(); });
   }
+  // recorded ambience bed (roof): the owner's file if it decodes, else the code-made bed (syncAmb waits while it loads)
+  function loadAmbFile(id) {
+    var url = AMB_FILES[id];
+    if (!url || st.ambFile[id]) return;
+    var A = st.ambFile[id] = { state: 'loading', decoded: null };
+    Promise.resolve().then(function () { return JG.assets.load({ ['ambience:' + id]: url }); }).then(function () {
+      return decode(JG.assets.get('ambience:' + id).buffer.slice(0));
+    }).then(function (ab) { A.decoded = ab; A.state = 'file'; })
+      .catch(function (e) { A.state = 'missing'; warn('amb-file:' + id, 'JG.audio: ' + url + ' could not be used (' + dbg(e) + '); the code-made bed plays'); })
+      .then(function () { if (st.amb.want === id) syncAmb(); });
+  }
   function montageBuffer() {
     var M = st.montage;
     if (M.state !== 'file' || !M.decoded || !st.ctx) return null;
@@ -369,10 +382,11 @@
     if (cur && cur.id === A.want) return;
     if (cur) { stopSrc(cur, A.fade || 0.5); A.cur = null; }
     if (!A.want) return;
-    var ab = buffer('ambience', A.want);
+    if (AMB_FILES[A.want]) { loadAmbFile(A.want); if (st.ambFile[A.want].state === 'loading') return; }
+    var af = AMB_FILES[A.want] && st.ambFile[A.want].decoded, ab = af || buffer('ambience', A.want);
     if (!ab) return;
     var h = startSrc(ab, st.n.ambDuck, { loop: true, vol: 1, fade: A.fade || 0.5 });
-    h.id = A.want;
+    h.id = A.want; h.file = !!af;
     A.cur = h;
   }
   function syncLoops() {
@@ -463,7 +477,7 @@
         } catch (e) { /* ignore */ }
       });
       // the montage file decodes lazily from desk-sit (or a jump to the beats that use it)
-      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); if (id === 'plaza-walk' || id === 'elevator-ride') loadElevator(); });
+      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); if (id === 'plaza-walk' || id === 'elevator-ride') loadElevator(); if (id === 'title' || id === 'rooftop-call') loadAmbFile('roof'); });
     }
   });
 
@@ -660,7 +674,7 @@
       stub: false, ctx: st.ctx ? st.ctx.state : st.noCtx ? 'none' : 'not created', unlocked: st.unlocked, muted: st.muted, rate: st.rate,
       ready: st.ready, loadMs: st.loadMs, voPlayed: st.played.slice(), sfx: Object.assign({}, st.sfxCount),
       loops: st.loops.map(function (l) { return l.id; }), music: st.music.want, musicFx: st.music.fxWant, ambience: st.amb.want, vo: vo,
-      playing: { music: st.music.cur ? st.music.cur.id + (st.music.cur.file ? ' (file)' : '') : null, ambience: st.amb.cur ? st.amb.cur.id : null, fx: st.music.fxCur },
+      playing: { music: st.music.cur ? st.music.cur.id + (st.music.cur.file ? ' (file)' : '') : null, ambience: st.amb.cur ? st.amb.cur.id + (st.amb.cur.file ? ' (file)' : '') : null, fx: st.music.fxCur },
       montage: { source: api.music.source('montage'), state: st.montage.state, reason: st.montage.reason },
       lines: lines, renders: renders, queue: st.queue.slice(), errors: st.errors
     };

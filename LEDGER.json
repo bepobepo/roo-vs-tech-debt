@@ -1,4 +1,19 @@
 {
+ "assets/audio/ambience/roof.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
+ },
  "assets/audio/music/elevator.mp3": {
   "class": "user-licensed",
   "sources": [
@@ -113,12 +128,19 @@
   "owner": null
  },
  "assets/audio/vo/06_ops_thank_you.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER ops_thank_you"
+  "owner": null
  },
  "assets/audio/vo/07_roo_few_minutes.mp3": {
   "class": "generated-placeholder",

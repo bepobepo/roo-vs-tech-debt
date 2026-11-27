@@ -189,17 +189,7 @@
         if (paused) tvCall(function () { paused.remove(); });
         if (tv && tv.pause) tvCall(function () { tv.pause(false); });
       });
-      // wind rising toward the edge: a quiet fallwind loop whose level follows the distance to the edge zone
-      w.fork(async function (w2) {
-        var wind = w2.loop('fallwind', { volume: 0 }), c = JG.world.zoneCenter('roof.edge');
-        if (!c) return;
-        var d0 = Math.max(1, Math.hypot(roo.root.position.x - c.x, roo.root.position.z - c.z));
-        for (;;) {
-          await w2.wait(0.1);
-          var d = Math.hypot(roo.root.position.x - c.x, roo.root.position.z - c.z), k = Math.max(0, Math.min(1, 1 - d / d0));
-          try { if (wind.set) wind.set('volume', 0.08 + 0.4 * k); } catch (e) { /* audio never gates */ }
-        }
-      });
+      // 2026-11-28: no rising wind loop on the walk any more (the owner's breeze bed carries the roof); fallwind stays in rooftop-jump
       // a beat to take in the drop before control: the edge, then the follow camera
       w.cut('rooftop-walk.edge');
       await w.wait(1.0);
