@@ -7,7 +7,7 @@
  *     drape shell;
  *   - the tail spring (secondary.js through port.update) runs after the mixer unless the base clip keys the tail;
  *   - breath runs as its own additive action, always;
- *   - expressions and the mouth are recorded only at Stage 1 (the face region of the atlas is Stage 2 look-dev).
+ *   - the jaw follows the speaker's voice level, independently of the current body clip.
  * Classic script; registers at load, builds nothing until the world asks for 'roo'. */
 (function () {
   'use strict';
@@ -47,8 +47,26 @@
     // the cape goes back to the root only from the rest pose, where cape_root sits where it was attached
     function capeToRoot() { if (capeOn === 'clip') { port.clipMode(false); capeOn = 'pose'; } }
 
-    var face = { neutral: 'neutral', cur: 'neutral', level: 0,
-      set: function (n) { face.cur = n || 'neutral'; }, mouth: function (l) { face.level = l; } };
+    var jawOpening = 0;
+    var face = {
+      neutral: 'neutral', cur: 'neutral',
+      set: function (n) { face.cur = n || 'neutral'; },
+      mouth: function (level) {
+        // levelAt already gates and normalises the recorded voice. The silent half of its
+        // fallback syllable is 0.05. Let an emphatic syllable reach the full authored opening.
+        var target = level > 0.05 ? Math.min(1, level * 1.3) : 0;
+        var dt = JG.clock && JG.clock.dt;
+        if (!level || !dt) {
+          // Explicit stop/skip, or direct input from the paused character viewer.
+          jawOpening = target;
+          port.setJawOpening(jawOpening);
+        } else {
+          // Match the preview's quick attack and softer release at any update rate.
+          var rate = target > jawOpening ? 44 : 20;
+          jawOpening += (target - jawOpening) * (1 - Math.exp(-rate * dt));
+        }
+      }
+    };
 
     var a = JG.anim.actor(kit, {
       id: info.id, base: 'roo', kind: 'roo', height: 1.8, radius: 0.35, model: port.root, rig: rig, animRoot: port.root,
@@ -69,6 +87,8 @@
         else if (capeOn !== 'clip') { port.clipMode(true); capeOn = 'clip'; }
       },
       afterMixer: function (dt, ctl, reset) {
+        // Held poses key every bone. Apply the current opening after they have been sampled.
+        port.setJawOpening(jawOpening);
         if (reset) { port.resetSecondary(); return; }
         if (!ctl || !ctl.baseHasTrack('tail_01.quaternion')) port.update(dt);
       },

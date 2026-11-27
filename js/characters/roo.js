@@ -6,12 +6,12 @@
  *   - the posing helpers (aim, rot, hand, fingers, leg, fromBind, ...) are thin name-mapping wrappers over the rig's
  *     ported helper set P, so the spike's poses and cape drape run unchanged on the new rig;
  *   - library clips play on rig.root (rest = the mannequin's local rotations).
- * Exposed as JG.roo.build(THREE, kit) -> { root, rig, P, anchors, pose(name), body, ink, cape }.
+ * Exposed as JG.roo.build(THREE, kit) -> { root, rig, P, anchors, pose(name), setJawOpening(0..1), body, ink, cape }.
  *
  * Original spike notes:
  *
  * Technique (see spike brief):
- *   - ONE rigid-skinned SkinnedMesh for the body (every vertex -> exactly one bone),
+ *   - ONE SkinnedMesh for the body (rigid parts, with blended weights inside the speaking mouth),
  *     MeshToonMaterial with one canvas atlas (face, muscle ink, emblem) x vertex colour.
  *   - ONE ink hull SkinnedMesh on the same skeleton (kit.hull, back faces).
  *   - Cape: its own closed thin shell + its own hull, rebuilt per pose at build time
@@ -72,6 +72,7 @@
     bone('chest', 'waist', 0, 1.15, 0);
     bone('neck', 'chest', 0, 1.49, -0.01);
     bone('head', 'neck', 0, 1.645, 0.02);
+    bone('jaw', 'head', 0, 1.683, 0.0845);
     SIDES.forEach(function (s) {
       var n = s[0], k = s[1], i;
       bone('arm' + n, 'chest', ARM_X * k, SH_Y, ARM_Z);
@@ -167,6 +168,12 @@
       return { c: v3(o[0], o[1], o[2]), n: v3(o[3], o[4], o[5]).normalize(), rn: o[6], rb: o[7] };
     }
 
+    var SMIRK_LEFT = 0.009, SMIRK_RIGHT = 0.004;
+    function mouthStroke(smirk) {
+      return [[0.32, 1.690], [0.25, 1.690], [0.20, 1.688], [0.16, 1.686],
+        [0.13, 1.688], [0.112, 1.697 + smirk], [0.103, 1.708 + smirk * 1.4]];
+    }
+
     function drawHead(ctx, w, h, smirk) {
       var sx = w / 0.37, sy = h / 0.18;
       function Z(z) { return (z + 0.08) * sx; }
@@ -186,7 +193,7 @@
       ctx.filter = 'none';
       // mouth: long line with the corner pulled up into a smirk
       var m = smirk;
-      stroke(ctx, P([[0.32, 1.690], [0.25, 1.690], [0.20, 1.688], [0.16, 1.686], [0.13, 1.688], [0.112, 1.697 + m], [0.103, 1.708 + m * 1.4]]), 0.005 * sx, COL.ink);
+      stroke(ctx, P(mouthStroke(m)), 0.005 * sx, COL.ink);
       stroke(ctx, P([[0.098, 1.699 + m], [0.092, 1.712 + m * 1.3], [0.096, 1.724 + m * 1.3]]), 0.0026 * sx, COL.brow);
       // under-lip shadow and chin line
       stroke(ctx, P([[0.27, 1.676], [0.23, 1.673], [0.2, 1.675]]), 0.002 * sx, COL.furD);
@@ -284,8 +291,8 @@
         poly(ctx, P([[-0.29, 1.505], [0.29, 1.505], [0.29, 1.62], [-0.29, 1.62]]), COL.fur);
       });
 
-      paint('headL', COL.fur, function (ctx, w, h) { drawHead(ctx, w, h, 0.009); });
-      paint('headR', COL.fur, function (ctx, w, h) { drawHead(ctx, w, h, 0.004); });
+      paint('headL', COL.fur, function (ctx, w, h) { drawHead(ctx, w, h, SMIRK_LEFT); });
+      paint('headR', COL.fur, function (ctx, w, h) { drawHead(ctx, w, h, SMIRK_RIGHT); });
 
       /* inner ear: local x -0.05..0.05, local y 0.275..-0.02 */
       paint('ear', COL.fur, function (ctx, w, h) {
@@ -580,7 +587,7 @@
     var headL = planar('headL', 'z', -0.08, 0.29, 'y', 1.82, 1.64);
     var headR = planar('headR', 'z', -0.08, 0.29, 'y', 1.82, 1.64);
     function hr(z, rx, ru, rd, yc, n) { return [z, rx, rd, ru, 0, -yc, n || 2.3]; }
-    add(loft({
+    var snout = loft({
       rings: [
         hr(-0.03, 0.060, 0.050, 0.050, 1.738, 2.1),
         hr(0.02, 0.080, 0.062, 0.068, 1.738, 2.2),
@@ -592,7 +599,97 @@
       ],
       seg: 24, sub: 3, capA: 0.035, capB: 0.034, th0: -PI / 2, matrix: HEAD_M, post: HEAD_POST,
       uv: function (i) { return i.h === 0 ? headL(i) : headR(i); }
-    }), { bone: 'head', hs: 0.6 });
+    });
+    var mouth = splitMuzzle(snout);
+    add(mouth.skin, { bone: 'head', hs: 0.6 });
+
+    // Cut the original loft along the painted smirk. Interpolate its existing normals and
+    // UVs at each cut so both lip edges meet along the original surface at rest.
+    function splitMuzzle(source) {
+      var shell = { pos: [], nor: [], uv: [], idx: [] }, skinBones = [];
+      var lining = { pos: [], nor: [], uv: [], idx: [], col: [], jawMix: [] };
+      var curveBack = [[-0.11, 1.55], [0.068, 1.63], [0.088, 1.651], [0.097, 1.683]];
+      var left = curveBack.concat(mouthStroke(SMIRK_LEFT).reverse()), right = curveBack.concat(mouthStroke(SMIRK_RIGHT).reverse());
+      var undoHead = HEAD_POST.clone().invert(), attributes = source.attributes, vertices = [], cuts = new Map();
+      for (var i = 0; i < attributes.position.count; i++) {
+        var p = v3().fromBufferAttribute(attributes.position, i), authored = p.clone().applyMatrix4(undoHead);
+        var curve = p.x > 0 ? left : right, k = 1;
+        while (k < curve.length - 1 && authored.z > curve[k][0]) k++;
+        var lo = curve[k - 1], hi = curve[k], t = clamp((authored.z - lo[0]) / (hi[0] - lo[0]), 0, 1);
+        vertices.push({ id: i, pos: p, nor: v3().fromBufferAttribute(attributes.normal, i),
+          uv: new THREE.Vector2().fromBufferAttribute(attributes.uv, i), d: authored.y - (lo[1] + (hi[1] - lo[1]) * t) });
+      }
+      function crossing(a, b) {
+        var key = Math.min(a.id, b.id) * vertices.length + Math.max(a.id, b.id);
+        if (!cuts.has(key)) {
+          var t = a.d / (a.d - b.d);
+          cuts.set(key, { d: 0, pos: a.pos.clone().lerp(b.pos, t), nor: a.nor.clone().lerp(b.nor, t).normalize(),
+            uv: a.uv.clone().lerp(b.uv, t) });
+        }
+        return cuts.get(key);
+      }
+      function shellVertex(v, boneName) {
+        if (v[boneName] === undefined) {
+          v[boneName] = shell.pos.length / 3;
+          shell.pos.push(v.pos.x, v.pos.y, v.pos.z); shell.nor.push(v.nor.x, v.nor.y, v.nor.z);
+          shell.uv.push(v.uv.x, v.uv.y); skinBones.push(boneName);
+        }
+        return v[boneName];
+      }
+      function face(points, boneName) {
+        for (var j = 1; j < points.length - 1; j++) {
+          shell.idx.push(shellVertex(points[0], boneName), shellVertex(points[j], boneName), shellVertex(points[j + 1], boneName));
+        }
+      }
+      // At rest the lining folds into the muzzle. As the jaw turns, the intermediate
+      // rows follow both bones, forming a recessed, closed cavity around the whole cut.
+      var weights = [0, 0.32, 0.82, 1];
+      var colours = ['#2B1820', '#381720', '#71303C', '#48212A'].map(function (c) { return new THREE.Color(c); });
+      function rimRow(v) {
+        if (v.rim !== undefined) return v.rim;
+        v.rim = lining.pos.length / 3;
+        weights.forEach(function (w, row) {
+          var inset = Math.sin(w * PI), p = v.pos, c = colours[row];
+          lining.pos.push(p.x * (1 - 0.26 * inset), p.y, p.z - Math.max(0, p.z - B.jaw.userData.bind.z) * 0.1 * inset);
+          lining.nor.push(v.nor.x, v.nor.y, v.nor.z); lining.uv.push(WHITE_UV[0], WHITE_UV[1]);
+          lining.col.push(c.r, c.g, c.b); lining.jawMix.push(w);
+        });
+        return v.rim;
+      }
+      var index = source.index.array;
+      for (var tri = 0; tri < index.length; tri += 3) {
+        var triangle = [vertices[index[tri]], vertices[index[tri + 1]], vertices[index[tri + 2]]], upper = [], lower = [];
+        for (var e = 0; e < 3; e++) {
+          var a = triangle[e], b = triangle[(e + 1) % 3];
+          if (a.d >= 0) upper.push(a);
+          if (a.d <= 0) lower.push(a);
+          if (a.d * b.d < 0) { var cut = crossing(a, b); upper.push(cut); lower.push(cut); }
+        }
+        face(upper, 'head'); face(lower, 'jaw');
+        if (upper.length < 3 || lower.length < 3) continue;
+        for (var u = 0; u < upper.length; u++) {
+          var from = upper[u], to = upper[(u + 1) % upper.length];
+          if (from.d !== 0 || to.d !== 0) continue;
+          var start = rimRow(from), end = rimRow(to);
+          for (var r = 0; r < weights.length - 1; r++) {
+            lining.idx.push(end + r, start + r, start + r + 1, end + r, start + r + 1, end + r + 1);
+          }
+        }
+      }
+      function geometry(data) {
+        var g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.Float32BufferAttribute(data.pos, 3));
+        g.setAttribute('normal', new THREE.Float32BufferAttribute(data.nor, 3));
+        g.setAttribute('uv', new THREE.Float32BufferAttribute(data.uv, 2));
+        if (data.col) g.setAttribute('color', new THREE.Float32BufferAttribute(data.col, 3));
+        g.setIndex(data.idx);
+        return g;
+      }
+      var skin = geometry(shell), inside = geometry(lining);
+      skin.userData.vb = skinBones;
+      inside.userData.jawMix = lining.jawMix;
+      return { skin: skin, inside: inside };
+    }
 
     // nose pad and brow ridges
     function ellipsoid(px, py, pz, sx, sy, sz, rx, ry, rz) {
@@ -744,17 +841,25 @@
     /* ------------------------------------------------------------------ */
     /* merge, skin, hull                                                   */
     /* ------------------------------------------------------------------ */
+    add(mouth.inside, { bone: 'head', hs: 0 });
     var geo = kit.geo.merge(parts);
     (function () {
-      var si = geo.attributes.skinIndex, hs = new Float32Array(si.count), base = 0, PY = geo.attributes.position;
+      var si = geo.attributes.skinIndex, sw = geo.attributes.skinWeight, hs = new Float32Array(si.count), base = 0, PY = geo.attributes.position;
       parts.forEach(function (p) {
         var n = p.geometry.attributes.position.count;
         for (var i = 0; i < n; i++) { hs[base + i] = p.hsFn ? p.hsFn(PY.getY(base + i)) : p.hs; if (p.vb) si.setX(base + i, p.vb[i]); }
+        if (p.geometry === mouth.inside) {
+          p.geometry.userData.jawMix.forEach(function (w, i) {
+            si.setY(base + i, bi('jaw')); sw.setXY(base + i, 1 - w, w);
+          });
+        }
         base += n;
       });
       geo.setAttribute('hs', new THREE.BufferAttribute(hs, 1));
     })();
     var hullGeo = kit.hull(geo, 0.016, 'hs');     // the ink hull is inflated along the true surface normals
+    // The inside of the mouth is already dark; outlining its recessed walls would cover the opening.
+    hullGeo.setIndex(new THREE.BufferAttribute(geo.index.array.subarray(0, geo.index.count - mouth.inside.index.count), 1));
     /* Cel shading normals (suit, neck, gloves, boots). The toon ramp only has three flat bands, so what makes the
      * colour read flat and confident is where the band edges fall. Lofted parts are lit by their simplified
      * cross-section normal (no mottling from muscle lumps), and every `cel` part leans its normal a little towards
@@ -780,7 +885,7 @@
     /* ------------------------------------------------------------------ */
     /* the shared skeleton: Roo's joints in the bind layout, extra bones    */
     /* ------------------------------------------------------------------ */
-    var NAME = { hips: 'pelvis', waist: 'spine_01', waist2: 'spine_02', chest: 'spine_03', neck: 'neck_01', head: 'Head' };
+    var NAME = { hips: 'pelvis', waist: 'spine_01', waist2: 'spine_02', chest: 'spine_03', neck: 'neck_01', head: 'Head', jaw: 'jaw' };
     var UEF = ['index', 'middle', 'ring', 'pinky'];
     SIDES.forEach(function (sd) {
       var s = sd[0], u = s.toLowerCase();
@@ -819,7 +924,7 @@
       extra.push({ name: 'ear_02_' + u, parent: 'ear_01_' + u, pos: v3(0, 0.12, 0).applyMatrix4(m).toArray() });
       primary['ear_01_' + u] = 'ear_02_' + u;
     });
-    extra.push({ name: 'jaw', parent: 'Head', pos: [0, 1.705, 0.06] });
+    extra.push({ name: 'jaw', parent: 'Head', pos: bp('jaw') });
     extra.push({ name: 'cape_root', parent: 'spine_03', pos: [0, 1.45, -0.08] });
     var rig = JG.rig.create({
       kit: kit, from: (opts && opts.from) || 'body-male', dropMesh: true, bindJoints: J, extraBones: extra, primary: primary,
@@ -834,13 +939,19 @@
     (function () {
       var map = bones.map(function (b) { return rig.bones.indexOf(rig.byName[ue(b.name)]); });
       var si = geo.attributes.skinIndex;
-      for (var i = 0; i < si.count; i++) si.setX(i, map[si.getX(i)]);
+      for (var i = 0; i < si.count; i++) si.setXY(i, map[si.getX(i)], map[si.getY(i)]);
       si.needsUpdate = true;
     })();
     var body = kit.skin(root, rig.skeleton, geo, kit.mat.toon({ map: atlas, vertexColors: true }));
     body.name = 'roo-body';
     var ink = kit.skin(root, rig.skeleton, hullGeo, kit.mat.ink());
     ink.name = 'roo-ink';
+    var jaw = rig.byName.jaw, jawRest = rig.rest.jaw;
+    var jawAxis = v3(1, 0, 0).applyQuaternion(jawRest.Wb.clone().invert()), jawTurn = new Q4();
+    function setJawOpening(openness) {
+      jawTurn.setFromAxisAngle(jawAxis, deg(13) * clamp(openness || 0, 0, 1));
+      jaw.quaternion.copy(jawRest.Lb).multiply(jawTurn);
+    }
     var chestAnchor = new THREE.Object3D();
     chestAnchor.position.set(0, 1.312 - 1.15, 0.02).applyQuaternion(rig.rest.spine_03.Wb.clone().invert());
     rig.byName.spine_03.add(chestAnchor);
@@ -1182,7 +1293,7 @@
 
     return {
       root: root, rig: rig, P: P, body: body, ink: ink, cape: cape, capeInk: capeInk,
-      anchors: ANCH,
+      anchors: ANCH, setJawOpening: setJawOpening,
       pose: function (name) { if (cape.parent !== root) { root.attach(cape); root.attach(capeInk); } pose(name); },
       holdTail: function () { holdTail(); floorTail(); }, update: update, resetSecondary: resetSecondary, clipMode: clipMode,
       poses: Object.keys(POSES),
