@@ -14,14 +14,14 @@
   JG.LINES = {
     lauren_problem: { speaker: 'LAUREN', fx: 'phone', file: '01_lauren_problem.mp3', est: 8.5,
       text: "Roo, we got a problem. It's a big one. Massive. Huge. The size of 10 years of CRM changes." },
-    roo_got_you: { speaker: 'ROO', file: '02_roo_got_you.mp3', est: 2.2,
-      text: "Don't worry, Lauren. I got you." },
+    roo_got_you: { speaker: 'ROO', file: '02_roo_got_you.mp3', est: 9.6,
+      text: "You did the right thing by calling me Lauren! I got you! I'll be right there. And please, tell Eric to take a break from breaking changes!" },
     // street barks (round 2): non-blocking, played as Roo walks past a crowd NPC (act1 street-subway, act2 plaza-walk).
     // Unnumbered files so the scripted numbers never shift; listed here, in story order, because they always play
     // on the autopilot route (golden checks the played order against this manifest).
-    bark_npc_superhero: { speaker: 'GUY', bark: true, file: 'bark_npc_superhero.mp3', est: 5.2,
+    bark_npc_superhero: { speaker: 'GUY', bark: true, file: 'bark_npc_superhero.mp3', est: 3.2,
       text: 'What are you? Like a superhero or something?' },
-    bark_roo_keyboard: { speaker: 'ROO', bark: true, file: 'bark_roo_keyboard.mp3', est: 1.6,
+    bark_roo_keyboard: { speaker: 'ROO', bark: true, file: 'bark_roo_keyboard.mp3', est: 2.4,
       text: 'Get me a keyboard and find out.' },
     bark_npc_heybaby: { speaker: 'WOMAN', bark: true, file: 'bark_npc_heybaby.mp3', est: 2.4,
       text: 'Hey baby!' },
@@ -66,7 +66,7 @@
     // rooftop-walk's optional gag (2026-11-26): the player walks Roo back to the couch and asks to keep playing; he
     // turns to the player and refuses. A station line like the office's (branch 'station': never in auto mode, never
     // in golden's scripted list); an unnumbered gag_* file
-    gag_roo_joking: { speaker: 'ROO', branch: 'station', file: 'gag_roo_joking.mp3', est: 3.3,
+    gag_roo_joking: { speaker: 'ROO', branch: 'station', file: 'gag_roo_joking.mp3', est: 4.8,
       text: "You're joking, right? These people need us! We're their only hope!" }
   };
 

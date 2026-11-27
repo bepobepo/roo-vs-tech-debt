@@ -36,7 +36,7 @@
   'use strict';
   var JG = window.JG = window.JG || {};
 
-  var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3', INTRO_URL = 'assets/audio/music/intro.mp3';
+  var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3', INTRO_URL = 'assets/audio/music/intro.mp3', ELEVATOR_URL = 'assets/audio/music/elevator.mp3';
   var BUS = { master: 0.9, vo: 1.0, sfx: 0.8, music: 0.5, amb: 0.4 };
   var DUCK = { music: 0.35, amb: 0.65 };
   var FX = {
@@ -75,6 +75,7 @@
     amb: { want: null, cur: null, fade: 1 },
     montage: { state: 'idle', reason: null, abuf: null, dur: 0 },
     intro: { state: 'idle', decoded: null },   // file-only music slot (the owner's intro track); silent when missing
+    elevator: { state: 'idle', decoded: null }, // the owner's elevator track (plays once, 9.3 s); the code-made "Going Up" plays if it is missing
     errors: 0
   };
 
@@ -316,6 +317,17 @@
     }).then(function (ab) { I.decoded = ab; I.state = 'file'; if (st.music.want === 'intro') syncMusic(); })
       .catch(function (e) { I.state = 'missing'; warn('intro-file', 'JG.audio: ' + INTRO_URL + ' could not be used (' + dbg(e) + '); the intro plays without music'); });
   }
+  // elevator slot: the owner's track if it decodes, else the stand-in "Going Up" (syncMusic waits while this loads)
+  function loadElevator() {
+    var E = st.elevator;
+    if (E.state !== 'idle') return;
+    E.state = 'loading';
+    Promise.resolve().then(function () { return JG.assets.load({ 'music:elevator': ELEVATOR_URL }); }).then(function () {
+      return decode(JG.assets.get('music:elevator').buffer.slice(0));
+    }).then(function (ab) { E.decoded = ab; E.state = 'file'; })
+      .catch(function (e) { E.state = 'missing'; warn('elevator-file', 'JG.audio: ' + ELEVATOR_URL + ' could not be used (' + dbg(e) + '); the stand-in plays'); })
+      .then(function () { if (st.music.want === 'elevator') syncMusic(); });
+  }
   function montageBuffer() {
     var M = st.montage;
     if (M.state !== 'file' || !M.decoded || !st.ctx) return null;
@@ -335,10 +347,12 @@
     M.restart = false;
     if (cur) { stopSrc(cur, M.fade); M.cur = null; }
     if (!M.want) return;
-    var file = M.want === 'montage' ? montageBuffer() : (M.want === 'intro' ? st.intro.decoded : null), ab = file || (M.want === 'intro' ? null : buffer('music', M.want));
+    if (M.want === 'elevator') { loadElevator(); if (st.elevator.state === 'loading') return; }
+    var file = M.want === 'montage' ? montageBuffer() : (M.want === 'intro' ? st.intro.decoded : (M.want === 'elevator' ? st.elevator.decoded : null)), ab = file || (M.want === 'intro' ? null : buffer('music', M.want));
     if (!ab) return;
     var vol = M.opts.volume === undefined ? 1 : M.opts.volume;
-    var h = startSrc(ab, st.n.musicIn, { loop: true, vol: vol, fade: M.opts.fadeIn === undefined ? 0.05 : M.opts.fadeIn });
+    // the owner's elevator track is a single 9.3 s run that ends before the dings; every other music loops
+    var h = startSrc(ab, st.n.musicIn, { loop: !(file && M.want === 'elevator'), vol: vol, fade: M.opts.fadeIn === undefined ? 0.05 : M.opts.fadeIn });
     h.id = M.want; h.file = !!file;
     M.cur = h;
   }
@@ -449,7 +463,7 @@
         } catch (e) { /* ignore */ }
       });
       // the montage file decodes lazily from desk-sit (or a jump to the beats that use it)
-      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); });
+      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); if (id === 'plaza-walk' || id === 'elevator-ride') loadElevator(); });
     }
   });
 
