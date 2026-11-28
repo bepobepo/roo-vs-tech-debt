@@ -205,6 +205,26 @@
     return { t: i * 0.4, pose: function (P) { seat(P, { arms: false }); lap(P); A().head(P, n, 0.08, 0.04); } };
   }) });
 
+  // Keep the elbow near his ribs. Only the near glove comes off his knee, and the
+  // small wave comes from the wrist. Keep the opposite arm and seated weight on the base.
+  function waveKey(t, lift, flick) {
+    return { t: t, pose: function (P) {
+      seat(P, { arms: false });
+      A().arm(P, 'l', [0.035 + 0.09 * lift, -0.44 + 0.51 * lift, 0.30 - 0.075 * lift], {
+        elbow: [0.38, -1, -0.48], curl: 0.30 - 0.17 * lift,
+        hand: { dir: [0.18 * lift + flick, -0.65 + 1.63 * lift, 0.75 - 0.71 * lift], palm: [-0.12, -1 + lift, 0.08 + 0.92 * lift] }
+      });
+      A().head(P, 0.04 + 0.12 * lift, -0.03, 0.08 * lift);
+    } };
+  }
+  C.define('roo.shyWaveArm', { duration: 1.72, keys: [
+    waveKey(0, 0, 0), waveKey(0.22, 0.18, 0), waveKey(0.52, 1, 0.02),
+    waveKey(0.66, 1, 0.40), waveKey(0.84, 1, -0.31), waveKey(1.03, 1, 0.25),
+    waveKey(1.19, 0.97, -0.12), waveKey(1.43, 0.5, 0), waveKey(1.72, 0, 0)
+  ] });
+  C.compose('roo.subwayWave', { base: 'roo.subwayIdle', over: 'roo.shyWaveArm',
+    mask: JG.anim.armBones('l').concat(['neck_01', 'Head']) });
+
   function winkPose(P, k) {
     seat(P, { arms: false, tilt: -0.05 * k });
     lap(P);

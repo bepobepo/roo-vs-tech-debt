@@ -222,7 +222,7 @@
   // speaker tab colours: the June three on the heroes, teal (the ops lead's tie) for the ops lead
   var TABS = { ROO: ['#1F4FD8', '#fff'], LAUREN: ['#E0218A', '#fff'], OPS: ['#0E8C8C', '#fff'], EXEC: ['#FFD21F', '#111'],
     // office-walk's gossipers (their tops) and the face scanner (its beam)
-    BRENDA: ['#5E8C8A', '#fff'], GARY: ['#5A3A22', '#fff'], SCANNER: ['#3fe0ff', '#111'] };
+    BRENDA: ['#5E8C8A', '#fff'], GARY: ['#5A3A22', '#fff'], SCANNER: ['#3fe0ff', '#111'], LADY: ['#B9A3D9', '#111'] };
   var ARROW = '<path d="M9 2h18v19h8L18 42 1 21h8z" fill="#E0218A" stroke="#111" stroke-width="3.2" stroke-linejoin="round"/>' +
     '<path d="M13 6h4v15" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".65"/>';
   var PHONE = '<path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z" fill="#111"/>';

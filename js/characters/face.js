@@ -19,7 +19,8 @@
  *   Lip flap opens the current mouth: smile/grin/smirk -> an open smile with teeth, frown/sad -> an open sad mouth,
  *   o -> a wider O, flat/talk/open -> an open oval.
  * Style (per character): { skin, lid (eyelid colour for half-closed eyes), iris, brow, browW (metres), lips (colour),
- *   lipFill: bool (drawn lips), lashes: 'female'|'male', nose: 'soft'|'hook', wrinkles: bool, eyeW, eyeH (metres) }
+ *   lipFill: bool (drawn lips), lashes: 'female'|'male', nose: 'soft'|'hook', wrinkles: bool, eyeW, eyeH (metres),
+ *   fitMouth: use a fine surface grid around the lips, mouthOffsetY: shift the drawing to the lip seam (metres) }
  *
  *   JG.face.create(kit, { rig, frames, neutral, style?, landmarks, surface, base?, ink? })
  *     -> { root, set(name, fade), mouth(level), tick(dt), neutral, current() }
@@ -253,60 +254,71 @@
 
   /** the decal: a grid over the face, dropped onto the skin triangles along -z, in the bind frame */
   function decalGeometry(THREE, LM, surface, o) {
-    var x0 = -0.066, x1 = 0.066, y0 = LM.chin.y - 0.016, y1 = LM.face.y + 0.042, NX = 10, NY = 12, lift = o.lift || 0.0025;
+    var x0 = -0.066, x1 = 0.066, y0 = LM.chin.y - 0.016, y1 = LM.face.y + 0.042;
+    var SN = JG.dress && JG.dress.surfaceNormals ? JG.dress.surfaceNormals(surface) : null;
     var sg = new THREE.BufferGeometry();
     sg.setAttribute('position', new THREE.BufferAttribute(surface, 3));
     var target = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
     target.updateMatrixWorld(true);
     var ray = new THREE.Raycaster(), dir = new THREE.Vector3(0, 0, -1), from = new THREE.Vector3();
-    var pos = [], uv = [], ok = [], idx = [], nor = [];
+    var pos = [], uv = [], idx = [], nor = [];
     // the skin's own smooth normals under each grid point (JG.dress keeps them), so the decal takes the scene light
     // exactly like the skin round it: no flat, unlit patches (round 2c)
-    var SN = JG.dress && JG.dress.surfaceNormals ? JG.dress.surfaceNormals(surface) : null;
     var tri = new THREE.Triangle(), bc = new THREE.Vector3(), na = new THREE.Vector3(), nb = new THREE.Vector3(), nc = new THREE.Vector3();
-    for (var j = 0; j <= NY; j++) for (var i = 0; i <= NX; i++) {
-      var u = i / NX, v = j / NY, x = x0 + (x1 - x0) * u, y = y0 + (y1 - y0) * v;
-      from.set(x, y, LM.face.z + 0.3);
-      ray.set(from, dir);
-      var hit = surface.length ? ray.intersectObject(target, false)[0] : null;
-      if (hit) {
-        var n = hit.face ? hit.face.normal.clone() : new THREE.Vector3(0, 0, 1);
-        if (n.z < 0) n.negate();
-        pos.push(hit.point.x + n.x * lift, hit.point.y + n.y * lift, hit.point.z + n.z * lift);
-        var sn = n;
-        if (SN && hit.face) {
-          var f = hit.face;
-          tri.a.fromArray(surface, f.a * 3); tri.b.fromArray(surface, f.b * 3); tri.c.fromArray(surface, f.c * 3);
-          tri.getBarycoord(hit.point, bc);
-          na.fromArray(SN, f.a * 3); nb.fromArray(SN, f.b * 3); nc.fromArray(SN, f.c * 3);
-          sn = na.multiplyScalar(bc.x).addScaledVector(nb, bc.y).addScaledVector(nc, bc.z);
-          if (sn.lengthSq() < 1e-8) sn = n; else sn.normalize();
+    var ok = [];
+    function projectGrid(low, high, NX, NY, lift) {
+      var base = pos.length / 3;
+      for (var j = 0; j <= NY; j++) for (var i = 0; i <= NX; i++) {
+        var u = i / NX, v = j / NY, x = x0 + (x1 - x0) * u, y = low + (high - low) * v;
+        from.set(x, y, LM.face.z + 0.3);
+        ray.set(from, dir);
+        var hit = surface.length ? ray.intersectObject(target, false)[0] : null;
+        if (hit) {
+          var n = hit.face ? hit.face.normal.clone() : new THREE.Vector3(0, 0, 1);
+          if (n.z < 0) n.negate();
+          pos.push(hit.point.x + n.x * lift, hit.point.y + n.y * lift, hit.point.z + n.z * lift);
+          var sn = n;
+          if (SN && hit.face) {
+            var f = hit.face;
+            tri.a.fromArray(surface, f.a * 3); tri.b.fromArray(surface, f.b * 3); tri.c.fromArray(surface, f.c * 3);
+            tri.getBarycoord(hit.point, bc);
+            na.fromArray(SN, f.a * 3); nb.fromArray(SN, f.b * 3); nc.fromArray(SN, f.c * 3);
+            sn = na.multiplyScalar(bc.x).addScaledVector(nb, bc.y).addScaledVector(nc, bc.z);
+            if (sn.lengthSq() < 1e-8) sn = n; else sn.normalize();
+          }
+          nor.push(sn.x, sn.y, sn.z);
+          ok.push(hit.point.z > LM.head.z + 0.01);
+        } else { pos.push(x, y, LM.face.z - 0.02); ok.push(false); nor.push(0, 0, 1); }
+        uv.push(u, (y - y0) / (y1 - y0));
+      }
+      // the grid's flat cells cut through convex features (lips, nose) between samples: raise each cell's corners
+      // until every skin vertex under the cell is behind the decal by `lift`
+      for (var pass = 0; pass < 2; pass++) {
+        for (var t = 0; t < surface.length; t += 3) {
+          var sx = surface[t], sy = surface[t + 1], sz = surface[t + 2];
+          var fu = (sx - x0) / (x1 - x0) * NX, fv = (sy - low) / (high - low) * NY;
+          if (fu < 0 || fv < 0 || fu >= NX || fv >= NY) continue;
+          var ci = Math.floor(fu), cj = Math.floor(fv), du = fu - ci, dv = fv - cj;
+          var k00 = base + cj * (NX + 1) + ci, k10 = k00 + 1, k01 = k00 + NX + 1, k11 = k01 + 1;
+          if (!(ok[k00] && ok[k10] && ok[k01] && ok[k11])) continue;
+          var zi = pos[k00 * 3 + 2] * (1 - du) * (1 - dv) + pos[k10 * 3 + 2] * du * (1 - dv) + pos[k01 * 3 + 2] * (1 - du) * dv + pos[k11 * 3 + 2] * du * dv;
+          var need = sz + lift * 0.8 - zi;
+          if (need > 0) [k00, k10, k01, k11].forEach(function (k) { pos[k * 3 + 2] += need; });
         }
-        nor.push(sn.x, sn.y, sn.z);
-        ok.push(hit.point.z > LM.head.z + 0.01);
-      } else { pos.push(x, y, LM.face.z - 0.02); ok.push(false); nor.push(0, 0, 1); }
-      uv.push(u, v);
-    }
-    // the grid's flat cells cut through convex features (lips, nose) between samples: raise each cell's corners
-    // until every skin vertex under the cell is behind the decal by `lift`
-    for (var pass = 0; pass < 2; pass++) {
-      for (var t = 0; t < surface.length; t += 3) {
-        var sx = surface[t], sy = surface[t + 1], sz = surface[t + 2];
-        var fu = (sx - x0) / (x1 - x0) * NX, fv = (sy - y0) / (y1 - y0) * NY;
-        if (fu < 0 || fv < 0 || fu >= NX || fv >= NY) continue;
-        var ci = Math.floor(fu), cj = Math.floor(fv), du = fu - ci, dv = fv - cj;
-        var k00 = cj * (NX + 1) + ci, k10 = k00 + 1, k01 = k00 + NX + 1, k11 = k01 + 1;
-        if (!(ok[k00] && ok[k10] && ok[k01] && ok[k11])) continue;
-        var zi = pos[k00 * 3 + 2] * (1 - du) * (1 - dv) + pos[k10 * 3 + 2] * du * (1 - dv) + pos[k01 * 3 + 2] * (1 - du) * dv + pos[k11 * 3 + 2] * du * dv;
-        var need = sz + lift * 0.8 - zi;
-        if (need > 0) [k00, k10, k01, k11].forEach(function (k) { pos[k * 3 + 2] += need; });
+      }
+      for (j = 0; j < NY; j++) for (i = 0; i < NX; i++) {
+        var a = base + j * (NX + 1) + i, b = a + 1, c = a + NX + 1, d = c + 1;
+        if (ok[a] && ok[b] && ok[d]) idx.push(a, b, d);
+        if (ok[a] && ok[d] && ok[c]) idx.push(a, d, c);
       }
     }
-    for (j = 0; j < NY; j++) for (i = 0; i < NX; i++) {
-      var a = j * (NX + 1) + i, b = a + 1, c = a + NX + 1, d = c + 1;
-      if (ok[a] && ok[b] && ok[d]) idx.push(a, b, d);
-      if (ok[a] && ok[d] && ok[c]) idx.push(a, d, c);
-    }
+    if (o.style && o.style.fitMouth) {
+      // The upper cells bridge the eye sockets. Use a denser, closer grid below the nose so the ink
+      // follows the modelled lip seam when the passenger turns in profile.
+      var split = y0 + (y1 - y0) * 5 / 12;
+      projectGrid(y0, split, 18, 12, 0.0008);
+      projectGrid(split, y1, 10, 7, o.lift || 0.0025);
+    } else projectGrid(y0, y1, 10, 12, o.lift || 0.0025);
     sg.dispose();
     var g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
@@ -330,7 +342,7 @@
     var left = LM.left || 1;
     var eyeA = LM.eyeL.x < LM.eyeR.x ? LM.eyeL : LM.eyeR, eyeB = eyeA === LM.eyeL ? LM.eyeR : LM.eyeL;
     var lay = { s: s, W: W, H: H, eyeA: [cx(eyeA.x), cy(eyeA.y)], eyeB: [cx(eyeB.x), cy(eyeB.y)], nose: [cx(0), cy(LM.nose.y)],
-      mouth: [cx(0), cy(LM.mouth.y)], left: left };
+      mouth: [cx(0), cy(LM.mouth.y + (st.mouthOffsetY || 0))], left: left };
     var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
     var ctx = cv.getContext('2d'), tex = new THREE.CanvasTexture(cv);
     tex.colorSpace = THREE.SRGBColorSpace;

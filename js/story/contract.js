@@ -28,6 +28,7 @@
     clips: {
       roo: ['idle', 'walk', 'run', 'seatedIdle', 'sitDownChair', 'phoneHold', 'jumpOff', 'landHero', 'elevatorStand',
         'seatedType', 'runDive', 'idleChill', 'idleHero', 'fallDive', 'rooftopFlight', 'hugHold', 'seatedSmileNod', 'seatedWink',
+        'subwayIdle', 'subwayWave', 'subwayWink',
         'shrugCheckWrist', 'headphonesOn', 'headphonesOff', 'twoFingerSalute',
         // round 2 (rooftop-call on the couch): clips-gaming.js
         'seatedGaming', 'seatedPhone', 'seatedPhoneFacepalm', 'standUp',
@@ -37,8 +38,8 @@
         'youKidding'],
       exec: ['walk', 'armsCrossedIdle', 'disbelief'],
       ops: ['runPanic', 'pleadTalk', 'breakdown', 'cryLoop', 'wailLoud', 'hugReceive', 'wipeTears', 'thankful'],
-      oldlady: ['seatedPurseIdle', 'seatedLadyReact', 'seatedKnit'],
-      extra: ['seatedReader', 'standing', 'typing']
+      oldlady: ['seatedPurseIdle', 'seatedLadyReact', 'seatedKnit', 'subwayPurse', 'subwayNotice', 'subwayAccept', 'subwayKnit'],
+      extra: ['seatedReader', 'subwayReader', 'standing', 'typing']
     },
     additive: { roo: ['breath', 'footTap', 'pat', 'keyPress', 'grooveBob'] },
     clipEvents: ['footL', 'footR', 'impact', 'attach', 'shatter'],
@@ -48,7 +49,7 @@
       roo: ['neutral', 'smirk', 'smile', 'worried', 'wink'],
       exec: ['confident', 'talk', 'shock', 'halfSmile'],
       ops: ['worried', 'plead', 'cry', 'wail', 'relieved'],
-      oldlady: ['deadpan', 'smile']
+      oldlady: ['deadpan', 'smile', 'curious', 'talking', 'amused']
     },
     props: ['phone', 'headphones', 'handbag', 'knitting', 'coffee', 'paperCup'],
 
@@ -66,7 +67,8 @@
     musicFx: ['muffled', 'leak'],
 
     // VO ids: the keys of JG.LINES (site/js/story/lines.js), in manifest order
-    lines: ['lauren_problem', 'roo_got_you', 'roo_up_up', 'roo_and_down', 'roo_into_subway', 'bark_npc_superhero', 'bark_roo_keyboard', 'bark_npc_heybaby', 'ops_help', 'ops_sob', 'roo_not_your_fault', 'ops_thank_you',
+    lines: ['lauren_problem', 'roo_got_you', 'roo_up_up', 'roo_and_down', 'roo_into_subway', 'bark_npc_superhero', 'bark_roo_keyboard', 'subway_lady_kangaroo', 'subway_roo_yep',
+      'bark_npc_heybaby', 'ops_help', 'ops_sob', 'roo_not_your_fault', 'ops_thank_you',
       'roo_few_minutes', 'exec_how', 'roo_good_at', 'roo_dont_need_me', 'gag_roo_get_on', 'gag_ops_wail', 'gag_roo_feelings',
       'scanner_ok', 'scanner_again', 'roo_obviously', 'gossip_brenda', 'gossip_gary', 'roo_hold_cup', 'roo_rocket_fuel', 'gag_roo_joking'],
     actions: ['x', 'y', 'skip', 'start', 'mute'],

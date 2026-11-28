@@ -56,11 +56,13 @@
     'plaza-walk.doors': { rel: 'streetB.elevatorMark', pos: [0.8, 1.65, 5.4], look: [0, 1.35, 0], fov: 44 },
 
     // ---------------------------------------------------------------- subway
-    'subway-ride.wide': { rel: 'subway.rooSeat', pos: [4.2, 1.5, 1.2], look: [-0.5, 0.95, 1.2], fov: 50 },
-    'subway-ride.two': { rel: 'subway.rooSeat', pos: [2.0, 1.3, 1.2], look: [0, 0.9, 1.2], fov: 55 },
-    'subway-ride.roo': { rel: 'subway.rooSeat', pos: [0.3, 1.15, 1.6], look: [0, 1.05, 0], fov: 36, fit: ['roo.head'] },
-    'subway-ride.lady': { rel: 'subway.ladySeat', pos: [-0.3, 1.05, 1.6], look: [0, 0.95, 0], fov: 36 },
-    'subway-wink.wide': { rel: 'subway.rooSeat', pos: [2.4, 1.35, 1.2], look: [0, 0.9, 1.2], fov: 52 },
+    // Stay on one side of the conversation. Roo's raised left glove is closest to the aisle camera.
+    'subway-ride.wide': { rel: 'subway.rooSeat', pos: [4.5, 1.38, 1.0], look: [-0.22, 0.96, 1.0], fov: 43, fit: ['roo.head', 'oldlady.head'] },
+    'subway-ride.two': { rel: 'subway.rooSeat', pos: [3.25, 1.23, 1.0], look: [-0.12, 0.98, 1.0], fov: 43, fit: ['roo.head', 'oldlady.head'] },
+    'subway-ride.roo': { rel: 'subway.rooSeat', pos: [0.85, 1.25, 1.72], look: [0.02, 1.14, -0.07], fov: 39, fit: ['roo.head', 'roo.handL'] },
+    'subway-ride.lady': { rel: 'subway.ladySeat', pos: [-0.59, 1.16, 1.09], look: [0.055, 1.04, -0.12], fov: 33, fit: ['oldlady.head', 'oldlady.chest'] },
+    'subway-wink.wide': { rel: 'subway.rooSeat', pos: [2.4, 1.35, 1.0], look: [0, 0.9, 1.0], fov: 52 },
+    'subway-wink.knitting': { rel: 'subway.ladySeat', pos: [-0.3, 1.05, 1.6], look: [0, 0.95, 0], fov: 36 },
     'subway-wink.close': { rel: 'subway.rooSeat', pos: [0.15, 1.15, 2.0], look: [0, 1.0, 0], fov: 34 },
 
     // ---------------------------------------------------------------- office / elevator

@@ -1121,6 +1121,18 @@
         ripple: function (u, v) { return 0.09 * v * Math.sin(u * 5 + 1 + v * 2) + 0.07 * v * Math.sin(v * 8 + u * 1.5); }
       }
     };
+    // In the subway the long hem sweeps across the free seat on Roo's right. The cloth
+    // reaches the cushion before it fans out; its other side stays clear of his tail.
+    var subwayDrape = {
+      strand: function (p, u) {
+        return new THREE.CatmullRomCurve3([
+          p, v3(p.x * 1.17, p.y - 0.14, p.z - 0.13), v3(p.x * 1.42, 0.85, -0.395 - 0.035 * (1 - u * u)),
+          v3(p.x * 1.40 - 0.04, 0.65, -0.416), v3(p.x * 0.9 - 0.24, 0.495, -0.399 + 0.025 * u),
+          v3(-0.47 + 0.068 * u, 0.479, -0.306 - 0.09 * u), v3(-0.72 + 0.057 * u, 0.472, -0.271 - 0.14 * u)
+        ]);
+      },
+      ripple: function (u, v) { return 0.014 * Math.sin(u * 10 + 2 * v) * Math.sin(v * PI / 2); }
+    };
     function capsules() {
       var list = [];
       function cap(a, b, r) { list.push({ a: a, b: b, r: r }); }
@@ -1150,15 +1162,18 @@
         var u = -1 + 2 * iu / NU, st = collarAt(u * CAPE_SPAN), col = [];
         var rad = v3(st.n.x, 0, st.n.z).normalize();
         var p = fromBind('chest', [st.c.x + 0.02 * rad.x, st.c.y - 0.02, st.c.z + 0.02 * rad.z]);   // under the roll's outer side
-        var d0 = rad.multiplyScalar(0.3).add(v3(0, cfg.d0[0], cfg.d0[1])).normalize().applyQuaternion(cq);
-        var step = cfg.len / NV * (1 - 0.05 * u * u);
-        for (iv = 0; iv <= NV; iv++) {
-          var v = iv / NV;
-          col.push(p.clone());
-          var g = cfg.G(u, v).normalize();
-          if (cfg.local) g.applyQuaternion(cq);
-          var d = d0.clone().lerp(g, sstep(cfg.b0, cfg.b1, v)).normalize();
-          p.addScaledVector(d, step);
+        if (cfg.strand) col = cfg.strand(p, u).getPoints(NV);
+        else {
+          var d0 = rad.multiplyScalar(0.3).add(v3(0, cfg.d0[0], cfg.d0[1])).normalize().applyQuaternion(cq);
+          var step = cfg.len / NV * (1 - 0.05 * u * u);
+          for (iv = 0; iv <= NV; iv++) {
+            var v = iv / NV;
+            col.push(p.clone());
+            var g = cfg.G(u, v).normalize();
+            if (cfg.local) g.applyQuaternion(cq);
+            var d = d0.clone().lerp(g, sstep(cfg.b0, cfg.b1, v)).normalize();
+            p.addScaledVector(d, step);
+          }
         }
         P.push(col);
       }
@@ -1279,6 +1294,20 @@
       (on ? capeRoot : root).attach(cape); (on ? capeRoot : root).attach(capeInk);
       if (on) resetSecondary();
     }
+    // Bake against the actual seated body once, then carry it on the same shoulder
+    // attachment as the other clip drapes. Reuse it for the ride home.
+    var subwayCape = null;
+    function setSubwayCape(on) {
+      if (on && !subwayCape) {
+        root.updateWorldMatrix(true, true);
+        var local = cape.matrixWorld.clone().invert().multiply(root.matrixWorld);
+        subwayCape = buildCape(subwayDrape);
+        subwayCape.g.applyMatrix4(local);
+        subwayCape.h.applyMatrix4(local);
+      }
+      var drape = on ? subwayCape : capeGeo.rest;
+      cape.geometry = drape.g; capeInk.geometry = drape.h;
+    }
     // anchors (plan section 6 Actor.anchors), as bones or bone children
     function anchorAt(bone, point) {
       var o = new THREE.Object3D(), r = rig.rest[bone];
@@ -1295,7 +1324,7 @@
       root: root, rig: rig, P: P, body: body, ink: ink, cape: cape, capeInk: capeInk,
       anchors: ANCH, setJawOpening: setJawOpening,
       pose: function (name) { if (cape.parent !== root) { root.attach(cape); root.attach(capeInk); } pose(name); },
-      holdTail: function () { holdTail(); floorTail(); }, update: update, resetSecondary: resetSecondary, clipMode: clipMode,
+      holdTail: function () { holdTail(); floorTail(); }, update: update, resetSecondary: resetSecondary, clipMode: clipMode, setSubwayCape: setSubwayCape,
       poses: Object.keys(POSES),
       _debug: { B: B, bones: bones, NAME: NAME, J: J, parts: parts, geo: geo, capeGeo: capeGeo, worldPos: worldPos, fromBind: fromBind, tailAlong: tailAlong, tailTip: tailTip, collarAt: collarAt }
     };

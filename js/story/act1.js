@@ -108,11 +108,11 @@
       await w.say('lauren_problem', { gap: 0.15 });
       S.ui('callerCard.hide');
       w.express(roo, 'smirk');
-      // “And please” starts 4.88 s into the trimmed 9.39 s take. Keep the gesture
+      // “And please” starts 5.43 s into the trimmed 9.88 s take (2026-11-28 take). Keep the gesture
       // inside the reply even when a replacement recording has a different duration.
-      var replyScale = JG.audio.vo.duration('roo_got_you') / 9.39;
+      var replyScale = JG.audio.vo.duration('roo_got_you') / 9.88;
       w.fork(async function (w2) {
-        await w2.wait(4.88 * replyScale);
+        await w2.wait(5.43 * replyScale);
         await w2.play(roo, 'seatedPhoneFacepalm', { loop: false, fade: 0.15, speed: 1 / replyScale });
         // Resume the phone loop from the matching lap pose so the stand-up can crossfade as usual.
         await S.start(w2, roo, 'seatedPhone', { fade: 0.1 });

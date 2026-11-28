@@ -131,16 +131,16 @@
     stage: {
       scene: 'subway', sceneState: KNIT,
       cast: {
-        roo: { at: 'subway.rooSeat', pose: 'seatedIdle', expr: 'smirk', cape: 'drape:seated' },
-        oldlady: { at: 'subway.ladySeat', pose: 'seatedKnit', expr: 'deadpan', props: { knitting: 'handR' } }
+        roo: { at: 'subway.rooSeat', pose: 'subwayIdle', expr: 'smirk', cape: 'drape:subway' },
+        oldlady: { at: 'subway.ladySeat', pose: 'subwayKnit', expr: 'deadpan', props: { knitting: 'handR' } }
       },
       audio: { ambience: 'subway' },
       ui: { fade: 1 }
     },
     needs: {
       markers: ['subway.rooSeat', 'subway.ladySeat'], props: ['knitting'],
-      anims: ['roo.seatedIdle', 'roo.seatedWink', 'oldlady.seatedKnit'], sfx: ['ting'],
-      shots: ['subway-wink.wide', 'subway-ride.lady', 'subway-wink.close']
+      anims: ['roo.subwayIdle', 'roo.subwayWink', 'oldlady.subwayKnit'], sfx: ['ting'],
+      shots: ['subway-wink.wide', 'subway-wink.knitting', 'subway-wink.close']
     },
     play: async function (w) {
       var S = K(), t0 = JG.clock.t, roo = w.actor('roo');
@@ -148,7 +148,7 @@
       await w.fadeIn(0.8);
       await w.wait(1.4);
       // she is knitting a tiny magenta cape
-      w.cut('subway-ride.lady');
+      w.cut('subway-wink.knitting');
       await w.wait(1.6);
       w.cut('subway-wink.close');
       await w.wait(0.7);
@@ -157,7 +157,7 @@
       w.express(roo, 'wink');
       w.sfx('ting');
       w.mark('wink');
-      await S.playFor(w, roo, 'seatedWink', 1.0, { loop: false, fade: 0.15 });
+      await S.playFor(w, roo, 'subwayWink', 1.0, { loop: false, fade: 0.15 });
       // the stage shrinks to an inked panel; the tagline freezes this frame
       S.ui('stagePanel', true);
       await S.hold(w, t0, 8.5);
@@ -172,8 +172,8 @@
     stage: {
       freeze: true, scene: 'subway', sceneState: KNIT,
       cast: {
-        roo: { at: 'subway.rooSeat', pose: 'seatedIdle', expr: 'wink', look: 'camera', cape: 'drape:seated' },
-        oldlady: { at: 'subway.ladySeat', pose: 'seatedKnit', expr: 'deadpan', props: { knitting: 'handR' } }
+        roo: { at: 'subway.rooSeat', pose: 'subwayIdle', expr: 'wink', look: 'camera', cape: 'drape:subway' },
+        oldlady: { at: 'subway.ladySeat', pose: 'subwayKnit', expr: 'deadpan', props: { knitting: 'handR' } }
       },
       cam: 'subway-wink.close',
       ui: { stagePanel: true }

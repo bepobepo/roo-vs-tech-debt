@@ -1,5 +1,5 @@
 /* VO manifest (plan section 8). Classic script, loaded with defer; touches neither THREE nor the DOM at load.
- * JG.LINES[id] = {speaker, text, file, est, fx?, loop?, branch?, placeholderSfx?}. Files live in
+ * JG.LINES[id] = {speaker, text, file or pendingRecording, est, mouthCues?, fx?, loop?, branch?, placeholderSfx?}. Files live in
  * site/assets/audio/vo/. Scripted lines are numbered; gag lines are unnumbered so scripted ids never shift.
  * PROVISIONAL until the Stage 0 step 10 freeze. tools/check-vo.mjs evaluates this file in a Node vm sandbox, so it
  * must only assign window.JG.LINES (and JG.TEXT below, which is plain data too). Speaker ids are the keys of the voice
@@ -14,8 +14,8 @@
   JG.LINES = {
     lauren_problem: { speaker: 'LAUREN', fx: 'phone', file: '01_lauren_problem.mp3', est: 8.3,
       text: "Roo, we got a problem. It's a big one. Massive. Like... the size of 10 YEARS of CRM changes." },
-    roo_got_you: { speaker: 'ROO', file: '02_roo_got_you.mp3', est: 9.6,
-      text: "You did the right thing by calling me Lauren! I got you! I'll be right there. And please, tell Eric to take a break from breaking changes!" },
+    roo_got_you: { speaker: 'ROO', file: '02_roo_got_you.mp3', est: 9.9,
+      text: "Lauren!  You did the right thing by calling me. I got you. I'll be right there. And please, tell Eric to take a break from breaking changes!" },
     roo_up_up: { speaker: 'ROO', file: '11_roo_up_up.mp3', est: 1.3, text: 'up up!' },
     roo_and_down: { speaker: 'ROO', file: '12_roo_and_down.mp3', est: 1.9, text: 'aaaand down...' },
     roo_into_subway: { speaker: 'ROO', file: '13_roo_into_subway.mp3', est: 1.5, text: 'into the subway!' },
@@ -26,6 +26,11 @@
       text: 'What are you? Like a superhero or something?' },
     bark_roo_keyboard: { speaker: 'ROO', bark: true, file: 'bark_roo_keyboard.mp3', est: 2.4,
       text: 'Get me a keyboard and find out.' },
+    // Pending takes use timed mouth openings (start/end in seconds). Set file to the recorded MP3 when it arrives.
+    subway_lady_kangaroo: { speaker: 'LADY', pendingRecording: '14_lady_kangaroo.mp3', est: 2.5, text: 'are you a.... kangaroo?',
+      mouthCues: [[0.08, 0.29], [0.31, 0.49], [0.50, 0.63], [1.31, 1.54], [1.56, 1.71], [1.73, 2.16]] },
+    subway_roo_yep: { speaker: 'ROO', pendingRecording: '15_roo_yep.mp3', est: 1.2, text: 'yep...',
+      mouthCues: [[0.09, 0.39]] },
     bark_npc_heybaby: { speaker: 'WOMAN', bark: true, file: 'bark_npc_heybaby.mp3', est: 2.4,
       text: 'Hey baby!' },
     ops_help: { speaker: 'OPS', file: '03_ops_help.mp3', est: 8.5,
@@ -100,7 +105,7 @@
     lettering: { ring: 'RING! RING!', thoom: 'THOOM!', ding: 'DING!', help: 'HELP!', waaah: 'WAAAH!', sniff: 'SNIFF', krassh: 'KRASSH!', paused: 'PAUSED',
       beep: 'BEEP!', glug: 'GLUG GLUG', brew: 'BRRRZZT!', ahh: 'AHHH...', bonk: 'BONK!' },
     nonAffiliation: 'Not affiliated with, or endorsed by, the makers of any game it nods to.',
-    speakers: { ROO: 'ROO', LAUREN: 'LAUREN', OPS: 'OPS LEAD', EXEC: 'EXEC', GUY: 'GUY', WOMAN: 'WOMAN', BRENDA: 'BRENDA', GARY: 'GARY', SCANNER: 'SCANNER' },
+    speakers: { ROO: 'ROO', LAUREN: 'LAUREN', OPS: 'OPS LEAD', EXEC: 'EXEC', LADY: 'LADY', GUY: 'GUY', WOMAN: 'WOMAN', BRENDA: 'BRENDA', GARY: 'GARY', SCANNER: 'SCANNER' },
     // office-walk's optional stations (the face scanner's and the coffee machine's screens, the side quest list)
     scanner: { idle: 'LOOK HERE', sign: 'FACE ID', scanning: 'SCANNING...', name: 'ROO', clearance: 'CLEARANCE: ALL OF IT', again: 'STILL ROO', againSub: 'STILL ALL OF IT' },
     coffee: { firmware: 'UPDATING FIRMWARE', step: '{n} OF 47', brewing: 'BREWING...' },

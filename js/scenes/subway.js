@@ -5,15 +5,15 @@
  * windows look onto two tunnel planes just outside the walls whose CanvasTexture scrolls while motion is 'moving'
  * and switches to the HOP ST station wall when 'stopped'. Roo sits at x = 0 facing +Z, the old lady opposite;
  * lady: 'knitting' shows her knitting basket on the seat beside her.
- * Markers keep the core greybox positions (JG.stubs.SETS.subway). Every camera is inside the car. */
+ * Seat markers are foot-space origins in front of the benches. Every camera is inside the car. */
 (function () {
   'use strict';
   var JG = window.JG = window.JG || {};
   var PI = Math.PI;
 
   var MARKERS = {
-    'subway.rooSeat': { pos: [0, 0, -1.2], yaw: 0 }, 'subway.ladySeat': { pos: [0, 0, 1.2], yaw: PI },
-    'subway.extraSeat1': { pos: [-3.5, 0, -1.2], yaw: 0 }, 'subway.extraSeat2': { pos: [3.5, 0, 1.2], yaw: PI },
+    'subway.rooSeat': { pos: [0, 0, -1], yaw: 0 }, 'subway.ladySeat': { pos: [0, 0, 0.934], yaw: PI },
+    'subway.extraSeat1': { pos: [-3.5, 0, -1], yaw: 0 }, 'subway.extraSeat2': { pos: [3.5, 0, 1], yaw: PI },
     'subway.cam': { pos: [4.5, 1.5, 0], yaw: -PI / 2 }
   };
   var DEFAULTS = { lady: 'plain', motion: 'moving' };
@@ -23,12 +23,30 @@
 
   JG.scenes.register('subway', { build: build });
 
+  // One continuous moulded shell along each bench. The pan stays level at 45 cm from the
+  // rounded front edge to the curve at the foot of the backrest. Profile coordinates are
+  // distance from the aisle centre and height from the floor, both in metres.
+  function benchShell(THREE, length) {
+    var section = new THREE.Shape();
+    section.moveTo(1.083, 0.371);
+    section.quadraticCurveTo(1.073, 0.45, 1.13, 0.45);
+    section.lineTo(1.425, 0.45);
+    section.quadraticCurveTo(1.475, 0.45, 1.48, 0.52);
+    section.lineTo(1.51, 0.959);
+    section.quadraticCurveTo(1.513, 1.005, 1.55, 1.005);
+    section.quadraticCurveTo(1.585, 1.005, 1.59, 0.97);
+    section.lineTo(1.59, 0.325);
+    section.lineTo(1.14, 0.325);
+    section.quadraticCurveTo(1.092, 0.325, 1.083, 0.371);
+    return new THREE.ExtrudeGeometry(section, { depth: length, bevelEnabled: false, curveSegments: 4 });
+  }
+
   function build(kit) {
     var SK = JG.setkit, IN = JG.interior, THREE = kit.THREE, C = SK.colours;
     var root = new THREE.Group();
     root.name = 'set-subway';
     var B = SK.builder(kit);
-    var WALL = 0xb8bcc4, WALL_D = 0x9aa0aa, CEIL = 0xe6e2d6, FLOOR = 0x6b6f78, SEAT = C.blue, POLE = C.yellow, RAIL = 0xc0c4cc;
+    var WALL = 0xb8bcc4, WALL_D = 0x9aa0aa, CEIL = 0xe6e2d6, FLOOR = 0x6b6f78, SEAT = 0x91a0c6, POLE = C.yellow, RAIL = 0xc0c4cc;
 
     // ---------------------------------------------------------------------------------------------- atlas
     var cells = [
@@ -72,10 +90,10 @@
       });
       // benches between the doors and at both ends
       [[-9.7, -6.9], [-5.1, 5.1], [6.9, 9.7]].forEach(function (b) {
-        var zs = side < 0 ? [-1.6, -1.1] : [1.1, 1.6], zb = side < 0 ? [-1.6, -1.48] : [1.48, 1.6];
-        B.box(b[0], 0, zs[0] + (side < 0 ? 0.08 : 0), b[1], 0.32, zs[1] - (side < 0 ? 0 : 0.08), 0x4a4f5a);
-        B.box(b[0], 0.32, zs[0], b[1], 0.45, zs[1], SEAT);
-        B.box(b[0], 0.45, zb[0], b[1], 1.0, zb[1], SEAT);
+        B.box(b[0] + 0.035, 0, side * 1.19, b[1] - 0.035, 0.328, side * 1.58, 0x4a4f5a);
+        var place = new THREE.Matrix4().makeRotationY(-side * PI / 2);
+        place.setPosition(side < 0 ? b[0] : b[1], 0, 0);
+        B.geo(benchShell(THREE, b[1] - b[0]), place, SEAT);
       });
       // ad / route band over the windows
       var zq = side < 0 ? -1.555 : 1.555, yaw = side < 0 ? 0 : PI;
@@ -105,6 +123,23 @@
 
     var meshes = B.build(root);
     if (meshes.lights) { meshes.lights.material = new THREE.MeshBasicMaterial({ vertexColors: true }); }
+
+    // The train has baked lighting. A soft contact patch at each sole anchors the
+    // passengers to the floor, including the shorter passenger perched on the front.
+    var footprints = [];
+    function soles(marker, spread, stride, radius, length) {
+      var m = MARKERS[marker], facing = Math.cos(m.yaw);
+      [-1, 1].forEach(function (side, i) {
+        footprints.push({ pos: [m.pos[0] + side * spread * facing, 0.002, m.pos[2] + stride[i] * facing], scale: [radius, 1, length] });
+      });
+    }
+    soles('subway.rooSeat', 0.16, [0.295, 0.265], 0.117, 0.245);
+    soles('subway.ladySeat', 0.108, [0.189, 0.167], 0.087, 0.17);
+    soles('subway.extraSeat1', 0.15, [0.22, 0.195], 0.095, 0.185);
+    soles('subway.extraSeat2', 0.14, [0.22, 0.195], 0.088, 0.18);
+    var shadows = kit.instanced(kit.blobShadow(1, 0.38), footprints);
+    shadows.renderOrder = -1;
+    root.add(shadows);
 
     // ---------------------------------------------------------------------------------------------- tunnel planes
     var tunnel = IN.tunnelTexture(kit), station = IN.stationTexture(kit);
@@ -142,7 +177,10 @@
       surfaceAt: function () { return 'hard'; },
       setState: function (patch, sec) {
         Object.assign(state, patch);
-        if (patch.lady) basket.visible = patch.lady === 'knitting';
+        if (patch.lady) {
+          basket.visible = patch.lady === 'knitting';
+          shadows.count = basket.visible ? 4 : footprints.length;
+        }
         if (patch.motion) { outMat.map = patch.motion === 'stopped' ? station : tunnel; outMat.needsUpdate = true; }
         return { duration: sec || 0 };
       },

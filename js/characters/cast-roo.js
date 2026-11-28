@@ -18,7 +18,7 @@
 
   function build(kit, info) {
     var THREE = kit.THREE, port = JG.roo.build(THREE, kit), rig = port.rig;
-    var poseClips = {}, capeOn = 'pose';
+    var poseClips = {}, capeOn = 'pose', subwayDrape = false;
 
     /** a held pose as a one-frame clip, read from the port's pose function */
     function poseClip(name) {
@@ -91,10 +91,13 @@
         port.setJawOpening(jawOpening);
         if (reset) { port.resetSecondary(); return; }
         if (!ctl || !ctl.baseHasTrack('tail_01.quaternion')) port.update(dt);
+        if (subwayDrape) port.setSubwayCape(true);
       },
       teleport: function () { port.resetSecondary(); },
       cape: function (mode) {
         // Stage 1: one drape that follows the torso; 'sim' and the drapes are Stage 2 (the Verlet cape)
+        if (subwayDrape && mode !== 'drape:subway') port.setSubwayCape(false);
+        subwayDrape = mode === 'drape:subway';
         var show = mode !== 'off';
         if (port.cape) port.cape.visible = show;
         if (port.capeInk) port.capeInk.visible = show;

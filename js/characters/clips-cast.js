@@ -142,6 +142,24 @@
     { t: 0, pose: function (P) { react(P, 0); } }, { t: 0.35, pose: function (P) { react(P, 0.4); } }, { t: 0.7, pose: function (P) { react(P, 1); } }, { t: 1.6, pose: function (P) { react(P, 1); } }
   ] });
 
+  // These two gestures ride on her seated purse pose so both hands keep the bag on her lap.
+  var headBones = ['neck_01', 'Head'];
+  function headKey(t, pitch, yaw, tilt) {
+    return { t: t, pose: function (P) { A().head(P, pitch, yaw, tilt); } };
+  }
+  C.define('oldlady.noticeHead', { duration: 2.65, keys: [
+    headKey(0, 0.46, 0.20, -0.03), headKey(1.7, 0.46, 0.20, -0.03),
+    headKey(1.95, 0.31, 0.13, -0.02), headKey(2.35, -0.23, -0.02, 0.065),
+    headKey(2.65, -0.19, 0, 0.04)
+  ] });
+  C.compose('oldlady.subwayNotice', { base: 'oldlady.subwayPurse', over: 'oldlady.noticeHead', mask: headBones });
+  C.define('oldlady.acceptHead', { duration: 1.5, keys: [
+    headKey(0, -0.19, 0, 0.04), headKey(0.2, -0.17, -0.20, 0.05),
+    headKey(0.49, -0.15, 0.22, -0.025), headKey(0.8, -0.125, -0.12, 0.02),
+    headKey(1.08, -0.075, 0.045, 0.015), headKey(1.5, -0.14, 0, 0.025)
+  ] });
+  C.compose('oldlady.subwayAccept', { base: 'oldlady.subwayPurse', over: 'oldlady.acceptHead', mask: headBones });
+
   function knit(P, f) {
     seat(P, { arms: false, spread: 0.01 });
     A().arm(P, 'l', [-0.13, -0.33 + 0.02 * f, 0.3], { elbow: [0.5, -0.6, -1], hand: { dir: [-0.5, 0.3, 0.8], palm: [0, -0.3, -1] }, curl: 0.6 });

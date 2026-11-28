@@ -261,7 +261,12 @@
     warn('vo-' + status + ':' + id, 'JG.audio: VO "' + id + '" (' + (L && L.file) + ') ' + status + ': ' + why + '; its subtitle runs ' + est(id).toFixed(1) + ' s in silence');
   }
   function loadLine(id) {
-    var L = JG.LINES[id], url = VO_DIR + L.file, tagged = false;
+    var L = JG.LINES[id];
+    if (L.pendingRecording && !L.file) {
+      st.lines[id] = { status: 'awaiting recording', dur: est(id) };
+      return Promise.resolve();
+    }
+    var url = VO_DIR + L.file, tagged = false;
     st.lines[id] = { status: 'pending', dur: est(id) };
     if (!OAC()) { st.lines[id] = { status: 'nodecoder', dur: est(id) }; return Promise.resolve(); }
     var name = 'vo:' + id, m = {}; m[name] = url;
@@ -451,7 +456,7 @@
   }
   function duck() {
     if (!st.ctx || !st.n) return;
-    var on = st.vo.length > 0 ? 1 : 0;
+    var on = st.vo.some(function (v) { return !st.lines[v.id] || st.lines[v.id].status !== 'awaiting recording'; }) ? 1 : 0;
     if (on === st.n.ducked) return;
     st.n.ducked = on;
     ramp(st.n.musicDuck.gain, on ? DUCK.music : 1, on ? 0.08 : 0.5);
@@ -465,6 +470,15 @@
       var x = t * ENV_HZ, i = Math.floor(x), fr = x - i, e = d.env, a = e[Math.min(i, e.length - 1)] || 0, b = e[Math.min(i + 1, e.length - 1)] || 0;
       var v = a + (b - a) * fr;
       return Math.pow(clamp((v - 0.08) / 0.92, 0, 1), 0.75);
+    }
+    var line = JG.LINES && JG.LINES[id], cues = line && line.mouthCues;
+    if (cues) {
+      for (var iCue = 0; iCue < cues.length; iCue++) {
+        var start = cues[iCue][0], end = cues[iCue][1];
+        if (t < start) break;
+        if (t < end) return 0.8 * Math.sin(Math.PI * (t - start) / (end - start));
+      }
+      return 0;
     }
     // no decoded buffer: seeded 5.5 Hz pseudo-syllables (plan section 9 "Lip-flap")
     if (t > est(id)) return 0;

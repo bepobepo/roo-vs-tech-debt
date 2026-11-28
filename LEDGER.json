@@ -203,12 +203,19 @@
   "owner": null
  },
  "assets/audio/vo/07_roo_few_minutes.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER roo_few_minutes"
+  "owner": null
  },
  "assets/audio/vo/08_exec_how.mp3": {
   "class": "user-licensed",

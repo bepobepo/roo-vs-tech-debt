@@ -15,51 +15,66 @@
   var EXTRA_MARKERS = ['office.extraDesk1', 'office.extraDesk2', 'office.extraDesk3', 'office.extraStand'];
   function withExtras(cast) { return Object.assign({}, cast, EXTRAS); }
 
-  // ---------------------------------------------------------------- 5. subway-ride (cine, 12 s)
+  // ---------------------------------------------------------------- 5. subway-ride (cine, 13 s)
   JG.beats.register({
     id: 'subway-ride', kind: 'cine', skippable: true, est: 13,
     stage: {
       scene: 'subway', sceneState: { lady: 'plain', motion: 'moving' },
       cast: {
-        roo: { at: 'subway.rooSeat', pose: 'seatedIdle', expr: 'smirk', cape: 'drape:seated' },
-        oldlady: { at: 'subway.ladySeat', pose: 'seatedPurseIdle', expr: 'deadpan', props: { handbag: 'handL' } },
-        extra1: { at: 'subway.extraSeat1', pose: 'seatedReader' },
-        extra2: { at: 'subway.extraSeat2', pose: 'seatedReader' }
+        roo: { at: 'subway.rooSeat', pose: 'subwayIdle', expr: 'neutral', cape: 'drape:subway' },
+        oldlady: { at: 'subway.ladySeat', pose: 'subwayPurse', expr: 'deadpan', props: { handbag: 'handL' } },
+        extra1: { at: 'subway.extraSeat1', pose: 'subwayReader' },
+        extra2: { at: 'subway.extraSeat2', pose: 'subwayReader' }
       },
       audio: { ambience: 'subway' },
       ui: { fade: 1 }
     },
     needs: {
       markers: ['subway.rooSeat', 'subway.ladySeat', 'subway.extraSeat1', 'subway.extraSeat2'], props: ['handbag'],
-      anims: ['roo.seatedIdle', 'roo.seatedSmileNod', 'oldlady.seatedPurseIdle', 'oldlady.seatedLadyReact', 'extra.seatedReader'],
-      sfx: ['subway_screech', 'subway_chime'],
+      anims: ['roo.subwayIdle', 'roo.subwayWave', 'oldlady.subwayPurse', 'oldlady.subwayNotice', 'oldlady.subwayAccept', 'extra.subwayReader'],
+      lines: ['subway_lady_kangaroo', 'subway_roo_yep'], sfx: ['subway_chime'],
       shots: ['subway-ride.wide', 'subway-ride.two', 'subway-ride.roo', 'subway-ride.lady']
     },
     play: async function (w) {
       var S = K(), t0 = JG.clock.t, roo = w.actor('roo'), lady = w.actor('oldlady');
       if (JG.crowd) JG.crowd.prewarm(w, 'plaza-walk');   // builds plaza-walk's crowd a frame at a time (round 2)
       w.cut('subway-ride.wide');
+      S.start(w, lady, 'subwayNotice', { loop: false, fade: 0 });
       w.fork(async function (w2) { await w2.fadeIn(0.6); });
-      // 2026-11-28: no code-made wheel screech over the owner's subway recording (subway_chime stays at 9.2 s)
-      await w.cam('subway-ride.two', 2.6, 'inOutSine');
-      // Roo notices the old lady across the aisle and smiles; she stares; he nods; she smiles back
-      w.cut('subway-ride.roo');
-      w.look(roo, 'oldlady');
-      await w.wait(1.0);
-      w.express(roo, 'smile');
-      await w.wait(0.8);
+      await w.cam('subway-ride.two', 1.65, 'inOutSine');
+
+      // She lifts her chin from her handbag just as we come in on her face.
       w.cut('subway-ride.lady');
       w.look(lady, 'roo');
-      await w.wait(1.6);
+      w.express(lady, 'curious');
+      w.mark('lady-notices');
+      await w.wait(1.25);
+
       w.cut('subway-ride.roo');
-      await S.playFor(w, roo, 'seatedSmileNod', 1.6, { fade: 0.2 });
+      w.look(roo, 'oldlady');
+      w.express(roo, 'smile');
+      w.mark('shy-wave');
+      await w.play(roo, 'subwayWave', { loop: false, fade: 0.16 });
+      S.start(w, roo, 'subwayIdle', { fade: 0.18 });
+
       w.cut('subway-ride.lady');
-      w.express(lady, 'smile');
-      S.start(w, lady, 'seatedLadyReact', { loop: false, fade: 0.2 });
-      w.mark('smile-back');
-      await w.wait(1.6);
+      w.express(lady, 'talking');
+      w.mark('lady-asks');
+      await w.say('subway_lady_kangaroo', { actor: lady, gap: 0 });
+      w.express(lady, 'curious');
+
+      w.cut('subway-ride.roo');
+      w.express(roo, 'smirk');
+      await w.wait(0.42);
+      w.mark('roo-answers');
+      await w.say('subway_roo_yep', { actor: roo });
+
+      w.cut('subway-ride.lady');
+      w.express(lady, 'amused');
+      w.mark('lady-accepts');
+      await w.play(lady, 'subwayAccept', { loop: false, fade: 0.14 });
+      await w.wait(0.30);
       w.cut('subway-ride.two');
-      w.look(roo, null); w.look(lady, null);
       w.sfx('subway_chime');
       await S.hold(w, t0, 12.55);
       await S.coverOut(w, 'wipe', 0.45);
