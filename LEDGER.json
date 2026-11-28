@@ -29,6 +29,21 @@
   "credit": null,
   "owner": null
  },
+ "assets/audio/ambience/subway.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
+ },
  "assets/audio/music/elevator.mp3": {
   "class": "user-licensed",
   "sources": [
