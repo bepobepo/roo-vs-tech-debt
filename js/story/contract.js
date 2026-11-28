@@ -31,7 +31,7 @@
         'subwayIdle', 'subwayWave', 'subwayWink',
         'shrugCheckWrist', 'headphonesOn', 'headphonesOff', 'twoFingerSalute',
         // round 2 (rooftop-call on the couch): clips-gaming.js
-        'seatedGaming', 'seatedPhone', 'seatedPhoneFacepalm', 'standUp',
+        'seatedGaming', 'seatedPhone', 'seatedPhoneFacepalm', 'standUp', 'standFromDesk',
         // office-walk's stations (2026-11-25): clips-roo.js
         'reachPress', 'drinkCup', 'holdCup', 'offerCup',
         // rooftop-walk's couch gag (2026-11-26): clips-roo.js
@@ -89,7 +89,7 @@
         'roof.couch', 'roof.tv', 'streetA.barkSuper', 'streetB.barkBaby'],
       subway: ['subway.rooSeat', 'subway.ladySeat', 'subway.extraSeat1', 'subway.extraSeat2', 'subway.cam'],
       office: ['office.elevatorMark', 'office.elevatorOut', 'office.opsStart', 'office.opsPlea', 'office.hug.roo', 'office.hug.ops',
-        'office.spawn', 'office.deskStand', 'office.chair', 'office.execStand', 'office.windowRun', 'office.windowHole',
+        'office.spawn', 'office.deskStand', 'office.chair', 'office.chairExit', 'office.execStand', 'office.windowRun', 'office.windowHole',
         'office.extraDesk1', 'office.extraDesk2', 'office.extraStand',
         // the office life pass (2026-11-25): the third typist's island seat, the three stations' stand marks
         'office.extraDesk3', 'office.scanStand', 'office.coolerStand', 'office.coffeeStand', 'office.windowStand']

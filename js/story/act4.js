@@ -22,8 +22,8 @@
       audio: { ambience: 'office' }
     },
     needs: {
-      markers: ['office.chair', 'office.execStand'], lines: ['exec_how', 'roo_good_at', 'roo_dont_need_me'],
-      anims: ['exec.walk', 'exec.armsCrossedIdle', 'exec.disbelief', 'roo.seatedSmileNod', 'roo.standUp', 'roo.idle', 'roo.twoFingerSalute'],
+      markers: ['office.chair', 'office.chairExit', 'office.execStand'], lines: ['exec_how', 'roo_good_at', 'roo_dont_need_me'],
+      anims: ['exec.walk', 'exec.armsCrossedIdle', 'exec.disbelief', 'roo.seatedSmileNod', 'roo.standFromDesk', 'roo.idle', 'roo.twoFingerSalute'],
       sfx: ['step_carpet', 'chair'], shots: ['how.two', 'how.exec', 'how.roo', 'how.rise', 'how.salute']
     },
     play: async function (w) {
@@ -35,7 +35,13 @@
       w.cut('how.two');
       await w.parallel(
         async function (w2) { await w2.moveTo(exec, 'office.execStand', { speed: 1.0, face: true }); },
-        async function (w2) { await w2.wait(0.6); w2.sfx('chair'); await w2.turnTo(roo, 'exec', 0.7); });
+        async function (w2) {
+          await w2.wait(0.6);
+          w2.sfx('chair');
+          var chair = w2.prop('chair'), yaw = JG.world.marker('office.chairExit').yaw;
+          if (chair.swivel) await w2.tweenFn(0.7, function (k) { chair.swivel(roo, yaw * k); }, 'inOutSine');
+          else await w2.turnTo(roo, 'exec', 0.7);
+        });
       K().start(w, exec, 'armsCrossedIdle', { fade: 0.3 });
       w.look(exec, 'roo');
       w.look(roo, 'exec');
@@ -54,7 +60,7 @@
       await w.wait(0.15);
       w.mark('stand');
       w.sfx('chair');
-      await w.play(roo, 'standUp', { loop: false, speed: 0.8, fade: 0.15 });
+      await w.play(roo, 'standFromDesk', { loop: false, speed: 0.8, fade: 0.15 });
       S.cape(roo, 'sim');
       S.start(w, roo, 'idle', { fade: 0.25 });
       await w.wait(0.2);
@@ -74,13 +80,13 @@
     stage: {
       scene: 'office', sceneState: AFTER,
       cast: {
-        roo: { at: 'office.chair', pose: 'idle', expr: 'smirk', cape: 'sim' },
+        roo: { at: 'office.chairExit', pose: 'idle', expr: 'smirk', cape: 'sim' },
         exec: { at: 'office.execStand', pose: 'armsCrossedIdle', expr: 'halfSmile' }
       },
       audio: { ambience: 'office' }
     },
     needs: {
-      markers: ['office.chair', 'office.execStand', 'office.windowRun', 'office.windowHole'], paths: ['office.windowRun'],
+      markers: ['office.chairExit', 'office.execStand', 'office.windowRun', 'office.windowHole'], paths: ['office.windowRun'],
       anims: ['roo.runDive', 'roo.dive', 'exec.disbelief'], sfx: ['glass', 'whoosh'],
       shots: ['window-exit.run', 'window-exit.dive', 'window-exit.hole', 'window-exit.exec']
     },

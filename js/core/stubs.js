@@ -106,6 +106,7 @@
         'office.hug.roo': { pos: [0, 0, 2.29], yaw: 0 }, 'office.hug.ops': { pos: [0, 0, 2.71], yaw: PI },
         'office.spawn': { pos: [0, 0, 2.2], yaw: 0 }, 'office.deskStand': { pos: [5, 0, 13.6], yaw: 0 },
         'office.chair': { pos: [5, 0, 14.5], yaw: 0 }, 'office.execStand': { pos: [2.6, 0, 14.4], yaw: PI / 2 },
+        'office.chairExit': { pos: [4.71, 0, 14.21], yaw: -PI / 2 },
         'office.windowRun': { pos: [5, 0, 19.5], yaw: 0 }, 'office.windowHole': { pos: [5, 1.2, 21], yaw: 0 },
         'office.extraDesk1': { pos: [-5, 0, 9], yaw: 0 }, 'office.extraDesk2': { pos: [-5, 0, 14], yaw: 0 },
         // the office life pass (2026-11-25, scenes/office.js and office-props.js): extra2 at the printer, the island's
@@ -119,7 +120,7 @@
         'office.coffee': { type: 'box', min: [8.25, 1.95], max: [8.78, 2.75] } },
       paths: {
         'office.toHug': ['office.opsStart', [-2, 0, 6], 'office.opsPlea'],
-        'office.windowRun': ['office.chair', [5, 0, 17], 'office.windowRun', 'office.windowHole']
+        'office.windowRun': ['office.chairExit', [5, 0, 17], 'office.windowRun', 'office.windowHole']
       },
       walk: { 'office-walk': [{ min: [-9, 0.6], max: [9, 20.5] }] },
       camPresets: { 'office-walk': { yaw: 0.35, dist: 5.5, height: 2.8, lookHeight: 1.1, lag: 0.25 } },
@@ -1001,7 +1002,7 @@
     'two-hours-later': st({ scene: 'office', sceneState: { floor: 56, doors: 'open', mood: 'after', monitor: 'before', window: 'intact', light: 'dusk' }, cast: { roo: { at: 'office.chair', pose: 'seatedIdle', props: { headphones: 'head' } } }, audio: { music: 'montage', musicFx: 'muffled', ambience: 'office' }, ui: { fade: 1 } }),
     'all-clear': st({ scene: 'office', sceneState: { floor: 56, doors: 'open', mood: 'after', monitor: 'after', window: 'intact', light: 'dusk' }, cast: { roo: { at: 'office.chair', pose: 'seatedIdle' } }, audio: { ambience: 'office' }, ui: { radar: { stage: 'after' } } }),
     'how': st({ scene: 'office', sceneState: { floor: 56, doors: 'open', mood: 'after', monitor: 'after', window: 'intact', light: 'dusk' }, cast: { roo: { at: 'office.chair', pose: 'seatedIdle' }, exec: { at: 'office.execStand', pose: 'armsCrossedIdle' } }, audio: { ambience: 'office' } }),
-    'window-exit': st({ scene: 'office', sceneState: { floor: 56, doors: 'open', mood: 'after', monitor: 'after', window: 'intact', light: 'dusk' }, cast: { roo: { at: 'office.chair', pose: 'idle' }, exec: { at: 'office.execStand', pose: 'armsCrossedIdle' } }, audio: { ambience: 'office' } }),
+    'window-exit': st({ scene: 'office', sceneState: { floor: 56, doors: 'open', mood: 'after', monitor: 'after', window: 'intact', light: 'dusk' }, cast: { roo: { at: 'office.chairExit', pose: 'idle' }, exec: { at: 'office.execStand', pose: 'armsCrossedIdle' } }, audio: { ambience: 'office' } }),
     'subway-wink': st({ scene: 'subway', sceneState: { lady: 'knitting', motion: 'moving' }, cast: { roo: { at: 'subway.rooSeat', pose: 'seatedIdle' }, oldlady: { at: 'subway.ladySeat', pose: 'seatedKnit' } }, audio: { ambience: 'subway' } }),
     // freeze: entered by flow, the wink's last frame and inked panel stay under the end card; entered by a jump
     // (goto, hash), this stage rebuilds that frame

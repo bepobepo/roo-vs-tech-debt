@@ -21,6 +21,15 @@
   function seat(P, o) { JG.anim.P.seat(P, o); }
   function lap(P) { A().arm(P, 'l', [0.0, -0.44, 0.3], { curl: 0.3 }); A().arm(P, 'r', [0.0, -0.44, 0.3], { curl: 0.3 }); }
 
+  // In the library's 31-frame Sitting_Exit his chest tips well forward. Let the cape keep some
+  // downward weight during the push and trail the shoulders as he straightens.
+  C.define('roo.chairRiseCape', { duration: 31 / 30, loop: false,
+    keys: [[0, 0], [0.14, -0.15], [0.32, -0.36], [0.51, -0.28], [0.76, -0.14], [31 / 30, 0]].map(function (key) {
+      return { t: key[0], pose: function (P) { P.rotLocal('cape_root', key[1], 0, 0); } };
+    })
+  });
+  C.compose('roo.standFromDesk', { base: 'Sitting_Exit', over: 'roo.chairRiseCape', mask: ['cape_root'] });
+
   // ---------------------------------------------------------------- code clips
   function lounge(P, b) {
     var d = D(P);

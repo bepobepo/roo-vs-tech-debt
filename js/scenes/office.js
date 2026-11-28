@@ -70,7 +70,7 @@
     'office.window': { type: 'box', min: [3.9, 19.0], max: [6.1, 20.2] } };
   var PATHS = {
     'office.toHug': ['office.opsStart', [-2, 0, 6], 'office.opsPlea'],
-    'office.windowRun': ['office.chair', [5, 0, 17], 'office.windowRun', 'office.windowHole']
+    'office.windowRun': ['office.chairExit', [5, 0, 17], 'office.windowRun', 'office.windowHole']
   };
   var DEFAULTS = { floor: 56, doors: 'open', mood: 'before', monitor: 'off', window: 'intact', light: 'day' };
   // Workstations [x, z, yaw]: the seat mark (yaw 0 faces +Z); the desk sits 0.25..1.03 m in front of it and a
@@ -130,6 +130,11 @@
   // raw z of the chair origin in the seat-mark frame: seat front -0.035, backrest front -0.542, back -0.601 (the
   // Kenney chairs: seat front +0.05, upper backrest front about -0.49 in the cubicles)
   var CHAIR_Z = -0.29;
+  // Roo's actor origin is at his feet, ahead of the chair pedestal. Swivel both around the pedestal.
+  function chairMark(yaw) {
+    return { pos: [HERO[0] - CHAIR_Z * Math.sin(yaw), 0, HERO[1] + CHAIR_Z * (1 - Math.cos(yaw))], yaw: yaw };
+  }
+  MARKERS['office.chairExit'] = chairMark(-PI / 2);
   var SEAT_LIFT = [0.30, -0.052];            // cubicle seat top 0.600 - 0.073 - 0.052 = 0.475 (the extras' seat height)
   var HERO_SEAT_LIFT = [0.30, -0.152];       // hero seat top 0.375 (Roo's butt 0.35..0.38)
   // the chair's black goes to a navy grey on the seat (so it does not dissolve into its ink) and a dark grey on the
@@ -280,8 +285,8 @@
     var chairBounds = [];                     // the cubicle chairs' world bounds (chair(); debug.chairs: the walk-rect check)
     var coffeeBounds = null;                  // the placed coffee machine's world bounds (office-props.js builds on it)
     if (K) furnish(K); else boxFurniture();
-    // the hero chair (heroChair): its own builder; the box fallback keeps it in the instanced chairs
-    var chairRoot = new THREE.Group(), chairK = 1;
+    // The hero chair has its own root so it can swivel with Roo while the other chairs stay instanced.
+    var chairRoot = new THREE.Group(), chairK = 1, seatMark = MARKERS['office.chair'];
     chairRoot.name = 'office-hero-chair';
     root.add(chairRoot);
     if (K) {
@@ -746,14 +751,20 @@
      * leaves. On a beat entry it snaps to where it belongs. */
     function poseChair() {
       var e = chairK * chairK * (3 - 2 * chairK), o = CHAIR_OUT;
-      chairRoot.position.set(HERO[0] + o.x * (1 - e), 0, HERO[1] + o.z * (1 - e));
-      chairRoot.rotation.y = o.yaw * (1 - e);
+      chairRoot.position.set((HERO[0] + o.x) * (1 - e) + seatMark.pos[0] * e, 0, (HERO[1] + o.z) * (1 - e) + seatMark.pos[2] * e);
+      chairRoot.rotation.y = o.yaw * (1 - e) + seatMark.yaw * e;
+    }
+    function swivelChair(roo, yaw) {
+      seatMark = chairMark(yaw);
+      roo.root.position.fromArray(seatMark.pos);
+      roo.root.rotation.y = yaw;
+      poseChair();
     }
     function rooAtSeat() {
       var W = JG.world;
       if (!W || !W.staged || !W.staged('roo')) return false;
       var p = W.actor('roo').root.position;
-      return Math.abs(p.x - HERO[0]) < 0.12 && Math.abs(p.z - HERO[1]) < 0.12;
+      return Math.abs(p.x - seatMark.pos[0]) < 0.12 && Math.abs(p.z - seatMark.pos[2]) < 0.12;
     }
     function heroChair(dt) {
       var target = rooAtSeat() ? 1 : 0;
@@ -785,7 +796,8 @@
       var seatT = SEATS.map(function (s) { return { pos: [s[0], 0, s[1]], yaw: s[2] }; });
       root.add(kit.instanced(deskM, seatT));
       root.add(kit.instanced(monM, seatT));
-      root.add(kit.instanced(chairM, seatT.concat([{ pos: [HERO[0], 0, HERO[1]] }])));
+      root.add(kit.instanced(chairM, seatT));
+      chairRoot.add(chairM);
     }
 
     // ---------------------------------------------------------------------------------------------- state
@@ -834,7 +846,7 @@
       crowdHullFar: 6,
       camPresets: { 'office-walk': { yaw: 0.35, dist: 5.5, height: 2.8, lookHeight: 1.1, lag: 0.25 } },
       camColliders: B.colliders(),
-      props: Object.assign({ monitor: { object: mon.mesh, anchors: {}, videoState: film.state }, window: { object: pane, anchors: {} }, windowBroken: { object: broken, anchors: {} } },
+      props: Object.assign({ chair: { object: chairRoot, swivel: swivelChair }, monitor: { object: mon.mesh, anchors: {}, videoState: film.state }, window: { object: pane, anchors: {} }, windowBroken: { object: broken, anchors: {} } },
         props ? { scanner: props.scanner, cooler: props.cooler, coffee: props.coffee, deskMug: props.deskMug } : {}),
       surfaceAt: function (x, z) { return z < 0.2 || (z < 1.3 && Math.abs(x) < 3) ? 'hard' : 'carpet'; },
       setState: function (patch, sec) {
@@ -881,7 +893,13 @@
       JG.on('visibility', film.visibility);
     }
     // the stations animate (screens redraw, steam puffs) only in office-walk; every beat starts them from rest
-    if (JG.on) JG.on('beat', function (id) { if (JG.world && JG.world.current === inst) { heroChair(); if (props) { props.reset(); props.live(id === 'office-walk'); } } });
+    if (JG.on) JG.on('beat', function (id) {
+      if (JG.world && JG.world.current === inst) {
+        seatMark = MARKERS[id === 'window-exit' ? 'office.chairExit' : 'office.chair'];
+        heroChair();
+        if (props) { props.reset(); props.live(id === 'office-walk'); }
+      }
+    });
     inst.setState(Object.assign({}, DEFAULTS), 0);
     poseChair();
     return inst;
