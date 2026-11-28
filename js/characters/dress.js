@@ -36,6 +36,7 @@
  *             landmark's bone), size params (r, tube, w, h, d, r2, arc, seg), scale?: [x,y,z], rot?: [x,y,z] (radians),
  *             points?: [[x,y,z]...] (tube, relative to the landmark), color, ink?: hull thickness scale (default 1),
  *             mirror?: true (also builds the shell mirrored in x) }
+ *   A shell can supply makeGeometry(THREE) for a custom shape centred on its landmark in bind-space axes.
  *   landmarks (bind frame): head (the Head joint), crown, back (of the skull), face (the front of the face at eye
  *             height), eyeL/eyeR, nose, mouth, chin, earL/earR, neck, chest (front of the chest), waist (front), and
  *             every bone name (its joint).
@@ -248,6 +249,7 @@
   }
 
   function shellGeometry(THREE, s) {
+    if (s.makeGeometry) return s.makeGeometry(THREE);
     var g;
     switch (s.shape) {
       case 'box': g = new THREE.BoxGeometry(s.w || 0.02, s.h || 0.02, s.d || 0.02); break;

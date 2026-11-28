@@ -1,4 +1,19 @@
 {
+ "assets/audio/ambience/office.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
+ },
  "assets/audio/ambience/roof.mp3": {
   "class": "user-licensed",
   "sources": [
@@ -385,14 +400,6 @@
   "credit": null,
   "tool": "Kokoro-82M via tools/gen-vo.py",
   "tag": "JUNE_PLACEHOLDER roo_obviously"
- },
- "assets/audio/vo/stn_roo_rocket_fuel.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
-  "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER roo_rocket_fuel"
  },
  "assets/audio/vo/stn_scanner_again.mp3": {
   "class": "generated-placeholder",

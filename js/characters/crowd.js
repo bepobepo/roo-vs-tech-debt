@@ -106,7 +106,7 @@
     R.push({ part: 'cloth', color: o.skirt || o.bottom });
     // the body: a hair-coloured scalp under the hair, skin at the head, neck and hands, forearms bare unless the
     // sleeves are long, and everything under the clothes in the clothes' colours
-    if (!o.bald) R.push({ bones: /^Head$/, yMin: o.female ? 0.955 : 0.962, color: o.hair });
+    if (!o.bald && !o.highPonytail) R.push({ bones: /^Head$/, yMin: o.female ? 0.955 : 0.962, color: o.hair });
     R.push({ bones: /^(Head|neck_01)$/, color: o.skin });
     R.push({ bones: /^(hand_|index|middle|ring|pinky|thumb)/, color: o.skin });
     R.push({ bones: /^lowerarm/, color: o.longSleeves || o.jacket ? top : o.skin });
@@ -118,8 +118,8 @@
     R.push({ bones: /^(pelvis|thigh|calf)/, color: o.skirt || o.bottom });
     return { base: o.skin, rules: R };
   }
-  /** which hairstyle shows: hair1 (ponytail / short), hair2 (bob / afro), or none */
-  function hideOf(o) { return o.bald ? ['hair'] : [o.hair2 ? 'hair1' : 'hair2']; }
+  /** Hide both stock hairstyles for a bald head or a fitted ponytail. */
+  function hideOf(o) { return (o.bald || o.highPonytail) ? ['hair'] : [o.hair2 ? 'hair1' : 'hair2']; }
   function randomLook(r, female) {
     var o = { female: female, skin: pick(r, SKINS), hair: pick(r, HAIRS), top: pick(r, TOPS), bottom: pick(r, BOTTOMS), shoes: pick(r, SHOES) };
     o.jacket = r() < 0.35 ? pick(r, JACKETS) : null;
@@ -135,8 +135,102 @@
   // ponytail in magenta, dark skirt and tights, red shoes
   var BARK_LOOK = {
     'street-subway': { female: false, skin: '#C68B66', hair: '#1E1A18', hair2: true, top: '#2FA36B', longSleeves: true, bottom: '#2A3550', shoes: '#F2F2F2', height: 1.78, smile: true },
-    'plaza-walk': { female: true, skin: '#E0AC85', hair: '#3B2A20', top: '#E0218A', skirt: '#1C1C22', legs: '#1C1C22', shoes: '#B5302E', height: 1.68, smile: true, lips: '#C0213A' }
+    'plaza-walk': { female: true, highPonytail: true, skin: '#E0AC85', hair: '#3B2A20', top: '#E0218A', skirt: '#1C1C22', legs: '#1C1C22', shoes: '#B5302E', height: 1.68, smile: true, lips: '#C0213A' }
   };
+  // Metres in the Head joint's bind frame. The lower edge follows the temples, clears the ears,
+  // and drops to the nape. The ponytail and its elastic share the same curved centreline.
+  function plazaPonytail() {
+    var hairline = [
+      [0, 0.093], [0.40, 0.101], [0.75, 0.093], [1.02, 0.074], [1.25, 0.032],
+      [1.52, 0.062], [1.74, 0.057], [2.03, 0.023], [2.55, 0.001], [Math.PI, -0.003]
+    ];
+    // Each section gives the centre (x, y, z), half-width and half-depth.
+    var sections = [
+      [0, 0.108, -0.081, 0.023, 0.021], [0.003, 0.121, -0.108, 0.027, 0.025],
+      [0.014, 0.117, -0.154, 0.045, 0.036], [0.026, 0.079, -0.171, 0.042, 0.031],
+      [0.043, 0.028, -0.175, 0.034, 0.024], [0.053, -0.015, -0.170, 0.024, 0.018],
+      [0.045, -0.081, -0.141, 0.008, 0.006], [0.033, -0.095, -0.135, 0.0004, 0.0004]
+    ];
+    var turn = 2 * Math.PI;
+
+    // Join successive rings (closed) or the two edges of a highlight (open).
+    function surface(THREE, rows, columns, closed, point, apex) {
+      var positions = [], indices = [], stride = closed ? columns : columns + 1;
+      for (var row = 0; row <= rows; row++) {
+        for (var col = 0; col < stride; col++) {
+          var p = point(row, col / columns);
+          positions.push(p.x, p.y, p.z);
+          if (col === columns) continue; // last vertex of an open strip
+          var a = row * stride + col, b = row * stride + (col + 1) % stride;
+          if (row < rows) indices.push(a, b, b + stride, a, b + stride, a + stride);
+          else if (apex) indices.push(a, b, (rows + 1) * stride);
+        }
+      }
+      if (apex) positions.push(apex[0], apex[1], apex[2]);
+      var geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setIndex(indices);
+      geometry.computeVertexNormals();
+      return geometry;
+    }
+    function crownPoint(THREE, angle, elevation, lift) {
+      var ring = Math.cos(elevation);
+      return new THREE.Vector3((0.082 + lift) * ring * Math.sin(angle),
+        0.053 + (0.103 + lift) * Math.sin(elevation), -0.006 + (0.110 + lift) * ring * Math.cos(angle));
+    }
+    function crown(THREE) {
+      var heights = [0, 0.30, 0.61, 0.82];
+      return surface(THREE, heights.length - 1, 18, true, function (row, u) {
+        var angle = turn * u, sideAngle = Math.min(angle, turn - angle), k = 1;
+        while (k < hairline.length - 1 && sideAngle > hairline[k][0]) k++;
+        var start = hairline[k - 1], end = hairline[k];
+        var blend = (sideAngle - start[0]) / (end[0] - start[0]);
+        var rimY = start[1] + (end[1] - start[1]) * blend;
+        var rim = Math.asin((rimY - 0.053) / 0.103);
+        return crownPoint(THREE, angle, rim + heights[row] * (Math.PI / 2 - rim), 0);
+      }, [0, 0.156, -0.006]);
+    }
+    function tailPoint(THREE, row, u, lift) {
+      var section = sections[row], prev = sections[Math.max(0, row - 1)], next = sections[Math.min(sections.length - 1, row + 1)];
+      var tangent = new THREE.Vector3(next[0] - prev[0], next[1] - prev[1], next[2] - prev[2]).normalize();
+      var across = new THREE.Vector3(1, 0, 0).addScaledVector(tangent, -tangent.x).normalize();
+      var depth = new THREE.Vector3().crossVectors(tangent, across);
+      return new THREE.Vector3(section[0], section[1], section[2])
+        .addScaledVector(across, (section[3] + lift) * Math.cos(turn * u))
+        .addScaledVector(depth, (section[4] + lift) * Math.sin(turn * u));
+    }
+    function tail(THREE) {
+      return surface(THREE, sections.length - 1, 8, true, function (row, u) { return tailPoint(THREE, row, u, 0); });
+    }
+    function band(THREE) {
+      return surface(THREE, 1, 8, true, function (row, u) {
+        var p = tailPoint(THREE, 1, u, 0.0035);
+        p.y += (row - 0.5) * 0.004;
+        p.z -= (row - 0.5) * 0.011;
+        return p;
+      });
+    }
+    function crownHighlight(THREE) {
+      return surface(THREE, 7, 1, false, function (row, u) {
+        var t = row / 7, arch = Math.sin(t * Math.PI), width = 0.004 + 0.063 * arch;
+        return crownPoint(THREE, 0.38 + 2.17 * t, 0.70 + 0.21 * arch - 0.17 * t + (0.5 - u) * width, 0.0022);
+      });
+    }
+    function tailHighlight(THREE) {
+      return surface(THREE, 4, 1, false, function (row, u) {
+        var t = row / 4, width = 0.025 * Math.sin(t * Math.PI);
+        return tailPoint(THREE, row + 2, 0.18 - 0.08 * t + (u - 0.5) * width, 0.0016);
+      });
+    }
+    return [
+      { makeGeometry: crown, at: 'head', color: '#493125', ink: 0.46 },
+      { makeGeometry: tail, at: 'head', color: '#422A20', ink: 0.50 },
+      { makeGeometry: crownHighlight, at: 'head', color: '#694634', ink: 0 },
+      { makeGeometry: tailHighlight, at: 'head', color: '#664332', ink: 0 },
+      { makeGeometry: band, at: 'head', color: '#B04769', ink: 0 }
+    ];
+  }
+
   function faceOf(o) {
     var style = { skin: o.skin, brow: o.bald ? '#3B2A20' : o.hair, lashes: o.female ? 'female' : 'male', nose: 'soft' };
     if (o.lips) { style.lips = o.lips; style.lipFill = true; }
@@ -155,6 +249,7 @@
       // the cooler cup Roo hands to Gary (office-walk): turned in the talking hand so it stands upright, its blue band
       // and rim to the camera (unturned it points at the lens and reads as a blue disc)
       props: { paperCup: { along: 0.08, rot: [1.389, 0.336, 0.402] } } };
+    if (look.highPonytail) d.shells = plazaPonytail();
     var a = JG.anim.human(kit, { id: 'crowd' + n, base: 'crowd', instance: n }, d);
     a.root.name = 'crowd-' + key;
     a.crowdKey = key;
