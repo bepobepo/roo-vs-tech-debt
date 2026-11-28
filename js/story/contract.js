@@ -30,7 +30,7 @@
         'seatedType', 'runDive', 'idleChill', 'idleHero', 'fallDive', 'hugHold', 'seatedSmileNod', 'seatedWink',
         'shrugCheckWrist', 'headphonesOn', 'headphonesOff', 'twoFingerSalute',
         // round 2 (rooftop-call on the couch): clips-gaming.js
-        'seatedGaming', 'seatedPhone', 'standUp',
+        'seatedGaming', 'seatedPhone', 'seatedPhoneFacepalm', 'standUp',
         // office-walk's stations (2026-11-25): clips-roo.js
         'reachPress', 'drinkCup', 'holdCup', 'offerCup',
         // rooftop-walk's couch gag (2026-11-26): clips-roo.js

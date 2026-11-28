@@ -5,6 +5,7 @@
  *                      both hands forward at the belly holding a controller, thumbs working, head on the TV
  *   roo.seatedPhone    code (round 2c): the chair sit, the right hand bringing the phone to the side of his head (the
  *                      library phone arm over the sit stopped short of it), the left hand on his thigh
+ *   roo.seatedPhoneFacepalm  one seated aside, left fingertips to brow while the phone stays at his right cheek
  *   roo.standUp        the library Sitting_Exit as a contract clip (a compose of the clip with itself: the clip
  *                      engine plays library clips by contract id only through the asset map or a compose)
  *   JG.gaming.controller(kit, scale) -> Group   a small unbranded gamepad (one merged vertex-coloured mesh and its hull;
@@ -49,10 +50,11 @@
   // round 2c: a code clip, so the phone reaches the side of his head (the library phone arm over the sit stopped a few
   // cm short of it): the same chair sit as the library clips, the left hand on his thigh, the right wrist under the
   // jaw hinge with the phone in the palm against the cheek, the head tipped into it, a slow nod while he listens
-  function phoneTalk(P, c) {
-    A().seat(P, { arms: false, recline: -0.06 });
+  function phoneTalk(P, c, dip) {
+    dip = dip || 0;
+    A().seat(P, { arms: false, recline: -0.06 - 0.055 * dip });
     A().arm(P, 'l', [0.0, -0.44, 0.3], { elbow: [0.5, -0.4, -0.7], hand: { dir: [-0.2, -0.35, 1], palm: [-0.3, -1, 0] }, curl: 0.3 });
-    A().head(P, 0.03 + 0.04 * c, 0.06, -0.1);
+    A().head(P, 0.03 + 0.04 * c + 0.075 * dip, 0.06, -0.1 - 0.025 * dip);
     A().armTo(P, 'r', A().headPoint(P, PHONE_AT, 'r'), { elbow: [0.55, -1, 0.15], clav: [0.12, 0.05], hand: { dir: [0.05, 1, 0.3], palm: [-1, 0, 0.25] }, curl: 0.45 });
   }
   var PHONE_AT = [0.095, -0.08, 0.015];   // the right wrist from the Head joint (outward, down, forward), metres
@@ -60,6 +62,31 @@
     { t: 0, pose: function (P) { phoneTalk(P, 0); } },
     { t: 1.2, pose: function (P) { phoneTalk(P, 1); } },
     { t: 2.4, pose: function (P) { phoneTalk(P, 0); } }
+  ] });
+  // Lift outside the long muzzle, then tip into the fingertips. The targets ride the
+  // head so the dip keeps both the brow contact and the handset against its cheek.
+  function palmPassing(P, dip) {
+    phoneTalk(P, 0, dip);
+    A().armTo(P, 'l', A().headPoint(P, [0.19, -0.13, 0.22], 'l'), {
+      elbow: [0.5, -1, -0.35], hand: { dir: [-0.25, 0.76, 0.48], palm: [-1, 0, -0.1] }, curl: 0.32
+    });
+  }
+  function palmAtBrow(P, dip) {
+    phoneTalk(P, 0, dip);
+    A().armTo(P, 'l', A().headPoint(P, [0.152, 0.006, 0.154], 'l'), {
+      elbow: [0.55, -1, -0.2], hand: { dir: [-0.43, 0.93, 0.10], palm: [-0.85, -0.15, -0.40] }, curl: 0.14
+    });
+  }
+  C.define('roo.seatedPhoneFacepalm', { duration: 4.45, loop: false, keys: [
+    { t: 0, pose: function (P) { phoneTalk(P, 0); } },
+    { t: 0.38, pose: function (P) { palmPassing(P, 0.1); } },
+    { t: 0.75, pose: function (P) { palmAtBrow(P, 0.5); } },
+    { t: 1.05, pose: function (P) { palmAtBrow(P, 1); } },
+    { t: 2.9, pose: function (P) { palmAtBrow(P, 0.85); } },
+    { t: 3.15, pose: function (P) { palmAtBrow(P, 0.55); } },
+    { t: 3.60, pose: function (P) { palmPassing(P, 0.15); } },
+    { t: 4.35, pose: function (P) { phoneTalk(P, 0); } },
+    { t: 4.45, pose: function (P) { phoneTalk(P, 0); } }
   ] });
   C.compose('roo.standUp.clip', { base: 'Sitting_Exit', over: 'Sitting_Exit', mask: 'upper' });
   R('roo.standUp', { clip: 'roo.standUp.clip' });

@@ -37,7 +37,7 @@
   var JG = window.JG = window.JG || {};
 
   var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3', INTRO_URL = 'assets/audio/music/intro.mp3', ELEVATOR_URL = 'assets/audio/music/elevator.mp3',
-      AMB_FILES = { roof: 'assets/audio/ambience/roof.mp3' };   // recorded beds (seamless loops); the code-made bed plays if one is missing
+      AMB_FILES = { roof: 'assets/audio/ambience/roof.mp3', street: 'assets/audio/ambience/street.mp3' };   // recorded beds (seamless loops); the code-made bed plays if one is missing
   var BUS = { master: 0.9, vo: 1.0, sfx: 0.8, music: 0.5, amb: 0.4 };
   var DUCK = { music: 0.35, amb: 0.65 };
   var FX = {
@@ -477,7 +477,7 @@
         } catch (e) { /* ignore */ }
       });
       // the montage file decodes lazily from desk-sit (or a jump to the beats that use it)
-      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); if (id === 'plaza-walk' || id === 'elevator-ride') loadElevator(); if (id === 'title' || id === 'rooftop-call') loadAmbFile('roof'); });
+      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); if (id === 'plaza-walk' || id === 'elevator-ride') loadElevator(); if (id === 'title' || id === 'rooftop-call') loadAmbFile('roof'); if (id === 'rooftop-walk' || id === 'rooftop-jump' || id === 'street-subway') loadAmbFile('street'); });
     }
   });
 

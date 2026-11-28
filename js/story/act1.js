@@ -42,7 +42,7 @@
     id: 'rooftop-call', kind: 'cine', skippable: true, est: 23,
     needs: {
       markers: ['roof.couch', 'roof.tv'], lines: ['lauren_problem', 'roo_got_you'], props: ['phone'],
-      anims: ['roo.seatedGaming', 'roo.seatedIdle', 'roo.seatedPhone', 'roo.standUp', 'roo.idle', 'roo.heroCrossed'],
+      anims: ['roo.seatedGaming', 'roo.seatedIdle', 'roo.seatedPhone', 'roo.seatedPhoneFacepalm', 'roo.standUp', 'roo.idle', 'roo.heroCrossed'],
       sfx: ['ringtone', 'phone_click', 'ui_blip', 'sting_hero'],
       shots: ['rooftop-call.tv', 'rooftop-call.gamer', 'rooftop-call.paused', 'rooftop-call.wide', 'rooftop-call.phone', 'rooftop-call.stand', 'rooftop-call.hero']
     },
@@ -108,6 +108,15 @@
       await w.say('lauren_problem', { gap: 0.15 });
       S.ui('callerCard.hide');
       w.express(roo, 'smirk');
+      // “And please” starts 4.88 s into the trimmed 9.39 s take. Keep the gesture
+      // inside the reply even when a replacement recording has a different duration.
+      var replyScale = JG.audio.vo.duration('roo_got_you') / 9.39;
+      w.fork(async function (w2) {
+        await w2.wait(4.88 * replyScale);
+        await w2.play(roo, 'seatedPhoneFacepalm', { loop: false, fade: 0.15, speed: 1 / replyScale });
+        // Resume the phone loop from the matching lap pose so the stand-up can crossfade as usual.
+        await S.start(w2, roo, 'seatedPhone', { fade: 0.1 });
+      });
       await w.say('roo_got_you', { actor: roo, gap: 0.2 });
       // hangs up, stands, hero pose
       w.sfx('phone_click');
