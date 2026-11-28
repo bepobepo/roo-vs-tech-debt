@@ -196,28 +196,49 @@
   "tag": "JUNE_PLACEHOLDER roo_few_minutes"
  },
  "assets/audio/vo/08_exec_how.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER exec_how"
+  "owner": null
  },
  "assets/audio/vo/09_roo_good_at.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER roo_good_at"
+  "owner": null
  },
  "assets/audio/vo/10_roo_dont_need_me.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER roo_dont_need_me"
+  "owner": null
  },
  "assets/audio/vo/11_roo_up_up.mp3": {
   "class": "user-licensed",
@@ -370,28 +391,49 @@
   "owner": null
  },
  "assets/audio/vo/stn_gossip_brenda.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER gossip_brenda"
+  "owner": null
  },
  "assets/audio/vo/stn_gossip_gary.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER gossip_gary"
+  "owner": null
  },
  "assets/audio/vo/stn_roo_hold_cup.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "Kokoro-82M via tools/gen-vo.py",
-  "tag": "JUNE_PLACEHOLDER roo_hold_cup"
+  "owner": null
  },
  "assets/audio/vo/stn_roo_obviously.mp3": {
   "class": "generated-placeholder",
