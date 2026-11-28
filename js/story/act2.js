@@ -124,7 +124,7 @@
     stage: {
       scene: 'office', sceneState: { floor: 1, doors: 'closed', mood: 'before', monitor: 'off', window: 'intact', light: 'day' },
       cast: { roo: { at: 'office.elevatorMark', pose: 'elevatorStand', expr: 'neutral', cape: 'drape:hero' } },
-      audio: { music: 'elevator', ambience: 'elevator' },
+      audio: { music: 'elevator', ambience: null },   // 2026-11-28: no lift hum under the track; the street bed stops on entry
       ui: { fade: 1 }
     },
     needs: {
