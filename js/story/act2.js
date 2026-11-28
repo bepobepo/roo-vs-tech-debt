@@ -40,7 +40,7 @@
       if (JG.crowd) JG.crowd.prewarm(w, 'plaza-walk');   // builds plaza-walk's crowd a frame at a time (round 2)
       w.cut('subway-ride.wide');
       w.fork(async function (w2) { await w2.fadeIn(0.6); });
-      w.fork(async function (w2) { await w2.wait(0.3); w2.sfx('subway_screech'); });
+      // 2026-11-28: no code-made wheel screech over the owner's subway recording (subway_chime stays at 9.2 s)
       await w.cam('subway-ride.two', 2.6, 'inOutSine');
       // Roo notices the old lady across the aisle and smiles; she stares; he nods; she smiles back
       w.cut('subway-ride.roo');
