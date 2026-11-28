@@ -207,9 +207,25 @@
     }
   });
 
-  // ---------------------------------------------------------------- 3. rooftop-jump (cine, 8 s; skip lands on beat 4)
+  // Roo's root motion shares the body clip's clock. Each key is [seconds, value, slope/second].
+  // The forward track spans the distance between set markers. The height track rises in metres.
+  var flightForward = [[0.90, 0, 0.37], [1.60, 0.376, 0.46], [2.72, 0.768, 0.24], [3.45, 0.89, 0.10], [5.30, 1, 0]];
+  var flightRise = [[0.90, 0, 4], [1.54, 1.28, 0.63], [2.24, 1.45, 0], [2.85, 1.40, -0.12], [3.45, 1.18, -0.61]];
+  function flightCurve(keys, t) {
+    if (t <= keys[0][0]) return keys[0][1];
+    for (var i = 1; i < keys.length; i++) {
+      var a = keys[i - 1], b = keys[i];
+      if (t > b[0]) continue;
+      var dt = b[0] - a[0], u = (t - a[0]) / dt, v = 1 - u;
+      return (1 + 2 * u) * v * v * a[1] + u * v * v * dt * a[2]
+        + (3 - 2 * u) * u * u * b[1] - u * u * v * dt * b[2];
+    }
+    return keys[keys.length - 1][1];
+  }
+
+  // ---------------------------------------------------------------- 3. rooftop-jump (skip lands on beat 4)
   JG.beats.register({
-    id: 'rooftop-jump', kind: 'cine', skippable: true, est: 8.5,
+    id: 'rooftop-jump', kind: 'cine', skippable: true, est: 8.7,
     stage: {
       scene: 'city', sceneState: ROOF,
       cast: { roo: { at: 'roof.edgeStand', pose: 'idle', expr: 'smirk', cape: 'sim' } },
@@ -217,45 +233,57 @@
     },
     needs: {
       markers: ['roof.edgeStand', 'roof.jumpFrom', 'streetA.land'],
-      anims: ['roo.jumpOff', 'roo.fallDive', 'roo.landHero', 'roo.idleHero'],
-      sfx: ['whoosh', 'cape_flap', 'fallwind', 'thud'],
-      shots: ['rooftop-jump.edge', 'rooftop-jump.front', 'rooftop-jump.fallTop', 'rooftop-jump.fall', 'rooftop-jump.land', 'rooftop-jump.rise']
+      lines: ['roo_up_up', 'roo_and_down', 'roo_into_subway'], anims: ['roo.rooftopFlight'],
+      sfx: ['whoosh', 'cape_flap', 'fallwind', 'thud'], shots: ['rooftop-jump.edge']
     },
     play: async function (w) {
-      var S = K(), t0 = JG.clock.t, roo = w.actor('roo');
-      if (JG.crowd) JG.crowd.prewarm(w, 'street-subway');   // builds street-subway's crowd a frame at a time (round 2)
+      var S = K(), roo = w.actor('roo');
+      if (JG.crowd) JG.crowd.prewarm(w, 'street-subway');
       w.cut('rooftop-jump.edge');
       await w.moveTo(roo, 'roof.jumpFrom', { speed: 1.8, face: true });
-      w.cut('rooftop-jump.front');
-      await S.playFor(w, roo, 'jumpOff', 0.55);
-      w.sfx('whoosh'); w.sfx('cape_flap');
-      var wind = w.loop('fallwind');
-      S.start(w, roo, 'fallDive', { fade: 0.1 });
-      // the street is the same set: switch area lighting mid-air, then the low shot looking up at the fall
-      w.setScene({ area: 'streetA' });
-      w.cut('rooftop-jump.fallTop');
-      w.mark('fall');
+
+      var ledge = JG.world.marker('roof.jumpFrom').pos, ground = JG.world.marker('streetA.land').pos;
+      var fx = JG.world.current.props.rooftopLandingFX, contact = 5.30, duration = 7.65;
+      if (fx) w.onCancel(fx.clear);
+      await S.start(w, roo, 'rooftopFlight', { loop: false, fade: 0 });
+      function speakAt(time, id) {
+        return async function (w2) {
+          await w2.wait(time);
+          await w2.say(id, { actor: roo, balloon: true, gap: 0 });
+        };
+      }
       await w.parallel(
-        async function (w2) { await w2.cam('rooftop-jump.fall', 1.7, 'inQuad'); },
-        async function (w2) { await w2.arc(roo, { to: 'streetA.land', height: 1.4, sec: 1.7, ease: 'inQuad' }); });
-      // impact: flash, THOOM, shake and thud on the same frame (G2: within 50 ms)
-      wind.stop(0.05);
-      w.cut('rooftop-jump.land');
-      var land = JG.world.marker('streetA.land');
-      if (land) roo.root.rotation.y = land.yaw;
-      S.ui('fade.to', 0.85, 0, '#ffffff');
-      w.sfx('thud');
-      w.shake(0.3, 0.5);
-      w.lettering(T('lettering.thoom'), 'roo', 1.2);
-      S.cape(roo, 'drape:hero');
-      w.mark('land');
-      w.fork(async function (w2) { await w2.fadeIn(0.2); });
-      await S.playFor(w, roo, 'landHero', 1.5, { fade: 0.05 });
-      w.cut('rooftop-jump.rise');
-      S.cape(roo, 'sim');
-      S.start(w, roo, 'idleHero', { fade: 0.4 });
-      w.express(roo, 'smirk');
-      await S.hold(w, t0, 8.5);
+        function (w2) {
+          return w2.tweenFn(duration, function (fraction) {
+            var t = duration * fraction, p = roo.root.position;
+            p.lerpVectors(ledge, ground, flightCurve(flightForward, t));
+            p.x += 0.08 * Math.sin(Math.PI * window.THREE.MathUtils.smoothstep(t, 0.90, 4.90));
+            if (t < 3.45) p.y = ledge.y + flightCurve(flightRise, t);
+            else {
+              var u = Math.min(1, (t - 3.45) / (contact - 3.45));
+              p.y = ground.y + (ledge.y + 1.18 - ground.y) * (1 - u * u) - 1.13 * u * (1 - u);
+            }
+            w2.cut(S.rooftopFlightShot(t, p, ledge));
+            if (fx) fx.update(p, t - contact);
+          }, 'linear');
+        },
+        speakAt(0.73, 'roo_up_up'), speakAt(3.56, 'roo_and_down'), speakAt(5.96, 'roo_into_subway'),
+        async function (w2) {
+          var start = JG.clock.t;
+          await w2.wait(0.90);
+          w2.sfx('whoosh'); w2.sfx('cape_flap');
+          await S.hold(w2, start, 3.45);
+          w2.mark('fall');
+          w2.express(roo, 'worried');
+          var wind = w2.loop('fallwind');
+          await S.hold(w2, start, contact);
+          wind.stop(0.05);
+          w2.sfx('thud'); w2.shake(0.07, 0.20);
+          w2.setScene({ area: 'streetA' });
+          w2.mark('land');
+          w2.express(roo, 'smirk');
+        }
+      );
     }
   });
 

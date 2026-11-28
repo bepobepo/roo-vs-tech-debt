@@ -335,6 +335,7 @@
 
     // ------------------------------------------------------------------------------------------- dynamic: the TV
     var tv = makeTV(kit, root, tvParts);
+    var rooftopLandingFX = makeRooftopLandingFX(THREE, root);
 
     var state = Object.assign({}, DEFAULTS);
     var inst = {
@@ -352,7 +353,7 @@
       crowd: CROWD, crowdSpots: CROWD_SPOTS, barkGates: BARK_GATES,
       camPresets: CAM,
       camColliders: B.colliders(),   // the follow camera's colliders: every box and piece, gated by its group's visibility
-      props: { tv: tv.api },
+      props: { tv: tv.api, rooftopLandingFX: rooftopLandingFX },
       surfaceAt: function () { return 'hard'; },
       setState: function (patch, sec) {
         sec = sec || 0;
@@ -375,6 +376,56 @@
     inst.setState(Object.assign({}, DEFAULTS), 0);
     if (JG.on) JG.on('scene', function (id) { if (id !== 'city') tv.pause(); });
     return inst;
+  }
+
+  // Only the jump sequence drives this effect. Its foot shadow and instanced dust cost two draws at impact.
+  function makeRooftopLandingFX(THREE, root) {
+    var launch = MARKERS['roof.jumpFrom'].pos, streetY = MARKERS['streetA.land'].pos[1];
+    var shadow = new THREE.Mesh(new THREE.CircleGeometry(1, 32), new THREE.MeshBasicMaterial({
+      color: 0x443b40, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2
+    }));
+    var dust = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 0),
+      new THREE.MeshBasicMaterial({ color: 0xeadcc7, transparent: true, depthWrite: false }), 8);
+    var puff = new THREE.Object3D();
+    shadow.name = 'rooftop-foot-shadow';
+    shadow.rotation.x = -PI / 2;
+    dust.name = 'rooftop-impact-dust';
+    dust.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    dust.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1.4);
+    root.add(shadow, dust);
+    function clear() { shadow.visible = false; dust.visible = false; }
+    clear();
+    return {
+      clear: clear,
+      update: function (position, secondsSinceImpact) {
+        var pastLedge = launch[2] - position.z;
+        var onRoof = position.y >= launch[1] - 0.01 && pastLedge < 0.30;
+        var proximity = onRoof ? 1 - THREE.MathUtils.smoothstep(pastLedge, 0, 0.30)
+          : 1 - THREE.MathUtils.smoothstep(position.y - streetY, 0, 5);
+        shadow.visible = proximity > 0;
+        if (shadow.visible) {
+          shadow.position.set(position.x, onRoof ? launch[1] + 0.014 : streetY + 0.019, onRoof ? launch[2] : position.z);
+          shadow.scale.set(0.47 + 0.37 * (1 - proximity), onRoof ? 0.19 : 0.34 + 0.20 * (1 - proximity), 1);
+          shadow.material.opacity = 0.24 * proximity;
+        }
+        var age = secondsSinceImpact / 0.52;
+        dust.visible = age >= 0 && age < 1;
+        if (!dust.visible) return;
+        dust.position.set(position.x, streetY, position.z);
+        var spread = 1 - (1 - age) * (1 - age), rise = Math.sin(PI * age);
+        for (var i = 0; i < dust.count; i++) {
+          var angle = i * 2.4 + 0.27, sizeGroup = i % 3;
+          var radius = 0.24 + spread * (0.65 + 0.07 * sizeGroup), size = (0.07 + 0.028 * sizeGroup) * (0.64 + rise * 0.9);
+          puff.position.set(Math.cos(angle) * radius, 0.08 + rise * (0.08 + 0.045 * sizeGroup), Math.sin(angle) * radius * 0.64);
+          puff.rotation.z = angle;
+          puff.scale.set(size * 1.65, size, size * 1.14);
+          puff.updateMatrix();
+          dust.setMatrixAt(i, puff.matrix);
+        }
+        dust.instanceMatrix.needsUpdate = true;
+        dust.material.opacity = 0.81 * (1 - age);
+      }
+    };
   }
 
   // --------------------------------------------------------------------------------------------- local-frame helpers

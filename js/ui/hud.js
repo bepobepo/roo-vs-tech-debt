@@ -14,6 +14,7 @@
  *   skip.show() / hide() / setProgress(p)           the hold chip (ring fills while held)
  *   fade.to(a, sec, color)  transition.play('wipe'|'iris'|'fade', 'in'|'out', sec)  letterbox.set(on)
  *   card.show({text, style: 'timecard'|'caption'}, sec)   lettering.show(text, worldPos | Object3D, sec)
+ *   speechBalloon.show(text, headAnchor, sec, keepClearAnchor?)  dialogue that follows its speaker
  *   callerCard.show({name, level}) / hide()         comic inset, generic "L" avatar, jagged "RING! RING!" while level > 0
  *   nowPlaying.show(text) / hide()
  * Parts 2-4 (touch.js, title-end.js, radar.js) add the joystick, mute and notices; title, loading, end and credits;
@@ -145,6 +146,11 @@
     '.jg-lets{position:absolute;inset:0;z-index:3}',
     '.jg-let{position:absolute;left:0;top:0;white-space:nowrap;font:400 clamp(30px,calc(var(--sh) * .115),76px)/1 var(--display);letter-spacing:.03em;color:var(--c,var(--yellow));',
     '  -webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:3px 3px 0 var(--ink);will-change:transform,opacity}',
+    '.jg-balloon{position:absolute;left:0;top:0;padding:.4em .75em .78em;white-space:nowrap;color:var(--ink);',
+    '  font:700 clamp(18px,min(calc(var(--sw) * .05),calc(var(--sh) * .072)),52px)/1 var(--comic);will-change:transform,opacity}',
+    '.jg-balloon svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(2px 2px 0 var(--ink))}',
+    '.jg-balloon[data-side=left] svg{transform:scaleX(-1)}.jg-balloon[data-side=below] svg{transform:scaleY(-1)}',
+    '.jg-balloon[data-side=below]{padding-top:.78em;padding-bottom:.4em}.jg-balloon span{position:relative}',
     '.jg-beacon{position:absolute;left:0;top:0;width:36px;height:44px;margin:-22px 0 0 -18px;z-index:3;will-change:transform}',
     '.jg-beacon svg{width:100%;height:100%;overflow:visible}',
     // time card
@@ -240,6 +246,7 @@
     el.fx = mk('div', 'jg-fx', el.sb, { 'aria-hidden': 'true' });
     mk('div', 'ht', el.fx); mk('div', 'vg', el.fx);
     el.letters = mk('div', 'jg-lets', el.sb, { 'aria-hidden': 'true' });
+    el.speech = mk('div', 'jg-lets', el.sb, { role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' });
     el.beacon = mk('div', 'jg-beacon', el.sb, { 'data-ui': 'beacon' }); el.beacon.hidden = true;
     H.svg(el.beacon, '', ARROW, { viewBox: '0 0 36 44' });
     el.lbTop = mk('div', 'jg-lb top', el.sb); el.lbBot = mk('div', 'jg-lb bot', el.sb);
@@ -322,11 +329,13 @@
     });
   }
   /** the centre and scale of a lettering: q is the anchor on the stage, rad its keep-out radius in pixels */
-  function placeLetter(L, q, rad, r, pop) {
+  function placeLetter(L, q, rad, r, pop, avoid) {
     letterBoxes(L, r);
     var m = 10, lift = Math.min(14, L.t * 10), cands = [], first = null;
-    function clear(x, y, bw, bh) { return !L.obs.some(function (o) { return x + bw > o[0] && x - bw < o[2] && y + bh > o[1] && y - bh < o[3]; }); }
-    ['above', 'right', 'left', 'below'].forEach(function (k) {
+    var obstacles = avoid ? L.obs.concat([avoid]) : L.obs;
+    function clear(x, y, bw, bh) { return !obstacles.some(function (o) { return x + bw > o[0] && x - bw < o[2] && y + bh > o[1] && y - bh < o[3]; }); }
+    var sides = L.speech ? ['right', 'above', 'left', 'below'] : ['above', 'right', 'left', 'below'];
+    sides.forEach(function (k) {
       var g;
       if (k === 'above') g = [m, m, r.w - m, q.y - rad * 1.35];   // a head's ears reach higher than its sides
       else if (k === 'right') g = [q.x + rad, m, r.w - m, r.h - m];
@@ -338,7 +347,10 @@
       var e = Math.min(s * pop, fit), bw = L.bw * e / 2, bh = L.bh * e / 2, x, y;   // the pop overshoots only where it fits
       if (k === 'above') { x = q.x; y = g[3] - L.bh * s / 2 - lift; }
       else if (k === 'below') { x = q.x; y = g[1] + L.bh * s / 2; }
-      else { x = k === 'right' ? g[0] + L.bw * s / 2 : g[2] - L.bw * s / 2; y = q.y - rad * 0.35 - lift; }
+      else {
+        x = k === 'right' ? g[0] + L.bw * s / 2 : g[2] - L.bw * s / 2;
+        y = q.y - (L.speech ? Math.max(rad * 0.7, L.bh * s * 0.72) : rad * 0.35 + lift);
+      }
       // inside the stage and its side's region (the pop's overshoot included)
       var x0 = Math.max(m, g[0]) + bw, x1 = Math.min(r.w - m, g[2]) - bw, y0 = Math.max(m, g[1]) + bh, y1 = Math.min(r.h - m, g[3]) - bh;
       if (x0 > x1) x0 = x1 = (x0 + x1) / 2;
@@ -347,7 +359,7 @@
       var ok = clear(x, y, bw, bh);
       if (!ok) {   // slide past the chip in the way, to the nearest clear spot inside the region
         var bestD = Infinity, nx = x, ny = y;
-        L.obs.forEach(function (o) {
+        obstacles.forEach(function (o) {
           [[x, o[3] + bh], [x, o[1] - bh], [o[2] + bw, y], [o[0] - bw, y]].forEach(function (t) {
             if (t[0] < x0 - 0.5 || t[0] > x1 + 0.5 || t[1] < y0 - 0.5 || t[1] > y1 + 0.5 || !clear(t[0], t[1], bw - 0.5, bh - 0.5)) return;
             var d = Math.hypot(t[0] - x, t[1] - y);
@@ -482,9 +494,18 @@
           var q = project(p, cam, r);
           if (q.behind) { L.e.style.opacity = 0; return true; }
           var pop = L.t < 0.18 ? 0.3 + 0.95 * H.easeOut(L.t / 0.18) : (L.t < 0.3 ? 1.25 - 0.25 * (L.t - 0.18) / 0.12 : 1);
-          var at = placeLetter(L, q, headRadius(p, cam, r, q), r, pop);
+          var rad = headRadius(p, cam, r, q), avoid = null;
+          if (L.speech) {
+            pop = 0.86 + 0.14 * H.easeOut(L.t / 0.12);
+            if (L.keepClear) {
+              var hand = project(L.keepClear.getWorldPosition(v3b), cam, r), pad = rad * 0.65;
+              if (hand.on) avoid = [hand.x - pad, hand.y - pad, hand.x + pad, hand.y + pad];
+            }
+          }
+          var at = placeLetter(L, q, rad, r, pop, avoid);
+          if (L.speech && L.e.dataset.side !== at.k) L.e.dataset.side = at.k;
           L.e.style.transform = 'translate(' + at.x.toFixed(1) + 'px,' + at.y.toFixed(1) + 'px) translate(-50%,-50%) rotate(' + L.rot + 'deg) scale(' + at.e.toFixed(3) + ')';
-          L.e.style.opacity = Math.min(1, left / 0.3).toFixed(3);
+          L.e.style.opacity = (L.speech ? Math.min(1, L.t / 0.12, left / 0.1) : Math.min(1, left / 0.3)).toFixed(3);
         }
         return true;
       });
@@ -729,6 +750,20 @@
       else L.pos = new window.THREE.Vector3();
       letters.push(L);
       return H.handle(sec, function () { L.sec = Math.min(L.sec, L.t + 0.15); });
+    }
+  };
+
+  ui.speechBalloon = {
+    show: function (text, head, sec, keepClear) {
+      dom();
+      letters = letters.filter(function (L) { if (!L.speech) return true; L.e.remove(); return false; });
+      var e = H.mk('div', 'jg-balloon', el.speech, { 'data-ui': 'speech-balloon' });
+      H.svg(e, '', '<path d="M8 67 C3 61 1 53 1 45 C1 21 23 2 50 2 S99 21 99 45 S77 88 50 88 Q35 88 24 82 L8 99 L13 74 Z" fill="#FFF8E7" stroke="#111" stroke-width="2.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>', { viewBox: '0 0 100 100', preserveAspectRatio: 'none' });
+      H.text(H.mk('span', '', e), text);
+      e.style.opacity = 0;
+      var L = { e: e, t: 0, sec: sec === undefined ? 2 : sec, rot: 0, obj: head, speech: true, keepClear: keepClear };
+      letters.push(L);
+      return H.handle(L.sec, function () { L.sec = 0; e.remove(); });
     }
   };
 

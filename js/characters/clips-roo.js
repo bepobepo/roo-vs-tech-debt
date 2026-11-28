@@ -4,7 +4,7 @@
  * FIRST VERSIONS (Stage 1, 2026-11-24): readable key poses, a few keys each, for timing and staging; Stage 2 polishes
  * them in script order (G2: jumpOff, landHero and the superhero landing; hugHold with ops.hugReceive).
  *   library (asset build map): idle, walk, run, seatedIdle, sitDownChair, jumpOff, landHero, runDive
- *   code: idleChill (deck-chair lounge), idleHero, fallDive, hugHold, seatedSmileNod, seatedWink, shrugCheckWrist,
+ *   code: idleChill (deck-chair lounge), idleHero, fallDive, rooftopFlight, hugHold, seatedSmileNod, seatedWink, shrugCheckWrist,
  *         headphonesOn, headphonesOff, twoFingerSalute; reachPress, drinkCup and holdCup (office-walk's stations,
  *         2026-11-25)
  *   additive (code): breath (always on), footTap, pat, keyPress, grooveBob
@@ -61,6 +61,118 @@
   }
   C.define('roo.fallDive', { duration: 0.8, loop: true, keys: [
     { t: 0, pose: function (P) { dive(P, 0); } }, { t: 0.4, pose: function (P) { dive(P, 1); } }, { t: 0.8, pose: function (P) { dive(P, 0); } }
+  ] });
+
+  // Roo strikes a flying pose until he notices the street below. The beat moves his root along the arc.
+  // Keep the same staggered foot targets through the landing and the final point.
+  var flightFeet = [0.055, -0.055];
+  function flightArm(P, side, wrist, handShape, elbow, direction, palm) {
+    var options = { elbow: elbow || [0.7, -0.45, -0.38], fist: handShape === 'fist', curl: handShape === 'soft' ? 0.44 : 0.10 };
+    if (direction) options.hand = { dir: direction, palm: palm };
+    A().arm(P, side, wrist, options);
+  }
+  function flightTail(P, root, mid, tip, yaw) {
+    P.tail([root, mid, tip], [yaw, yaw * 1.5, yaw * 1.05]);
+  }
+  function flightGather(P, crouch) {
+    A().stand(P, { arms: false, drop: 0.04 + 0.26 * crouch, lean: 0.06 + 0.48 * crouch, hz: -0.09 * crouch, z: flightFeet, spread: 0.048 });
+    A().head(P, -0.17 - 0.21 * crouch, 0.025, 0);
+    flightArm(P, 'r', [0.075, -0.33 - 0.075 * crouch, 0.04 - 0.36 * crouch], 'fist');
+    flightArm(P, 'l', [0.08, -0.34 - 0.07 * crouch, 0.02 - 0.35 * crouch], 'fist');
+    flightTail(P, 54 - 18 * crouch, 35 - 19 * crouch, 5 - 9 * crouch, 20);
+    P.rotLocal('cape_root', 0.02 + 0.13 * crouch, 0, 0);
+  }
+  function flightPushOff(P) {
+    var d = D(P);
+    P.hips([0, d.hipY + 0.024, 0.035]);
+    A().body(P, 0.30, -0.065, 0.045);
+    A().spine(P, 0.10, 0, 0);
+    P.legIK('r', [-d.thighX - 0.04, d.ankleY + 0.068, d.ankleZ - 0.11], [-0.15, 0, 1], -0.10, 0.34);
+    P.legIK('l', [d.thighX + 0.04, d.ankleY + 0.22, d.ankleZ + 0.16], [0.18, 0, 1], 0.10, 0.10);
+    A().head(P, -0.40, -0.06, -0.03);
+    flightArm(P, 'l', [0.13, 0.19, 0.39], 'fist', [0.9, -0.2, -0.3], [0.10, 0.36, 0.95], [-1, 0, 0]);
+    flightArm(P, 'r', [0.14, -0.31, -0.17], 'fist');
+    flightTail(P, 46, 18, -9, 12);
+    P.rotLocal('cape_root', 0.20, 0, -0.01);
+  }
+  function flightLeg(P, side, thigh, shin, kneeNormal, anklePitch) {
+    var sign = side === 'l' ? 1 : -1;
+    function mirror(v) { return [sign * v[0], v[1], v[2]]; }
+    P.aim('thigh_' + side, mirror(thigh), mirror(kneeNormal));
+    P.aim('calf_' + side, mirror(shin), mirror(kneeNormal));
+    var foot = new THREE.Euler(anklePitch, sign * 0.09, 0, 'YXZ');
+    P.setDelta('foot_' + side, new THREE.Quaternion().setFromEuler(foot));
+  }
+  function flightGlide(P, bank, lookDown, pullBack) {
+    P.hips([0, D(P).hipY, 0]);
+    A().body(P, 1.29 - 0.24 * pullBack, -0.035, bank);
+    A().spine(P, -0.07, 0.02, -bank * 0.22);
+    A().head(P, -1.02 + 1.42 * lookDown, -0.20 + 0.13 * lookDown, -0.07 + 0.14 * lookDown);
+    flightLeg(P, 'l', [0.14, -0.65, -0.56], [0.02, 0.18, -1], [0, -0.90, 0.30], 1.91);
+    flightLeg(P, 'r', [0.07, -0.20, -1], [0, 0.10, -1], [0, -0.95, 0.1], 1.94);
+    var hand = pullBack > 0.8 ? 'open' : 'fist';
+    flightArm(P, 'l', [0.12 + 0.048 * pullBack, 0.085 - 0.16 * pullBack, 0.55 - 0.18 * pullBack], hand,
+      [0.6, -0.7, -0.1], [0.10, 0.18 - 0.20 * pullBack, 1], [-0.95, -0.13, 0.10]);
+    flightArm(P, 'r', [0.14 + 0.15 * pullBack, -0.15 + 0.06 * pullBack, -0.25 + 0.22 * pullBack], hand,
+      [0.75, -0.4, -0.45], [0.1, 0.35, 0.88], [-1, 0, 0]);
+    flightTail(P, 17 + 9 * pullBack, -1 + 12 * pullBack, -13 + 6 * pullBack, 8 + 35 * bank);
+    P.rotLocal('cape_root', 0.13 + 0.045 * Math.sin(bank * 5), 0, bank * 0.14);
+  }
+  function flightFlail(P, phase) {
+    var d = D(P);
+    P.hips([0, d.hipY, 0]);
+    A().body(P, 0.36 + 0.13 * phase, 0.03 * phase, -0.15 * phase);
+    A().spine(P, -0.12, 0.08 * phase, 0.04);
+    A().head(P, 0.20, -0.23, 0.12 * phase);
+    ['r', 'l'].forEach(function (side) {
+      var sign = side === 'l' ? 1 : -1, beat = sign * phase;
+      flightArm(P, side, [0.38 - 0.05 * beat, 0.15 + 0.33 * beat, 0.025 + 0.10 * beat], 'open',
+        [0.86, 0.18 + 0.47 * beat, -0.3], [0.55, 0.55 + 0.38 * beat, 0.14], [-0.20, 0.05, 1]);
+      P.legIK(side, [sign * (d.thighX + 0.07 + 0.045 * beat), d.ankleY + 0.29 + 0.17 * beat, d.ankleZ + 0.02 + 0.22 * beat],
+        [0.3 * sign, 0.1, 1], 0.16 * sign, 0.19 + 0.10 * beat);
+    });
+    flightTail(P, 18, 1, -11, phase * 16);
+    P.rotLocal('cape_root', 0.70 + 0.16 * phase, 0, phase * 0.12);
+  }
+  function flightBrace(P) {
+    A().stand(P, { arms: false, drop: 0.035, lean: 0.12, hz: -0.025, z: flightFeet, spread: 0.09 });
+    A().head(P, 0.37, -0.05, -0.03);
+    flightArm(P, 'r', [0.38, 0.05, 0.22], 'open', [0.9, 0.4, -0.25], [0.58, 0.18, 0.80], [-0.2, -1, 0.1]);
+    flightArm(P, 'l', [0.38, 0.10, 0.13], 'open', [0.9, 0.4, -0.25], [0.66, 0.22, 0.68], [-0.14, -1, 0.1]);
+    flightTail(P, 27, 1, -13, 10);
+    P.rotLocal('cape_root', 0.84, 0, -0.04);
+  }
+  function flightLand(P, compression) {
+    A().stand(P, { arms: false, drop: 0.34 + 0.085 * compression, lean: 0.62 + 0.25 * compression,
+      spread: 0.09, hz: -0.11 - 0.045 * compression, z: flightFeet });
+    A().head(P, -0.28 + 0.19 * compression, -0.125, 0.025);
+    flightArm(P, 'r', [0.18, -0.36, 0.18], 'soft', [0.8, 0, -0.5], [0.12, -0.82, 0.18], [-0.9, -0.12, 0]);
+    flightArm(P, 'l', [0.26, -0.30, 0.21], 'soft', [0.85, 0, -0.4], [0.22, -0.85, 0.24], [-0.9, -0.15, 0]);
+    flightTail(P, 24, 6, -9, 9);
+    P.rotLocal('cape_root', -0.15 + 0.12 * compression, 0, -0.03);
+  }
+  function flightPoint(P, rise, settle) {
+    A().stand(P, { arms: false, drop: 0.20 * (1 - rise) + 0.035, lean: 0.30 * (1 - rise) - 0.06 * rise,
+      twist: -0.12 * rise, spread: 0.09, hz: -0.085 * (1 - rise), z: flightFeet });
+    A().head(P, -0.15 - 0.025 * rise, -0.34 * rise, 0.085 * rise);
+    flightArm(P, 'l', [0.10, -0.31, -0.035], 'fist', [0.90, -0.25, -0.56], [0.05, -0.93, 0.16], [-1, 0.01, 0]);
+    flightArm(P, 'r', [0.13 + 0.23 * rise, -0.26 + 0.56 * rise - 0.018 * settle, 0.13 - 0.14 * rise], 'fist',
+      [1, -0.6, -0.30], [0.18 - 0.13 * rise, 0.34 + 0.66 * rise, 0.25 - 0.21 * rise], [-0.40, 0.02, 1]);
+    ['index_01_r', 'index_02_r', 'index_03_r'].forEach(function (bone) { P.rotLocal(bone, 0, 0, 0); });
+    flightTail(P, 36 + 13 * rise, 18 + 19 * rise, -6 + 6 * rise, 19);
+    P.rotLocal('cape_root', 0.105 * (1 - rise) + 0.035 * settle, 0, 0);
+  }
+  function flightKey(t, pose, ...args) { return { t: t, pose: function (P) { pose(P, ...args); } }; }
+  C.define('roo.rooftopFlight', { duration: 7.4, loop: false, keys: [
+    flightKey(0, flightGather, 0), flightKey(0.25, flightGather, 0.04), flightKey(0.55, flightGather, 0.84), flightKey(0.69, flightGather, 1),
+    flightKey(0.90, flightPushOff), flightKey(1.48, flightGlide, -0.13, 0, 0), flightKey(1.83, flightGlide, -0.14, 0, 0),
+    flightKey(2.37, flightGlide, 0.105, 0, 0), flightKey(2.72, flightGlide, 0.12, 0, 0), flightKey(2.88, flightGlide, 0.105, 0.42, 0),
+    flightKey(3.12, flightGlide, 0.07, 1, 0.25), flightKey(3.41, flightGlide, 0.02, 1, 0.95),
+    flightKey(3.67, flightFlail, -0.92), flightKey(3.96, flightFlail, 0.95), flightKey(4.26, flightFlail, -0.98),
+    flightKey(4.53, flightFlail, 0.95), flightKey(4.76, flightFlail, -0.78), flightKey(4.96, flightFlail, 0.52),
+    flightKey(5.18, flightBrace), flightKey(5.30, flightBrace), flightKey(5.47, flightLand, 1), flightKey(5.60, flightLand, 0.86),
+    flightKey(5.75, flightLand, 0.60), flightKey(5.89, flightPoint, 0.06, 0), flightKey(6.15, flightPoint, 1, 0),
+    flightKey(6.32, flightPoint, 0.94, 1), flightKey(6.66, flightPoint, 0.965, 0.7), flightKey(7.40, flightPoint, 0.965, 0.6)
   ] });
 
   // the comfort hug, posed against the ops lead where the beat stands her (JG.anim.hug: 0.5 m out, 0.25 m to his left,

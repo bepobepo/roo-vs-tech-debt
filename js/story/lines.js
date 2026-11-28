@@ -16,6 +16,9 @@
       text: "Roo, we got a problem. It's a big one. Massive. Like... the size of 10 YEARS of CRM changes." },
     roo_got_you: { speaker: 'ROO', file: '02_roo_got_you.mp3', est: 9.6,
       text: "You did the right thing by calling me Lauren! I got you! I'll be right there. And please, tell Eric to take a break from breaking changes!" },
+    roo_up_up: { speaker: 'ROO', file: '11_roo_up_up.mp3', est: 1.3, text: 'up up!' },
+    roo_and_down: { speaker: 'ROO', file: '12_roo_and_down.mp3', est: 1.9, text: 'aaaand down...' },
+    roo_into_subway: { speaker: 'ROO', file: '13_roo_into_subway.mp3', est: 1.5, text: 'into the subway!' },
     // street barks (round 2): non-blocking, played as Roo walks past a crowd NPC (act1 street-subway, act2 plaza-walk).
     // Unnumbered files so the scripted numbers never shift; listed here, in story order, because they always play
     // on the autopilot route (golden checks the played order against this manifest).

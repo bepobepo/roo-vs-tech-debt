@@ -50,13 +50,6 @@
       return { pos: [p.x + 1.55, p.y + 1.5, p.z - 2.75], look: [p.x - 0.1, p.y + 1.22, p.z], fov: 40, fit: ['roo.head', 'roo.handL', 'roo.handR'] };
     },
     'rooftop-jump.edge': { rel: 'roof.edgeStand', pos: [-1.1, 1.95, -2.7], look: [0.2, 0.4, 5.5], fov: 48 },
-    'rooftop-jump.front': { rel: 'roof.jumpFrom', pos: [1.4, -0.7, 3.6], look: [0, 1.0, 0], fov: 44 },
-    // the fall: a fixed camera on the street that tilts from the jump point down to the landing mark with the arc
-    'rooftop-jump.fallTop': function () { var S = JG.story; return { pos: S.at('streetA.land', [-6, 2.2, 7.5]), look: S.at('roof.jumpFrom', [0, 0.9, 0]), fov: 50 }; },
-    'rooftop-jump.fall': { rel: 'streetA.land', pos: [-6, 2.2, 7.5], look: [0, 1.0, 0], fov: 50 },
-    'rooftop-jump.land': { rel: 'streetA.land', pos: [1.3, 0.5, 3.4], look: [0, 0.8, 0], fov: 40 },
-    'rooftop-jump.rise': { rel: 'streetA.land', pos: [1.8, 1.2, 4.2], look: [0, 1.3, 0], fov: 40 },
-
     // ---------------------------------------------------------------- city / streetA, streetB
     'street-subway.stairs': { rel: 'streetA.stairsTop', pos: [1.5, 2.5, -1.9], look: [0, -1.4, 3.2], fov: 50 },
     'plaza-walk.exit': { rel: 'streetB.spawn', pos: [2.2, 1.7, 3.6], look: [0, -0.8, -2.8], fov: 48 },
@@ -240,6 +233,31 @@
   /** the city's TV (props.tv = {on(bool), video, screen}) or null; never records a stub hit */
   function tv() { var c = JG.world && JG.world.current; return c && c.props && c.props.tv ? c.props.tv : null; }
 
+  // Track the flight from the plaza side of the facade. The final push-in leaves Roo's
+  // raised glove beside his face with room for the speech balloon.
+  function rooftopFlightShot(t, p, ledge) {
+    var smooth = window.THREE.MathUtils.smoothstep;
+    var x = p.x, y = p.y, z = p.z, k;
+    if (t < 1.65) {
+      k = smooth(t, 0.86, 1.70);
+      return { pos: [ledge.x + 4.78, ledge.y + 1.45 + 1.12 * k, ledge.z - 2.91 - 1.12 * k],
+        look: [ledge.x, ledge.y + 0.97 + 1.02 * k, ledge.z - 0.36 - 1.14 * k], fov: 38 };
+    }
+    if (t < 3.58) {
+      k = smooth(t, 2.7, 3.3);
+      return { pos: [x + 3.65 - 0.66 * k, y + 1.68 + 0.24 * k, z - 2.57 + 0.08 * k],
+        look: [x, y + 1.05, z - 0.64], fov: 37.5 - 0.9 * k };
+    }
+    if (t < 5.76) {
+      k = smooth(t, 3.58, 5.30);
+      return { pos: [x + 5.2 + 0.42 * k, y + 1.56 - 0.42 * k, z - 1.94 - 0.25 * k],
+        look: [x, y + 1.06, z - 0.4], fov: 41 + 2 * k };
+    }
+    k = smooth(t, 5.76, 6.40);
+    return { pos: [x + 2.18 - 0.12 * k, y + 1.48, z - 2.53 + 0.08 * k],
+      look: [x, y + 1.45, z - 0.25], fov: 30.5 };
+  }
+
   function coverOut(w, kind, sec) {
     sec = sec || 0.45;
     ui('transition.play', kind || 'wipe', 'in', sec);
@@ -247,5 +265,5 @@
   }
 
   JG.story = { T: T, hold: hold, start: start, playFor: playFor, ui: ui, at: at, spot: spot, lerp: lerp, anchor: anchor, hands: hands, offset: offset, cape: cape, attach: attach, coverOut: coverOut,
-    couch: couch, couchSpot: couchSpot, tvPoint: tvPoint, tv: tv };
+    couch: couch, couchSpot: couchSpot, tvPoint: tvPoint, tv: tv, rooftopFlightShot: rooftopFlightShot };
 })();

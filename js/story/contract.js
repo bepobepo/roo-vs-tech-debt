@@ -27,7 +27,7 @@
     // contract clip ids per actor (plan section 9); the library/code mapping lives in tools/assets.config.json
     clips: {
       roo: ['idle', 'walk', 'run', 'seatedIdle', 'sitDownChair', 'phoneHold', 'jumpOff', 'landHero', 'elevatorStand',
-        'seatedType', 'runDive', 'idleChill', 'idleHero', 'fallDive', 'hugHold', 'seatedSmileNod', 'seatedWink',
+        'seatedType', 'runDive', 'idleChill', 'idleHero', 'fallDive', 'rooftopFlight', 'hugHold', 'seatedSmileNod', 'seatedWink',
         'shrugCheckWrist', 'headphonesOn', 'headphonesOff', 'twoFingerSalute',
         // round 2 (rooftop-call on the couch): clips-gaming.js
         'seatedGaming', 'seatedPhone', 'seatedPhoneFacepalm', 'standUp',
@@ -66,7 +66,7 @@
     musicFx: ['muffled', 'leak'],
 
     // VO ids: the keys of JG.LINES (site/js/story/lines.js), in manifest order
-    lines: ['lauren_problem', 'roo_got_you', 'bark_npc_superhero', 'bark_roo_keyboard', 'bark_npc_heybaby', 'ops_help', 'ops_sob', 'roo_not_your_fault', 'ops_thank_you',
+    lines: ['lauren_problem', 'roo_got_you', 'roo_up_up', 'roo_and_down', 'roo_into_subway', 'bark_npc_superhero', 'bark_roo_keyboard', 'bark_npc_heybaby', 'ops_help', 'ops_sob', 'roo_not_your_fault', 'ops_thank_you',
       'roo_few_minutes', 'exec_how', 'roo_good_at', 'roo_dont_need_me', 'gag_roo_get_on', 'gag_ops_wail', 'gag_roo_feelings',
       'scanner_ok', 'scanner_again', 'roo_obviously', 'gossip_brenda', 'gossip_gary', 'roo_hold_cup', 'roo_rocket_fuel', 'gag_roo_joking'],
     actions: ['x', 'y', 'skip', 'start', 'mute'],

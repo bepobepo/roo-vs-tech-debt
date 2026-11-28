@@ -261,14 +261,21 @@
     w.tweenFn = function (sec, fn, ease) { chk(); return scope.tweenFn(sec, fn, ease); };
 
     // ----- dialogue -----
-    var subToken = 0;
-    function showSub(L) {
+    var subToken = 0, balloon = null;
+    function showSub(L, anchor, duration, avoid) {
       var tok = ++subToken;
       st.subtitle = L.text;
-      call('ui.subtitles', function () { ui.subtitles.show({ speaker: JG.text('speakers.' + L.speaker) || L.speaker, text: L.text }); });
+      if (balloon) { balloon.stop(); balloon = null; }
+      if (anchor && ui.speechBalloon) balloon = ui.speechBalloon.show(L.text, anchor, duration, avoid);
+      else call('ui.subtitles', function () { ui.subtitles.show({ speaker: JG.text('speakers.' + L.speaker) || L.speaker, text: L.text }); });
       return tok;
     }
-    function hideSub(tok) { if (tok !== subToken) return; st.subtitle = null; call('ui.subtitles', function () { ui.subtitles.hide(); }); }
+    function hideSub(tok) {
+      if (tok !== subToken) return;
+      st.subtitle = null;
+      if (balloon) { balloon.stop(); balloon = null; }
+      else call('ui.subtitles', function () { ui.subtitles.hide(); });
+    }
     function speaker(L, a) {
       if (a) return act(a);
       var id = SPEAKER_ACTOR[L.speaker] || (L.speaker === 'LAUREN' && JG.config.EXEC_IS_LAUREN ? 'exec' : null);
@@ -282,7 +289,8 @@
       if (o.lookAt && a) call('lookAt', function () { a.lookAt(world.lookTarget(o.lookAt)); });
       var h = call('vo.play', function () { return audio.vo.play(id); }) || {};
       var dur = voDuration(id, h), gap = o.gap === undefined ? 0.25 : o.gap;
-      var tok = showSub(L), t0 = clock.t;
+      var anchors = o.balloon && a && a.anchors;
+      var tok = showSub(L, anchors && anchors.head, dur, anchors && anchors.handR), t0 = clock.t;
       logVo(id);
       var tk = scope.everyTick(function () { if (a) a.setMouth(level(id, clock.t - t0)); });
       function end(stopVo) { tk.cancel(); if (a) call('setMouth', function () { a.setMouth(0); }); hideSub(tok); if (stopVo && h.stop) call('vo.stop', function () { h.stop(); }); }
