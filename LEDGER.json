@@ -307,6 +307,36 @@
   "credit": null,
   "owner": null
  },
+ "assets/audio/vo/14_lady_kangaroo.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": false,
+  "credit": null,
+  "owner": null
+ },
+ "assets/audio/vo/15_roo_yep.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": false,
+  "credit": null,
+  "owner": null
+ },
  "assets/audio/vo/bark_npc_heybaby.mp3": {
   "class": "user-licensed",
   "sources": [
