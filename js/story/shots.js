@@ -110,6 +110,8 @@
       if (!p) return { rel: 'office.coffeeStand', pos: [-0.42, 1.36, 0.22], look: [-0.18, 1.27, 0.54], fov: 26 };
       return { pos: [p.x - 0.32, p.y + 0.08, p.z + 0.1], look: [p.x, p.y - 0.004, p.z], fov: 28 };
     },
+    // window station (2026-11-28): from Roo's right and a little behind, the glass ahead of him and the skyline beyond it
+    'office-walk.window': { rel: 'office.windowStand', pos: [1.5, 1.55, -0.9], look: [0, 1.45, 0.7], fov: 42 },
     'comfort.overRoo': { rel: 'office.hug.roo', pos: [-1.25, 1.7, -0.55], look: [0, 1.5, 0.42], fov: 36 }, // core/stubs.js names it
     'comfort.overOps': { rel: 'office.hug.ops', pos: [0.5, 1.75, -0.75], look: [0, 1.55, 0.45], fov: 38 },
     // the hug from Roo's right: his snout clears her head, which rests beside it (the beat sets her 0.52 m out, 0.2 m

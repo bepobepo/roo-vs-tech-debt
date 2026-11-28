@@ -70,7 +70,7 @@
     lines: ['lauren_problem', 'roo_got_you', 'roo_up_up', 'roo_and_down', 'roo_into_subway', 'bark_npc_superhero', 'bark_roo_keyboard', 'subway_lady_kangaroo', 'subway_roo_yep',
       'bark_npc_heybaby', 'ops_help', 'ops_sob', 'roo_not_your_fault', 'ops_thank_you',
       'roo_few_minutes', 'exec_how', 'roo_good_at', 'roo_dont_need_me', 'gag_roo_get_on', 'gag_ops_wail', 'gag_roo_feelings',
-      'scanner_ok', 'scanner_again', 'roo_obviously', 'gossip_brenda', 'gossip_gary', 'roo_hold_cup', 'roo_rocket_fuel', 'gag_roo_joking'],
+      'scanner_ok', 'scanner_again', 'roo_obviously', 'gossip_brenda', 'gossip_gary', 'roo_hold_cup', 'roo_rocket_fuel', 'roo_sturdy', 'gag_roo_joking'],
     actions: ['x', 'y', 'skip', 'start', 'mute'],
 
     scenes: ['city', 'subway', 'office'],
@@ -92,9 +92,9 @@
         'office.spawn', 'office.deskStand', 'office.chair', 'office.execStand', 'office.windowRun', 'office.windowHole',
         'office.extraDesk1', 'office.extraDesk2', 'office.extraStand',
         // the office life pass (2026-11-25): the third typist's island seat, the three stations' stand marks
-        'office.extraDesk3', 'office.scanStand', 'office.coolerStand', 'office.coffeeStand']
+        'office.extraDesk3', 'office.scanStand', 'office.coolerStand', 'office.coffeeStand', 'office.windowStand']
     },
-    zones: { city: ['roof.edge', 'roof.console', 'streetA.stairsTop', 'streetB.elevator'], office: ['office.desk', 'office.scanner', 'office.cooler', 'office.coffee'] },
+    zones: { city: ['roof.edge', 'roof.console', 'streetA.stairsTop', 'streetB.elevator'], office: ['office.desk', 'office.scanner', 'office.cooler', 'office.coffee', 'office.window'] },
     paths: { city: ['streetA.stairsDown', 'streetB.subwayUp'], office: ['office.toHug', 'office.windowRun'] },
     camPresets: ['rooftop-walk', 'street-subway', 'plaza-walk', 'office-walk'],
     anchors: ['head', 'eyes', 'earR', 'chest', 'backUpper', 'handL', 'handR', 'hip', 'seat'],

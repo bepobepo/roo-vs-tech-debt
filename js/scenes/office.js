@@ -54,6 +54,8 @@
     'office.spawn': { pos: [0, 0, 2.2], yaw: 0 }, 'office.deskStand': { pos: [5, 0, 13.6], yaw: 0 },
     'office.chair': { pos: [5, 0, 14.5], yaw: 0 }, 'office.execStand': { pos: [2.6, 0, 14.4], yaw: PI / 2 },
     'office.windowRun': { pos: [5, 0, 19.5], yaw: 0 }, 'office.windowHole': { pos: [5, 1.2, 21], yaw: 0 },
+    // 2026-11-28: the "check the windows" station of office-walk: Roo stops at the glass behind the hero desk (inside the walk rects, z <= 20.2)
+    'office.windowStand': { pos: [5, 0, 20.1], yaw: 0 },
     'office.extraDesk1': { pos: [-5, 0, 9], yaw: 0 }, 'office.extraDesk2': { pos: [-5, 0, 14], yaw: 0 },
     // the island seat facing its spine from the east lane (extra4); extra2 waits at the printer
     'office.extraDesk3': { pos: [1.11, 0, 9.5], yaw: -PI / 2 }, 'office.extraStand': { pos: [8.95, 0, 3.95], yaw: PI / 2 }
@@ -64,7 +66,8 @@
   if (OP) ['scanStand', 'coolerStand', 'coffeeStand'].forEach(function (k) { MARKERS['office.' + k] = { pos: OP[k].pos.slice(), yaw: OP[k].yaw }; });
   var ZONES = { 'office.desk': { type: 'box', min: [4, 12.8], max: [6, 14.6] },
     'office.scanner': { type: 'box', min: [2.55, 3.70], max: [3.45, 4.30] }, 'office.cooler': { type: 'box', min: [-0.90, 7.10], max: [0.05, 7.81] },
-    'office.coffee': { type: 'box', min: [8.25, 1.95], max: [8.78, 2.75] } };
+    'office.coffee': { type: 'box', min: [8.25, 1.95], max: [8.78, 2.75] },
+    'office.window': { type: 'box', min: [3.9, 19.0], max: [6.1, 20.2] } };
   var PATHS = {
     'office.toHug': ['office.opsStart', [-2, 0, 6], 'office.opsPlea'],
     'office.windowRun': ['office.chair', [5, 0, 17], 'office.windowRun', 'office.windowHole']

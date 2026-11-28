@@ -158,11 +158,26 @@
       S.start(w2, roo, 'holdCup', { fade: 0.25 });
       await w2.say('roo_rocket_fuel', { actor: roo, gap: 0.1 });
     }
+    // the glass behind the hero desk: a press with the flat of the glove, then the verdict (2026-11-28)
+    async function windows(w2) {
+      var S = K(), roo = w2.actor('roo');
+      w2.cam('office-walk.window', 0.45, 'inOutSine');
+      await stand(w2, roo, 'office.windowStand');
+      S.start(w2, roo, 'reachPress', { loop: false, fade: 0.15 });
+      await w2.wait(0.45);
+      w2.sfx('thud', { volume: 0.3 });
+      await w2.wait(0.35);
+      w2.express(roo, 'smirk');
+      await w2.say('roo_sturdy', { actor: roo, gap: 0.1 });
+      await w2.wait(0.3);
+      S.start(w2, roo, ctx.holding ? 'holdCup' : 'idle', { fade: 0.25 });
+    }
     return [
       { id: 'scanner', zone: 'office.scanner', stand: 'office.scanStand', action: 'y', text: T('prompts.scan'), side: T('sideQuests.scanner'), once: false, run: scan },
       // the cooler's run is the longest (two gossip lines, about 14 s): its watchdog leaves room for real recordings
       { id: 'cooler', zone: 'office.cooler', stand: 'office.coolerStand', action: 'y', text: T('prompts.drink'), side: T('sideQuests.cooler'), once: true, limit: 24, run: cooler },
-      { id: 'coffee', zone: 'office.coffee', stand: 'office.coffeeStand', action: 'y', text: T('prompts.coffee'), side: T('sideQuests.coffee'), once: true, run: coffee }
+      { id: 'coffee', zone: 'office.coffee', stand: 'office.coffeeStand', action: 'y', text: T('prompts.coffee'), side: T('sideQuests.coffee'), once: true, run: coffee },
+      { id: 'window', zone: 'office.window', stand: 'office.windowStand', action: 'y', text: T('prompts.window'), side: T('sideQuests.window'), once: true, run: windows }
     ];
   }
 
@@ -179,14 +194,14 @@
       audio: { ambience: 'office' }
     },
     needs: {
-      markers: ['office.spawn', 'office.opsPlea', 'office.extraStand', 'office.scanStand', 'office.coolerStand', 'office.coffeeStand'].concat(TYPIST_MARKERS),
-      zones: ['office.desk', 'office.scanner', 'office.cooler', 'office.coffee'],
+      markers: ['office.spawn', 'office.opsPlea', 'office.extraStand', 'office.scanStand', 'office.coolerStand', 'office.coffeeStand', 'office.windowStand'].concat(TYPIST_MARKERS),
+      zones: ['office.desk', 'office.scanner', 'office.cooler', 'office.coffee', 'office.window'],
       anims: ['roo.idle', 'roo.walk', 'ops.thankful', 'roo.reachPress', 'roo.drinkCup', 'roo.holdCup', 'roo.offerCup', 'roo.idleHero'],
       sfx: ['step_carpet', 'scan_sweep', 'scan_beep', 'glug', 'brew', 'sip', 'ui_blip', 'thud', 'pat'],
-      lines: ['scanner_ok', 'scanner_again', 'roo_obviously', 'gossip_brenda', 'gossip_gary', 'roo_hold_cup', 'roo_rocket_fuel'],
+      lines: ['scanner_ok', 'scanner_again', 'roo_obviously', 'gossip_brenda', 'gossip_gary', 'roo_hold_cup', 'roo_rocket_fuel', 'roo_sturdy'],
       props: ['coffee', 'paperCup'],
       shots: ['office-walk.thanks', 'office-walk.scan', 'office-walk.scanScreen', 'office-walk.cooler', 'office-walk.coolerTap', 'office-walk.coolerSip', 'office-walk.coolerTalk',
-        'office-walk.coolerHand', 'office-walk.coffee', 'office-walk.coffeeScreen']
+        'office-walk.coolerHand', 'office-walk.coffee', 'office-walk.coffeeScreen', 'office-walk.window']
     },
     play: async function (w) {
       var ops = w.actor('ops'), roo = w.actor('roo');

@@ -142,7 +142,7 @@
     replay: 'Play again',
     credits: 'Credits',
     prompts: { jump: 'Press X to jump', calm: 'Push X to calm down', getOn: 'Press Y to get on with it', sit: 'Push X to sit down', keepPlaying: 'Push X to continue playing',
-      scan: 'Push Y to scan your face', drink: 'Push Y for a drink', coffee: 'Push Y to make a coffee' },
+      scan: 'Push Y to scan your face', drink: 'Push Y for a drink', coffee: 'Push Y to make a coffee', window: 'Push Y to check the windows' },
     objectives: {
       'rooftop-walk': 'Get to the edge of the roof',
       'street-subway': 'Take the subway',
@@ -166,7 +166,7 @@
     speakers: { ROO: 'ROO', LAUREN: 'LAUREN', OPS: 'OPS LEAD', EXEC: 'EXEC', BRENDA: 'BRENDA', GARY: 'GARY', SCANNER: 'SCANNER' },
     scanner: { idle: 'LOOK HERE', sign: 'FACE ID', scanning: 'SCANNING...', name: 'ROO', clearance: 'CLEARANCE: ALL OF IT', again: 'STILL ROO', againSub: 'STILL ALL OF IT' },
     coffee: { firmware: 'UPDATING FIRMWARE', step: '{n} OF 47', brewing: 'BREWING...' },
-    sideQuests: { title: 'Side quests', short: 'SIDE QUESTS', coffee: 'Grab a coffee', cooler: 'Water-cooler gossip', scanner: 'Scan your face' }
+    sideQuests: { title: 'Side quests', short: 'SIDE QUESTS', coffee: 'Grab a coffee', cooler: 'Water-cooler gossip', scanner: 'Scan your face', window: 'Check the windows' }
   };
   function dig(obj, path) {
     var parts = String(path).split('.');

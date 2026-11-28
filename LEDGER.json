@@ -495,6 +495,21 @@
   "tool": "Kokoro-82M via tools/gen-vo.py",
   "tag": "JUNE_PLACEHOLDER roo_obviously"
  },
+ "assets/audio/vo/stn_roo_sturdy.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
+ },
  "assets/audio/vo/stn_scanner_again.mp3": {
   "class": "generated-placeholder",
   "sources": [],

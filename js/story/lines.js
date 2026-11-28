@@ -71,6 +71,9 @@
       text: 'Tech debt? Hold my cup.' },
     roo_rocket_fuel: { speaker: 'ROO', branch: 'station', file: 'stn_roo_rocket_fuel.mp3', est: 1.2,
       text: 'Ahh. Rocket fuel.' },
+    // 2026-11-28: the window station (Roo tests the glass he will dive through later)
+    roo_sturdy: { speaker: 'ROO', branch: 'station', file: 'stn_roo_sturdy.mp3', est: 3.7,
+      text: 'Feels sturdy... But not too sturdy...' },
     // rooftop-walk's optional gag (2026-11-26): the player walks Roo back to the couch and asks to keep playing; he
     // turns to the player and refuses. A station line like the office's (branch 'station': never in auto mode, never
     // in golden's scripted list); an unnumbered gag_* file
@@ -84,7 +87,7 @@
     replay: 'Play again',
     credits: 'Credits',
     prompts: { jump: 'Press X to jump', calm: 'Push X to calm down', getOn: 'Press Y to get on with it', sit: 'Push X to sit down', keepPlaying: 'Push X to continue playing',
-      scan: 'Push Y to scan your face', drink: 'Push Y for a drink', coffee: 'Push Y to make a coffee' },
+      scan: 'Push Y to scan your face', drink: 'Push Y for a drink', coffee: 'Push Y to make a coffee', window: 'Push Y to check the windows' },
     objectives: {
       'rooftop-walk': 'Get to the edge of the roof',
       'street-subway': 'Take the subway',
@@ -109,7 +112,7 @@
     // office-walk's optional stations (the face scanner's and the coffee machine's screens, the side quest list)
     scanner: { idle: 'LOOK HERE', sign: 'FACE ID', scanning: 'SCANNING...', name: 'ROO', clearance: 'CLEARANCE: ALL OF IT', again: 'STILL ROO', againSub: 'STILL ALL OF IT' },
     coffee: { firmware: 'UPDATING FIRMWARE', step: '{n} OF 47', brewing: 'BREWING...' },
-    sideQuests: { title: 'Side quests', short: 'SIDE QUESTS', coffee: 'Grab a coffee', cooler: 'Water-cooler gossip', scanner: 'Scan your face' },
+    sideQuests: { title: 'Side quests', short: 'SIDE QUESTS', coffee: 'Grab a coffee', cooler: 'Water-cooler gossip', scanner: 'Scan your face', window: 'Check the windows' },
     // story-only strings (not in TEXT_DEFAULTS): what Roo types into the browser at the desk
     typedUrl: 'june.ai'
   };
