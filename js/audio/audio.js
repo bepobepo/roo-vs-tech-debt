@@ -37,7 +37,8 @@
   var JG = window.JG = window.JG || {};
 
   var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3', INTRO_URL = 'assets/audio/music/intro.mp3', ELEVATOR_URL = 'assets/audio/music/elevator.mp3',
-      AMB_FILES = { roof: 'assets/audio/ambience/roof.mp3', street: 'assets/audio/ambience/street.mp3', subway: 'assets/audio/ambience/subway.mp3', office: 'assets/audio/ambience/office.mp3' };   // recorded beds (seamless loops); the code-made bed plays if one is missing
+      AMB_FILES = { roof: 'assets/audio/ambience/roof.mp3', street: 'assets/audio/ambience/street.mp3', subway: 'assets/audio/ambience/subway.mp3', office: 'assets/audio/ambience/office.mp3' },
+      SFX_FILES = { glass: 'assets/audio/sfx/glass.mp3' };   // recorded one-shots; the code-made sound plays if one is missing   // recorded beds (seamless loops); the code-made bed plays if one is missing
   var BUS = { master: 0.9, vo: 1.0, sfx: 0.8, music: 0.5, amb: 0.4 };
   var DUCK = { music: 0.35, amb: 0.65 };
   var FX = {
@@ -76,6 +77,7 @@
     amb: { want: null, cur: null, fade: 1 },
     montage: { state: 'idle', reason: null, abuf: null, dur: 0 },
     intro: { state: 'idle', decoded: null },   // file-only music slot (the owner's intro track); silent when missing
+    sfxFile: {},                // id -> {state, decoded}: recorded one-shot sounds
     ambFile: {},                // id -> {state: 'loading'|'file'|'missing', decoded}: recorded ambience beds
     elevator: { state: 'idle', decoded: null }, // the owner's elevator track (plays once, 9.3 s); the code-made "Going Up" plays if it is missing
     errors: 0
@@ -341,6 +343,16 @@
       .catch(function (e) { A.state = 'missing'; warn('amb-file:' + id, 'JG.audio: ' + url + ' could not be used (' + dbg(e) + '); the code-made bed plays'); })
       .then(function () { if (st.amb.want === id) syncAmb(); });
   }
+  // recorded one-shot (glass): the owner's file if it decodes, else the code-made sound
+  function loadSfxFile(id) {
+    var url = SFX_FILES[id];
+    if (!url || st.sfxFile[id]) return;
+    var F = st.sfxFile[id] = { state: 'loading', decoded: null };
+    Promise.resolve().then(function () { return JG.assets.load({ ['sfx:' + id]: url }); }).then(function () {
+      return decode(JG.assets.get('sfx:' + id).buffer.slice(0));
+    }).then(function (ab) { F.decoded = ab; F.state = 'file'; })
+      .catch(function (e) { F.state = 'missing'; warn('sfx-file:' + id, 'JG.audio: ' + url + ' could not be used (' + dbg(e) + '); the code-made sound plays'); });
+  }
   function montageBuffer() {
     var M = st.montage;
     if (M.state !== 'file' || !M.decoded || !st.ctx) return null;
@@ -477,7 +489,7 @@
         } catch (e) { /* ignore */ }
       });
       // the montage file decodes lazily from desk-sit (or a jump to the beats that use it)
-      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); if (id === 'plaza-walk' || id === 'elevator-ride') loadElevator(); if (id === 'title' || id === 'rooftop-call') loadAmbFile('roof'); if (id === 'rooftop-walk' || id === 'rooftop-jump' || id === 'street-subway') loadAmbFile('street'); if (id === 'street-subway' || id === 'subway-ride' || id === 'subway-wink') loadAmbFile('subway'); if (id === 'elevator-ride' || id === 'ops-plea') loadAmbFile('office'); });
+      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); if (id === 'plaza-walk' || id === 'elevator-ride') loadElevator(); if (id === 'title' || id === 'rooftop-call') loadAmbFile('roof'); if (id === 'rooftop-walk' || id === 'rooftop-jump' || id === 'street-subway') loadAmbFile('street'); if (id === 'street-subway' || id === 'subway-ride' || id === 'subway-wink') loadAmbFile('subway'); if (id === 'elevator-ride' || id === 'ops-plea') loadAmbFile('office'); if (id === 'ops-plea' || id === 'how' || id === 'window-exit') loadSfxFile('glass'); });
     }
   });
 
@@ -585,8 +597,10 @@
     if (!JG.sfxLib || !JG.sfxLib.has('sfx', id)) { warn('sfx-unknown:' + id, 'JG.audio.sfx: unknown id "' + id + '"'); return { duration: 0, stop: noop }; }
     st.sfxCount[id] = (st.sfxCount[id] || 0) + 1;
     var d = dur('sfx', id), h = null;
+    var sf = SFX_FILES[id] && (loadSfxFile(id), st.sfxFile[id].decoded);
+    if (sf) d = sf.duration;
     if (canShoot()) {
-      var ab = buffer('sfx', id);
+      var ab = sf || buffer('sfx', id);
       if (ab) {
         // footsteps vary a little (seeded), everything else is exactly as designed
         var vary = id === 'step_hard' || id === 'step_carpet' ? 0.94 + 0.12 * st.rnd() : 1;

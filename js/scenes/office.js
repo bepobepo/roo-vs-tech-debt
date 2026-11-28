@@ -243,10 +243,7 @@
     // whiteboard on the east wall: frame, board, tray and a marker chart (no kit piece)
     B.box(9.9, 0.98, 5.0, 9.98, 2.12, 7.2, 0xb8bcc4); B.box(9.88, 1.02, 5.04, 9.9, 2.08, 7.16, 0xfbfaf6, NOHULL);
     B.box(9.8, 0.96, 5.1, 9.98, 1.0, 7.1, 0xb8bcc4);
-    [[5.3, 1.25, 0.25], [5.6, 1.25, 0.45], [5.9, 1.25, 0.62], [6.2, 1.25, 0.38]].forEach(function (b, i) {
-      B.box(9.875, b[1], b[0], 9.88, b[1] + b[2], b[0] + 0.18, i === 2 ? 0xd6333f : 0x1F4FD8, NOHULL);
-    });
-    B.box(9.875, 1.24, 5.2, 9.88, 1.25, 6.55, 0x111111, NOHULL); B.box(9.875, 1.24, 5.2, 9.88, 1.95, 5.21, 0x111111, NOHULL);
+    // 2026-11-28: the marker chart is now a drawn plane on the board: "NUMBER GO UP!" over a rising line graph (see below)
 
     // ---------------------------------------------------------------------------------------------- skyline outside (no ink)
     var rng = kit.rng, cols = [C.dusty, C.purple, C.brick, C.slate, 0x9aa3bf];
@@ -324,6 +321,37 @@
         } else { ctx.fillStyle = '#f6f7fb'; ctx.fillRect(0, 0, w, h); }
       });
     }
+
+    // ---------------------------------------------------------------------------------------------- whiteboard marker drawing
+    // transparent plane just in front of the board face (x 9.88), facing -X into the room; local +x is the viewer's right
+    var wb = SK.canvasPlane(kit, 2.0, 1.0, 1024, 512);
+    wb.mesh.material.transparent = true; wb.mesh.material.depthWrite = false; wb.mesh.renderOrder = 1;
+    wb.mesh.position.set(9.873, 1.55, 6.12); wb.mesh.rotation.y = -PI / 2; wb.mesh.name = 'office-whiteboard'; root.add(wb.mesh);
+    wb.draw(function (c, w, h) {
+      c.clearRect(0, 0, w, h);
+      c.lineCap = 'round'; c.lineJoin = 'round'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      // headline in blue marker
+      var txt = 'NUMBER GO UP!', fs = 120;
+      c.font = fs + 'px ' + SK.FONT;
+      while (c.measureText(txt).width > w * 0.9 && fs > 40) { fs -= 4; c.font = fs + 'px ' + SK.FONT; }
+      c.save(); c.translate(w * 0.5, h * 0.2); c.rotate(-0.025);
+      c.fillStyle = '#1F4FD8'; c.fillText(txt, 0, 0);
+      c.restore();
+      // axes in black marker
+      c.strokeStyle = '#111'; c.lineWidth = 9;
+      c.beginPath(); c.moveTo(w * 0.1, h * 0.42); c.lineTo(w * 0.1, h * 0.9); c.lineTo(w * 0.92, h * 0.9); c.stroke();
+      // the line goes up (red marker), with a wobble and an arrow head
+      var pts = [[0.14, 0.82], [0.26, 0.77], [0.37, 0.8], [0.5, 0.65], [0.6, 0.68], [0.74, 0.55], [0.82, 0.57], [0.9, 0.46]];
+      c.strokeStyle = '#d6333f'; c.lineWidth = 14;
+      c.beginPath(); pts.forEach(function (p, i) { if (i) c.lineTo(p[0] * w, p[1] * h); else c.moveTo(p[0] * w, p[1] * h); }); c.stroke();
+      var a = pts[pts.length - 1], b = pts[pts.length - 2], ang = Math.atan2((a[1] - b[1]) * h, (a[0] - b[0]) * w), L = 58;
+      c.beginPath();
+      c.moveTo(a[0] * w + Math.cos(ang) * 14, a[1] * h + Math.sin(ang) * 14);
+      c.lineTo(a[0] * w + Math.cos(ang + 2.5) * L, a[1] * h + Math.sin(ang + 2.5) * L);
+      c.moveTo(a[0] * w + Math.cos(ang) * 14, a[1] * h + Math.sin(ang) * 14);
+      c.lineTo(a[0] * w + Math.cos(ang - 2.5) * L, a[1] * h + Math.sin(ang - 2.5) * L);
+      c.stroke();
+    });
 
     // ---------------------------------------------------------------------------------------------- wall dashboard
     var dash = SK.canvasPlane(kit, 2.7, 1.25, 512, 236);
