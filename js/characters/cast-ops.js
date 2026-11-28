@@ -16,6 +16,8 @@
       rules: [
         { part: 'hair', yMin: 0.95, zMin: 0.0, color: HAIR_HI },
         { part: 'hair', color: HAIR },
+        // The fitted ponytail touches the scalp at the crown. Match its base colour inside the hairline.
+        { part: 'skin', bones: /^Head$/, yMin: 0.982, xMax: 0.045, zMin: -0.039, zMax: 0.004, color: HAIR },
         { part: 'cloth2', comp: { topMin: 0.1 }, color: '#2A2E3A' },   // socks
         { part: 'cloth2', color: SHOES },
         // the shirt in the V of the cardigan; under the cardigan's back the skin is cardigan-coloured (no poke-through)
