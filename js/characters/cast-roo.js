@@ -7,7 +7,7 @@
  *     drape shell;
  *   - the tail spring (secondary.js through port.update) runs after the mixer unless the base clip keys the tail;
  *   - breath runs as its own additive action, always;
- *   - the jaw follows the speaker's voice level, independently of the current body clip.
+ *   - the jaw follows the speaker's voice level and the wink closes his right eyelid independently of the body clip.
  * Classic script; registers at load, builds nothing until the world asks for 'roo'. */
 (function () {
   'use strict';
@@ -47,10 +47,15 @@
     // the cape goes back to the root only from the rest pose, where cape_root sits where it was attached
     function capeToRoot() { if (capeOn === 'clip') { port.clipMode(false); capeOn = 'pose'; } }
 
-    var jawOpening = 0;
+    var jawOpening = 0, wink = 0, winkTarget = 0, winkRate = 0;
     var face = {
       neutral: 'neutral', cur: 'neutral',
-      set: function (n) { face.cur = n || 'neutral'; },
+      set: function (n, fade) {
+        face.cur = n || 'neutral';
+        winkTarget = face.cur === 'wink' ? 1 : 0;
+        if (fade > 0) winkRate = 1 / fade;
+        else { wink = winkTarget; port.setWink(wink); }
+      },
       mouth: function (level) {
         // levelAt already gates and normalises the recorded voice. The silent half of its
         // fallback syllable is 0.05. Let an emphatic syllable reach the full authored opening.
@@ -87,6 +92,11 @@
         else if (capeOn !== 'clip') { port.clipMode(true); capeOn = 'clip'; }
       },
       afterMixer: function (dt, ctl, reset) {
+        if (wink !== winkTarget) {
+          var step = winkRate * dt;
+          wink = winkTarget ? Math.min(1, wink + step) : Math.max(0, wink - step);
+          port.setWink(wink);
+        }
         // Held poses key every bone. Apply the current opening after they have been sampled.
         port.setJawOpening(jawOpening);
         if (reset) { port.resetSecondary(); return; }

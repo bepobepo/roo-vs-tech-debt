@@ -6,7 +6,7 @@
  *   - the posing helpers (aim, rot, hand, fingers, leg, fromBind, ...) are thin name-mapping wrappers over the rig's
  *     ported helper set P, so the spike's poses and cape drape run unchanged on the new rig;
  *   - library clips play on rig.root (rest = the mannequin's local rotations).
- * Exposed as JG.roo.build(THREE, kit) -> { root, rig, P, anchors, pose(name), setJawOpening(0..1), body, ink, cape }.
+ * Exposed as JG.roo.build(THREE, kit) -> { root, rig, P, anchors, pose(name), setJawOpening(0..1), setWink(0..1), body, ink, cape }.
  *
  * Original spike notes:
  *
@@ -103,6 +103,8 @@
     rect('torsoB', 808, 16, 380, 575);
     rect('headL', 808, 623, 600, 300);
     rect('headR', 808, 955, 600, 300);
+    rect('headRSquint', 1432, 623, 600, 300);
+    rect('headRWink', 1432, 955, 600, 300);
     rect('ear', 1220, 16, 130, 290);
     rect('arm', 1382, 16, 300, 360);
     rect('thigh', 1714, 16, 300, 420);
@@ -174,7 +176,7 @@
         [0.13, 1.688], [0.112, 1.697 + smirk], [0.103, 1.708 + smirk * 1.4]];
     }
 
-    function drawHead(ctx, w, h, smirk) {
+    function drawHead(ctx, w, h, smirk, closure) {
       var sx = w / 0.37, sy = h / 0.18;
       function Z(z) { return (z + 0.08) * sx; }
       function Y(y) { return (1.82 - y) * sy; }
@@ -199,15 +201,24 @@
       stroke(ctx, P([[0.27, 1.676], [0.23, 1.673], [0.2, 1.675]]), 0.002 * sx, COL.furD);
       // eye: almond under a straight slanted lid (half-lidded)
       var inner = [0.114, 1.746], outer = [0.062, 1.765];
-      ctx.save();
-      path(ctx, P([inner, [0.088, 1.757], outer, [0.066, 1.738], [0.098, 1.733], inner]), true);
-      ctx.fillStyle = COL.white; ctx.fill(); ctx.clip();
-      blob(ctx, Z(0.0905), Y(1.750), 0.0102 * sx, 0.0102 * sy, '#4A2408');
-      blob(ctx, Z(0.0915), Y(1.750), 0.0056 * sx, 0.0056 * sy, COL.ink);
-      blob(ctx, Z(0.095), Y(1.7525), 0.002 * sx, 0.002 * sy, '#FFFFFF');
-      ctx.restore();
-      stroke(ctx, P([inner, [0.098, 1.7345], [0.07, 1.739], outer]), 0.002 * sx, COL.ink);          // lower lid
-      stroke(ctx, P([[0.117, 1.744], [0.088, 1.7565], [0.058, 1.768]]), 0.006 * sx, COL.ink);        // upper lid
+      if (closure === 1) {
+        // A single curved lid, with a short crease at the pinched outer corner.
+        stroke(ctx, P([[0.116, 1.744], [0.099, 1.751], [0.080, 1.750], [0.058, 1.742]]), 0.0055 * sx, COL.ink);
+        stroke(ctx, P([[0.067, 1.746], [0.060, 1.749], [0.054, 1.751]]), 0.0024 * sx, COL.brow);
+      } else {
+        var upper = closure ? [[0.116, 1.744], [0.088, 1.747], [0.059, 1.754]] :
+          [[0.117, 1.744], [0.088, 1.7565], [0.058, 1.768]];
+        if (closure) outer = [0.062, 1.752];
+        ctx.save();
+        path(ctx, P([inner, closure ? upper[1] : [0.088, 1.757], outer, [0.066, 1.738], [0.098, 1.733], inner]), true);
+        ctx.fillStyle = COL.white; ctx.fill(); ctx.clip();
+        blob(ctx, Z(0.0905), Y(1.750), 0.0102 * sx, 0.0102 * sy, '#4A2408');
+        blob(ctx, Z(0.0915), Y(1.750), 0.0056 * sx, 0.0056 * sy, COL.ink);
+        blob(ctx, Z(0.095), Y(1.7525), 0.002 * sx, 0.002 * sy, '#FFFFFF');
+        ctx.restore();
+        stroke(ctx, P([inner, [0.098, 1.7345], [0.07, 1.739], outer]), 0.002 * sx, COL.ink);
+        stroke(ctx, P(upper), 0.006 * sx, COL.ink);
+      }
       // heavy brow
       stroke(ctx, P([[0.122, 1.755], [0.094, 1.769], [0.056, 1.779]]), 0.0075 * sx, COL.brow);
       stroke(ctx, P([[0.07, 1.777], [0.05, 1.782], [0.036, 1.781]]), 0.004 * sx, COL.brow);
@@ -293,6 +304,8 @@
 
       paint('headL', COL.fur, function (ctx, w, h) { drawHead(ctx, w, h, SMIRK_LEFT); });
       paint('headR', COL.fur, function (ctx, w, h) { drawHead(ctx, w, h, SMIRK_RIGHT); });
+      paint('headRSquint', COL.fur, function (ctx, w, h) { drawHead(ctx, w, h, SMIRK_RIGHT, 0.5); });
+      paint('headRWink', COL.fur, function (ctx, w, h) { drawHead(ctx, w, h, SMIRK_RIGHT, 1); });
 
       /* inner ear: local x -0.05..0.05, local y 0.275..-0.02 */
       paint('ear', COL.fur, function (ctx, w, h) {
@@ -944,6 +957,21 @@
     })();
     var body = kit.skin(root, rig.skeleton, geo, kit.mat.toon({ map: atlas, vertexColors: true }));
     body.name = 'roo-body';
+    // Only the right side of the head changes UV tile. The ink hull and opposite eye keep their own appearance.
+    var rightHeadUVs = [], openEye = RECT.headR, eyeTile = openEye, bodyUV = geo.attributes.uv;
+    for (var uvIndex = 0; uvIndex < bodyUV.count; uvIndex++) {
+      var u = bodyUV.getX(uvIndex), v = bodyUV.getY(uvIndex);
+      if (u >= openEye.x / AW && u <= (openEye.x + openEye.w) / AW &&
+          v >= 1 - (openEye.y + openEye.h) / AH && v <= 1 - openEye.y / AH) rightHeadUVs.push(uvIndex);
+    }
+    function setWink(closure) {
+      var next = closure < 0.25 ? openEye : closure < 0.75 ? RECT.headRSquint : RECT.headRWink;
+      if (eyeTile === next) return;
+      var du = (next.x - eyeTile.x) / AW, dv = (eyeTile.y - next.y) / AH;
+      rightHeadUVs.forEach(function (i) { bodyUV.setXY(i, bodyUV.getX(i) + du, bodyUV.getY(i) + dv); });
+      bodyUV.needsUpdate = true;
+      eyeTile = next;
+    }
     var ink = kit.skin(root, rig.skeleton, hullGeo, kit.mat.ink());
     ink.name = 'roo-ink';
     var jaw = rig.byName.jaw, jawRest = rig.rest.jaw;
@@ -1322,7 +1350,7 @@
 
     return {
       root: root, rig: rig, P: P, body: body, ink: ink, cape: cape, capeInk: capeInk,
-      anchors: ANCH, setJawOpening: setJawOpening,
+      anchors: ANCH, setJawOpening: setJawOpening, setWink: setWink,
       pose: function (name) { if (cape.parent !== root) { root.attach(cape); root.attach(capeInk); } pose(name); },
       holdTail: function () { holdTail(); floorTail(); }, update: update, resetSecondary: resetSecondary, clipMode: clipMode, setSubwayCape: setSubwayCape,
       poses: Object.keys(POSES),

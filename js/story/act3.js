@@ -276,9 +276,19 @@
     }
   });
 
-  // ---------------------------------------------------------------- 13. montage (cine, 10 s; skip lands on the time card)
+  // The isolated singing, sampled at 25 Hz after the tempo change. Both passes use this same take.
+  var hookMouth = '000059850000588860000598600001888741003610154368877775488878888751000000365005755788778643677677668766686055665540005777776335664200';
+  function montageMouthAt(seconds) {
+    var start = seconds < 8.15686 ? 2.63962 : 8.15686;
+    var sample = (seconds - start) * 25;
+    if (sample < 0 || sample >= hookMouth.length - 1) return 0;
+    var i = Math.floor(sample), a = Number(hookMouth[i]), b = Number(hookMouth[i + 1]);
+    return (a + (b - a) * (sample - i)) / 9;
+  }
+
+  // ---------------------------------------------------------------- 13. montage (cine, 32 s plus the player's choice)
   JG.beats.register({
-    id: 'montage', kind: 'cine', skippable: true, est: 10.5,
+    id: 'montage', kind: 'cine', skippable: true, est: 32,
     stage: {
       scene: 'office', sceneState: office({ monitor: 'before' }),
       cast: withTypists({ roo: { at: 'office.chair', pose: 'seatedIdle', expr: 'smirk', cape: 'drape:seated' } }),
@@ -287,31 +297,69 @@
     needs: {
       markers: ['office.chair'].concat(TYPIST_MARKERS), lines: ['roo_few_minutes'], props: ['headphones'],
       anims: ['roo.seatedIdle', 'roo.headphonesOn', 'roo.seatedType', 'roo.grooveBob'],
-      sfx: ['hp_on'], shots: ['desk-sit.monitor', 'montage.bob', 'montage.push']
+      sfx: ['hp_on'], shots: ['montage.bob', 'two-hours-later.close', 'desk-sit.monitor', 'montage.shoulder']
     },
     play: async function (w) {
-      var S = K(), t0 = JG.clock.t, roo = w.actor('roo');
+      var S = K(), roo = w.actor('roo');
       deskMug(w);
       w.cut('montage.bob');
       w.mark('montage');
       w.look(roo, 'camera');
       await w.say('roo_few_minutes', { actor: roo, gap: 0.15 });
       w.look(roo, null);
-      // headphones on: the prop attaches mid-clip
-      w.fork(async function (w2) { await w2.wait(0.45); S.attach(roo, 'headphones', 'head'); w2.sfx('hp_on'); });
-      await S.playFor(w, roo, 'headphonesOn', 0.9, { loop: false, fade: 0.15 });
-      w.music('montage');
-      w.musicFx('muffled', 0.3);
+      S.start(w, roo, 'headphonesOn', { loop: false, fade: 0.15 });
+      await w.wait(0.45);
+      S.attach(roo, 'headphones', 'head');
+      w.sfx('hp_on');
+      var music = w.music('montage', { restart: true }), songStart = JG.clock.t;
+      w.onCancel(function () { roo.setMouth(0); if (music) music.stop(0.05); });
+      function songPosition() {
+        return JG.audio.music.position ? JG.audio.music.position('montage') : null;
+      }
+      function waitForSongCue(seconds) {
+        return w.until(function () {
+          var pos = songPosition();
+          // A silent run or accelerated playtest still reaches the next shot on the game clock.
+          if (pos === null || JG.loop.timeScale > 1) pos = JG.clock.t - songStart;
+          return pos >= seconds;
+        });
+      }
+      var mouth = w.scope.everyTick(function () {
+        var pos = songPosition();
+        roo.setMouth(pos === null ? 0 : montageMouthAt(pos));
+      });
       S.ui('nowPlaying.show', T('nowPlaying'));
-      S.start(w, roo, 'seatedType', { fade: 0.3 });
-      S.start(w, roo, 'grooveBob', { additive: true });
       w.mark('song');
-      await w.wait(2.2);
-      // the monitor push (the score stays at 51 until the time card)
+      await w.wait(0.45);
+      S.start(w, roo, 'seatedType', { fade: 0.3 });
+      S.start(w, roo, 'grooveBob', { additive: true, speed: 87 / 120 });
+      await w.cam('two-hours-later.close', 0.9, 'inOutSine');
+      var instrumentalDownbeat = 20 * 60 / 87;
+      await waitForSongCue(instrumentalDownbeat);
+      var offset = Math.max(0, (songPosition() || 0) - instrumentalDownbeat);
+      music = w.music('montageInstrumental', { offset: offset, fade: 0.04, fadeIn: 0.04 });
+      mouth.cancel();
+      roo.setMouth(0);
+      // The radar stays on the desk while the player decides. The instrumental loops for as long as they need.
       w.cut('desk-sit.monitor');
-      await w.cam('montage.push', 2.6, 'inOutSine');
-      await S.hold(w, t0, 9.5);
-      await w.fadeOut(1);
+      w.mark('fix-prompt');
+      await w.choose({ options: [{ action: 'x', alternate: 'y', text: T('prompts.fix'), primary: true }] });
+      await w.cam('montage.shoulder', 0.8, 'inOutSine');
+      var monitor = w.prop('monitor'), fadeSeconds = 0.45;
+      if (monitor && monitor.videoState) {
+        await w.setScene({ monitor: 'video' });
+        w.mark('fix-video');
+        await w.until(function () {
+          var film = monitor.videoState();
+          return film.status === 'ended' || film.status === 'failed' ||
+            (film.status === 'playing' && film.duration > 0 && film.duration - film.time <= fadeSeconds);
+        }, { timeout: 23 }); // the 15 s clip can also fail to start or stall
+      }
+      // Keep the film on the screen as picture and music fade together into the time card.
+      w.mark('fix-finished');
+      S.ui('nowPlaying.hide');
+      w.music(null, { fade: fadeSeconds });
+      await w.fadeOut(fadeSeconds);
     }
   });
 
@@ -321,7 +369,7 @@
     stage: {
       scene: 'office', sceneState: office({ mood: 'after', monitor: 'before', light: 'dusk' }),
       cast: { roo: { at: 'office.chair', pose: 'seatedType', expr: 'smirk', cape: 'drape:seated', props: { headphones: 'head' } } },
-      audio: { music: 'montage', musicFx: 'muffled', ambience: 'office' },
+      audio: { ambience: 'office' },
       ui: { fade: 1 }
     },
     needs: {
@@ -339,13 +387,10 @@
       w.cut('two-hours-later.close');
       S.start(w, roo, 'seatedIdle', { fade: 0.3 });
       await w.wait(0.5);
-      // headphones off: a 0.4 s tinny leak, then the song fades in 250 ms
       w.fork(async function (w2) { await w2.wait(0.3); S.attach(roo, 'headphones', false); });
       S.start(w, roo, 'headphonesOff', { loop: false, fade: 0.15 });
       w.sfx('hp_off');
-      w.musicFx('leak', 0);
       await w.wait(0.4);
-      w.music(null, { fade: 0.25 });
       w.express(roo, 'smile');
       await S.hold(w, t0, 7);
     }

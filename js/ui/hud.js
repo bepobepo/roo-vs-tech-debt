@@ -637,7 +637,9 @@
       el.chips.innerHTML = '';
       (o.options || []).forEach(function (op) {
         var b = H.mk('button', 'jg-chip' + (op.primary ? ' primary' : ''), el.chips, { type: 'button', 'data-ui': 'chip', 'data-action': op.action });
-        H.text(H.mk('span', 'disc', b, { 'aria-hidden': 'true' }), String(op.action || '').toUpperCase());
+        var keys = op.alternate ? [op.action, op.alternate] : [op.action];
+        keys.forEach(function (key) { H.text(H.mk('span', 'disc', b, { 'aria-hidden': 'true' }), String(key || '').toUpperCase()); });
+        b.setAttribute('aria-keyshortcuts', keys.join(' '));
         H.text(H.mk('span', 'txt', b), op.text);
         b.addEventListener('pointerdown', function (e) { e.preventDefault(); JG.input.inject(op.action, H.src(e)); });
         // keyboard activation of a focused chip (Space / Enter via click with no pointer) also presses it

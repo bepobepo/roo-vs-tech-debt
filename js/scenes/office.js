@@ -37,8 +37,8 @@
  * shelves, cabinets and planters. Every static piece is merged into the builder's groups (main, before, after, ...):
  * no instancing (the hero chair and the stations' effects are the moving pieces).
  * State: floor 1..56 (lift displays, tweened), doors, mood before/after (paper stacks, wilted plants, red wall
- * dashboard / tidy, green), monitor (the hero monitor CanvasTexture; JG.ui.radar.drawMonitor(ctx, w, h, stage)
- * fills it, redrawn at most 10 times a second), window intact/broken (the dive-shaped hole placeholder and shards;
+ * dashboard / tidy, green), monitor (radar canvas redrawn at up to 10 Hz, or a muted video during the fix),
+ * window intact/broken (the dive-shaped hole placeholder and shards;
  * the three-pinata fracture comes in Stage 3), light day/dusk.
  * Markers keep the core greybox positions (JG.stubs.SETS.office), except office.extraStand (moved to the printer,
  * 2026-11-25); the stations' marks and office.extraDesk3 are new. */
@@ -151,6 +151,74 @@
   var DOOR_X = { closed: [-0.6, 0.6], open: [-1.85, 1.85] };
 
   JG.scenes.register('office', { build: build });
+
+  // The 16:9 work film fits inside the desk monitor's 16:10 panel. Its bytes use the same loader for hosted and
+  // single-file builds. The radar canvas stays behind the film and is available immediately when the shot ends.
+  function workFilm(THREE, panel, size) {
+    var bytes = null, video = null, url = null, screen = null, status = 'idle';
+    function preload() {
+      if (!bytes) bytes = JG.assets.bytes('assets/video/desk-work.mp4').catch(function () { return null; });
+      return bytes;
+    }
+    function stop() {
+      var old = video;
+      video = null; status = 'idle';
+      if (old) {
+        old.onplaying = old.onended = old.onerror = null;
+        old.pause(); old.removeAttribute('src'); old.load();
+      }
+      if (url) { URL.revokeObjectURL(url); url = null; }
+      if (screen) {
+        panel.remove(screen); screen.material.map.dispose(); screen.material.dispose(); screen = null;
+      }
+      panel.material.color.setHex(0xffffff);
+    }
+    function fail(el) {
+      if (el !== video) return;
+      stop(); status = 'failed';
+    }
+    function speed() {
+      var rate = Math.max(0.0625, Math.min(16, JG.loop.timeScale || 1));
+      if (video && video.playbackRate !== rate) video.playbackRate = rate;
+    }
+    function visibility(visible) {
+      var el = video;
+      if (!el || !url || status === 'ended') return;
+      if (!visible) { el.pause(); return; }
+      speed();
+      var p = el.play();
+      if (p) p.catch(function (e) { if (e.name !== 'AbortError') fail(el); });
+    }
+    function start() {
+      stop();
+      var el = video = document.createElement('video');
+      status = 'loading';
+      el.muted = el.defaultMuted = el.playsInline = true;
+      el.setAttribute('playsinline', ''); el.preload = 'auto';
+      el.onerror = function () { fail(el); };
+      el.onplaying = function () {
+        if (el !== video) return;
+        status = 'playing'; screen.visible = true; panel.material.color.setHex(0);
+      };
+      el.onended = function () { if (el === video) status = 'ended'; };
+      preload().then(function (buf) {
+        if (el !== video) return;
+        if (!buf) { fail(el); return; }
+        var tex = new THREE.VideoTexture(el);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        screen = new THREE.Mesh(panel.geometry, new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, fog: false }));
+        screen.scale.y = size.w * 9 / 16 / size.h; screen.position.z = 0.001; screen.visible = false;
+        panel.add(screen);
+        url = URL.createObjectURL(new Blob([buf], { type: 'video/mp4' }));
+        el.src = url; visibility(!document.hidden);
+      }).catch(function () { fail(el); });
+    }
+    return {
+      start: start, stop: stop, preload: preload, visibility: visibility, speed: speed,
+      release: function () { stop(); bytes = null; },
+      state: function () { return { status: status, time: video ? video.currentTime : 0, duration: video ? video.duration : 0 }; }
+    };
+  }
 
   function build(kit) {
     var SK = JG.setkit, IN = JG.interior, THREE = kit.THREE, C = SK.colours, rect = SK.rect;
@@ -311,12 +379,13 @@
     var mon = SK.canvasPlane(kit, hs.w, hs.h, 480, 300);
     mon.mesh.position.set(HERO[0], hs.y, HERO[1] + hs.z); mon.mesh.rotation.y = PI;
     root.add(mon.mesh);
+    var film = workFilm(THREE, mon.mesh, hs);
     var monT = 1;
     function drawMonitor() {
       mon.draw(function (ctx, w, h) {
         var ui = JG.ui;
         if (state.monitor !== 'off' && ui && ui.radar && ui.radar.drawMonitor) {
-          try { ui.radar.drawMonitor(ctx, w, h, state.monitor); return; } catch (e) { JG.error('radar.drawMonitor', e); }
+          try { ui.radar.drawMonitor(ctx, w, h, state.monitor === 'video' ? 'before' : state.monitor); return; } catch (e) { JG.error('radar.drawMonitor', e); }
         }
         if (state.monitor === 'off') {
           ctx.fillStyle = '#0d0f14'; ctx.fillRect(0, 0, w, h);
@@ -765,7 +834,7 @@
       crowdHullFar: 6,
       camPresets: { 'office-walk': { yaw: 0.35, dist: 5.5, height: 2.8, lookHeight: 1.1, lag: 0.25 } },
       camColliders: B.colliders(),
-      props: Object.assign({ monitor: { object: mon.mesh, anchors: {} }, window: { object: pane, anchors: {} }, windowBroken: { object: broken, anchors: {} } },
+      props: Object.assign({ monitor: { object: mon.mesh, anchors: {}, videoState: film.state }, window: { object: pane, anchors: {} }, windowBroken: { object: broken, anchors: {} } },
         props ? { scanner: props.scanner, cooler: props.cooler, coffee: props.coffee, deskMug: props.deskMug } : {}),
       surfaceAt: function (x, z) { return z < 0.2 || (z < 1.3 && Math.abs(x) < 3) ? 'hard' : 'carpet'; },
       setState: function (patch, sec) {
@@ -783,13 +852,17 @@
         if (patch.mood) applyMood();
         if (patch.light) applyLight();
         if (patch.window) { var b = patch.window === 'broken'; pane.visible = !b; broken.visible = b; }
-        if (patch.monitor) { drawMonitor(); monT = 0; }
+        if (patch.monitor) {
+          if (patch.monitor === 'video') film.start(); else film.stop();
+          drawMonitor(); monT = 0;
+        }
         return { duration: sec };
       },
       update: function (dt, t, ctx) {
         drawFloor();
         monT += dt;
-        if (monT >= 0.1 && state.monitor !== 'off') { monT = 0; drawMonitor(); }
+        if (state.monitor === 'video') film.speed();
+        else if (monT >= 0.1 && state.monitor !== 'off') { monT = 0; drawMonitor(); }
         // hide the lift car's walls when the camera is behind the lift wall but not inside the car
         var cam = ctx && ctx.camera;
         if (cam && meshes.car) {
@@ -802,6 +875,11 @@
       debug: { meshes: meshes, state: function () { return Object.assign({}, state); }, chair: function () { return chairK; }, chairs: function () { return chairBounds; } }
     };
     if (JG.on) JG.on('scene', function (id) { if (id === 'office' && JG.world.current === inst) SK.applyLighting(inst.lighting); });
+    if (JG.on) {
+      JG.on('beat', function (id) { if (id === 'montage' && JG.world.current === inst) film.preload(); });
+      JG.on('beat-exit', function (id) { if (id === 'montage') film.release(); });
+      JG.on('visibility', film.visibility);
+    }
     // the stations animate (screens redraw, steam puffs) only in office-walk; every beat starts them from rest
     if (JG.on) JG.on('beat', function (id) { if (JG.world && JG.world.current === inst) { heroChair(); if (props) { props.reset(); props.live(id === 'office-walk'); } } });
     inst.setState(Object.assign({}, DEFAULTS), 0);

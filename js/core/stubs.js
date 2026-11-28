@@ -632,6 +632,7 @@
         play: function (id) { music = id; return { duration: Infinity, stop: function () { if (music === id) music = null; } }; },
         stop: function () { music = null; },
         fx: function (f) { fx = f || null; },
+        position: function () { return null; },
         source: function () { return 'standin'; }
       }
     };

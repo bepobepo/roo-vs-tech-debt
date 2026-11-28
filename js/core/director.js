@@ -119,10 +119,15 @@
     if (def.kind === 'cine') {
       var limit = 2.5 * (def.est || 10);
       ((def.needs && def.needs.lines) || []).forEach(function (l) { limit += voDuration(l); });
-      scope.after(limit, function () {
-        if (cur !== c) return;
+      var scriptedTime = 0;
+      scope.everyTick(function (dt) {
+        // A cine can hand control to the player. The time they spend choosing has no story deadline.
+        if (st.prompt) return;
+        scriptedTime += dt;
+        if (scriptedTime < limit) return;
         JG.error('watchdog', 'beat "' + id + '" ran past ' + limit.toFixed(1) + ' s of game time; advancing');
         finish(c, undefined);
+        return true;
       });
     }
     if (def.kind === 'card') scope.after(2, function () { if (cur === c && JG.loop) JG.loop.setRendering(false); });
@@ -642,7 +647,7 @@
       return scope.promise(function (res) {
         JG.input.setMode('choice');
         var h = Object.assign({ hide: function () {}, strike: function () {}, shake: function () {}, pulse: function () {} },
-          call('ui.prompt', function () { return ui.prompt.show({ options: options.map(function (op) { return { action: op.action, text: op.text, primary: !!op.primary }; }) }); }) || {});
+          call('ui.prompt', function () { return ui.prompt.show({ options: options.map(function (op) { return { action: op.action, alternate: op.alternate, text: op.text, primary: !!op.primary }; }) }); }) || {});
         options.forEach(function (op) { if (op.struck) call('prompt.strike', function () { h.strike(op.action, op.struck === true ? JG.text('niceTry') : op.struck); }); });
         JG.input.arm();
         st.prompt = options.map(function (op) { return op.text; });
@@ -650,12 +655,12 @@
         var off = JG.input.on('press', function (action) {
           if (settled) return;
           var op = null;
-          options.forEach(function (x) { if (x.action === action) op = x; });
+          options.forEach(function (x) { if (x.action === action || x.alternate === action) op = x; });
           if (!op) return;
-          if (op.struck) { call('prompt.shake', function () { h.shake(action); }); sfx('ui_deny'); return; }
+          if (op.struck) { call('prompt.shake', function () { h.shake(op.action); }); sfx('ui_deny'); return; }
           settled = true;
           sfx('ui_blip');
-          res(action);
+          res(op.action);
         });
         var tk = clock.everyTick(function () {
           var prim = null;

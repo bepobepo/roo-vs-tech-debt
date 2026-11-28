@@ -74,6 +74,21 @@
   "credit": null,
   "owner": null
  },
+ "assets/audio/music/ending.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
+ },
  "assets/audio/music/intro.mp3": {
   "class": "user-licensed",
   "sources": [
@@ -89,13 +104,42 @@
   "credit": null,
   "owner": null
  },
- "assets/audio/music/montage.mp3": {
-  "class": "generated-placeholder",
-  "sources": [],
-  "modified": false,
+ "assets/audio/music/montage-instrumental.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": "https://www.youtube.com/watch?v=O0oq7S0SPmM",
+    "licence": null,
+    "author": "Zoom Karaoke Official",
+    "files": []
+   }
+  ],
+  "modified": true,
   "credit": null,
-  "tool": "ffmpeg silence via tools/gen-vo.py (tagged placeholder)",
-  "tag": "JUNE_PLACEHOLDER montage"
+  "owner": null
+ },
+ "assets/audio/music/montage.mp3": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   },
+   {
+    "pack": "Supplied by the project owner",
+    "url": "https://www.youtube.com/watch?v=O0oq7S0SPmM",
+    "licence": null,
+    "author": "Zoom Karaoke Official",
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
  },
  "assets/audio/sfx/glass.mp3": {
   "class": "user-licensed",
@@ -1181,6 +1225,21 @@
     "credit": "\"Low Poly 3D Office Set #2 [VNB]\" by VNBP - Leo (https://vnbp.itch.io/low-poly-3d-office-set-2-vnb), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), modified"
    }
   ]
+ },
+ "assets/video/desk-work.mp4": {
+  "class": "user-licensed",
+  "sources": [
+   {
+    "pack": "Supplied by the project owner",
+    "url": null,
+    "licence": null,
+    "author": null,
+    "files": []
+   }
+  ],
+  "modified": true,
+  "credit": null,
+  "owner": null
  },
  "assets/video/tv-game.mp4": {
   "class": "generated-placeholder",

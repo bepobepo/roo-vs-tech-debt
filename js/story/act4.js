@@ -23,8 +23,8 @@
     },
     needs: {
       markers: ['office.chair', 'office.execStand'], lines: ['exec_how', 'roo_good_at', 'roo_dont_need_me'],
-      anims: ['exec.walk', 'exec.armsCrossedIdle', 'exec.disbelief', 'roo.seatedSmileNod', 'roo.idle', 'roo.twoFingerSalute'],
-      sfx: ['step_carpet', 'chair'], shots: ['how.two', 'how.exec', 'how.roo', 'how.salute']
+      anims: ['exec.walk', 'exec.armsCrossedIdle', 'exec.disbelief', 'roo.seatedSmileNod', 'roo.standUp', 'roo.idle', 'roo.twoFingerSalute'],
+      sfx: ['step_carpet', 'chair'], shots: ['how.two', 'how.exec', 'how.roo', 'how.rise', 'how.salute']
     },
     play: async function (w) {
       var S = K(), t0 = JG.clock.t, roo = w.actor('roo'), exec = w.actor('exec');
@@ -47,13 +47,17 @@
       w.express(roo, 'smirk');
       S.start(w, roo, 'seatedSmileNod', { loop: false, fade: 0.2 });
       await w.say('roo_good_at', { actor: roo });
-      // he stands up for the last line and the salute
-      w.sfx('chair');
-      S.cape(roo, 'sim');
-      S.start(w, roo, 'idle', { fade: 0.5 });
+      // Hold the full figure while he leans over his planted feet and pushes off the chair.
+      w.cut('how.rise');
       K().start(w, exec, 'armsCrossedIdle', { fade: 0.4 });
       w.express(exec, 'talk');
-      await w.wait(0.5);
+      await w.wait(0.15);
+      w.mark('stand');
+      w.sfx('chair');
+      await w.play(roo, 'standUp', { loop: false, speed: 0.8, fade: 0.15 });
+      S.cape(roo, 'sim');
+      S.start(w, roo, 'idle', { fade: 0.25 });
+      await w.wait(0.2);
       w.cut('how.salute');
       await w.say('roo_dont_need_me', { actor: roo, gap: 0.15 });
       w.express(exec, 'halfSmile');
@@ -183,7 +187,7 @@
       var S = K(), replay = false;
       JG.input.setMode('ui');
       w.sfx('sting_end');
-      w.music('theme');
+      w.music('ending', { volume: 0.8 });   // 2026-11-28: the owner's G-funk track, looped (the code-made theme plays only if ending.mp3 is missing)
       S.ui('end.show', { onReplay: function () { replay = true; } });
       var off = JG.input.on('press', function (a) { if (a === 'start') replay = true; });
       w.onCancel(off);

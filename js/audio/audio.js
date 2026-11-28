@@ -9,8 +9,9 @@
  *         levelAt(id, t) -> 0..1, isPlaceholder(id), stopAll() }
  *   sfx(id, {volume, rate, pan}) -> {duration, stop()}
  *   loop(id, {volume, rate, fade}) -> {duration: Infinity, stop(fade), set('volume'|'rate'|'intensity', v)}
- *   ambience(id | null, fade)        music: { play(id, {fade, volume, restart}) -> {duration: Infinity, stop(fade)},
- *                                             stop(fade), fx('muffled'|'leak'|null, fade), source(id = 'montage') }
+ *   ambience(id | null, fade)        music: { play(id, {fade, volume, restart, offset}) -> {duration: Infinity, stop(fade)},
+ *                                             stop(fade), fx('muffled'|'leak'|null, fade), source(id = 'montage'),
+ *                                             position(id) -> recorded track time in seconds, or null }
  *
  * Sources: sfx.js (JG.sfxLib: every frozen SFX id, the three loops, five ambiences) and music.js (JG.musicLib: theme,
  * elevator "Going Up", the montage stand-in "Roo's On It") render pure Float32 sample data; this file turns it into
@@ -36,7 +37,8 @@
   'use strict';
   var JG = window.JG = window.JG || {};
 
-  var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3', INTRO_URL = 'assets/audio/music/intro.mp3', ELEVATOR_URL = 'assets/audio/music/elevator.mp3',
+  var VO_DIR = 'assets/audio/vo/', MONTAGE_URL = 'assets/audio/music/montage.mp3',
+      MUSIC_FILES = { intro: 'assets/audio/music/intro.mp3', elevator: 'assets/audio/music/elevator.mp3', montageInstrumental: 'assets/audio/music/montage-instrumental.mp3', ending: 'assets/audio/music/ending.mp3' },
       AMB_FILES = { roof: 'assets/audio/ambience/roof.mp3', street: 'assets/audio/ambience/street.mp3', subway: 'assets/audio/ambience/subway.mp3', office: 'assets/audio/ambience/office.mp3' },
       SFX_FILES = { glass: 'assets/audio/sfx/glass.mp3' };   // recorded one-shots; the code-made sound plays if one is missing   // recorded beds (seamless loops); the code-made bed plays if one is missing
   var BUS = { master: 0.9, vo: 1.0, sfx: 0.8, music: 0.5, amb: 0.4 };
@@ -76,10 +78,9 @@
     music: { want: null, opts: {}, cur: null, fade: 0.6, fxWant: null, fxCur: 'none', fxFade: 0 },
     amb: { want: null, cur: null, fade: 1 },
     montage: { state: 'idle', reason: null, abuf: null, dur: 0 },
-    intro: { state: 'idle', decoded: null },   // file-only music slot (the owner's intro track); silent when missing
+    musicFiles: {},             // id -> {state, decoded}: intro, elevator and the desk instrumental
     sfxFile: {},                // id -> {state, decoded}: recorded one-shot sounds
     ambFile: {},                // id -> {state: 'loading'|'file'|'missing', decoded}: recorded ambience beds
-    elevator: { state: 'idle', decoded: null }, // the owner's elevator track (plays once, 9.3 s); the code-made "Going Up" plays if it is missing
     errors: 0
   };
 
@@ -187,8 +188,9 @@
     src.connect(g);
     if (o.pan && ctx.createStereoPanner) { var p = ctx.createStereoPanner(); p.pan.value = clamp(o.pan, -1, 1); g.connect(p); node = p; }
     node.connect(dest);
-    src.start(0);
-    return { src: src, g: g };
+    var startedAt = ctx.currentTime, offset = Math.max(0, o.offset || 0) % ab.duration;
+    src.start(startedAt, offset);
+    return { src: src, g: g, startedAt: startedAt - offset };
   }
   function stopSrc(h, fade) {
     if (!h || !h.src) return;
@@ -314,28 +316,17 @@
     }).catch(function (e) {
       M.state = 'standin'; M.reason = 'missing or undecodable';
       warn('montage-file', 'JG.audio: ' + MONTAGE_URL + ' could not be used (' + dbg(e) + '); the stand-in plays');
-    });
+    }).then(function () { if (st.music.want === 'montage') syncMusic(); });
   }
-  // intro slot: the owner's track under the gaming opening of rooftop-call. No stand-in: without the file, silence.
-  function loadIntro() {
-    var I = st.intro;
-    if (I.state !== 'idle') return;
-    I.state = 'loading';
-    Promise.resolve().then(function () { return JG.assets.load({ 'music:intro': INTRO_URL }); }).then(function () {
-      return decode(JG.assets.get('music:intro').buffer.slice(0));
-    }).then(function (ab) { I.decoded = ab; I.state = 'file'; if (st.music.want === 'intro') syncMusic(); })
-      .catch(function (e) { I.state = 'missing'; warn('intro-file', 'JG.audio: ' + INTRO_URL + ' could not be used (' + dbg(e) + '); the intro plays without music'); });
-  }
-  // elevator slot: the owner's track if it decodes, else the stand-in "Going Up" (syncMusic waits while this loads)
-  function loadElevator() {
-    var E = st.elevator;
-    if (E.state !== 'idle') return;
-    E.state = 'loading';
-    Promise.resolve().then(function () { return JG.assets.load({ 'music:elevator': ELEVATOR_URL }); }).then(function () {
-      return decode(JG.assets.get('music:elevator').buffer.slice(0));
-    }).then(function (ab) { E.decoded = ab; E.state = 'file'; })
-      .catch(function (e) { E.state = 'missing'; warn('elevator-file', 'JG.audio: ' + ELEVATOR_URL + ' could not be used (' + dbg(e) + '); the stand-in plays'); })
-      .then(function () { if (st.music.want === 'elevator') syncMusic(); });
+  function loadMusicFile(id) {
+    if (st.musicFiles[id]) return;
+    var slot = st.musicFiles[id] = { state: 'loading', decoded: null };
+    var key = 'music:' + id, url = MUSIC_FILES[id];
+    Promise.resolve().then(function () { return JG.assets.load({ [key]: url }); }).then(function () {
+      return decode(JG.assets.get(key).buffer.slice(0));
+    }).then(function (ab) { slot.decoded = ab; slot.state = 'file'; })
+      .catch(function (e) { slot.state = 'missing'; warn(id + '-file', 'JG.audio: ' + url + ' could not be used (' + dbg(e) + ')'); })
+      .then(function () { if (st.music.want === id) syncMusic(); });
   }
   // recorded ambience bed (roof): the owner's file if it decodes, else the code-made bed (syncAmb waits while it loads)
   function loadAmbFile(id) {
@@ -377,13 +368,18 @@
     M.restart = false;
     if (cur) { stopSrc(cur, M.fade); M.cur = null; }
     if (!M.want) return;
-    if (M.want === 'elevator') { loadElevator(); if (st.elevator.state === 'loading') return; }
-    var file = M.want === 'montage' ? montageBuffer() : (M.want === 'intro' ? st.intro.decoded : (M.want === 'elevator' ? st.elevator.decoded : null)), ab = file || (M.want === 'intro' ? null : buffer('music', M.want));
+    var slot = st.musicFiles[M.want];
+    if (slot && slot.state === 'loading') return;
+    if (M.want === 'montage' && st.montage.state === 'loading') return;
+    var file = M.want === 'montage' ? montageBuffer() : slot && slot.decoded;
+    var fallback = M.want === 'montageInstrumental' ? 'montage' : (M.want === 'ending' ? 'theme' : M.want);   // the end card's code-made theme plays if ending.mp3 is missing
+    var ab = file || (M.want === 'intro' ? null : buffer('music', fallback));
     if (!ab) return;
     var vol = M.opts.volume === undefined ? 1 : M.opts.volume;
-    // the owner's elevator track is a single 9.3 s run that ends before the dings; every other music loops
-    var h = startSrc(ab, st.n.musicIn, { loop: !(file && M.want === 'elevator'), vol: vol, fade: M.opts.fadeIn === undefined ? 0.05 : M.opts.fadeIn });
-    h.id = M.want; h.file = !!file;
+    // The recorded elevator ride and the two-pass headphone hook each have an authored ending.
+    var oneShot = file && (M.want === 'elevator' || M.want === 'montage');
+    var h = startSrc(ab, st.n.musicIn, { loop: !oneShot, vol: vol, fade: M.opts.fadeIn === undefined ? 0.05 : M.opts.fadeIn, offset: M.opts.offset });
+    h.id = M.want; h.file = !!file; h.duration = ab.duration;
     M.cur = h;
   }
   function syncFx() {
@@ -503,7 +499,16 @@
         } catch (e) { /* ignore */ }
       });
       // the montage file decodes lazily from desk-sit (or a jump to the beats that use it)
-      JG.on('beat', function (id) { if (id === 'desk-sit' || id === 'montage' || id === 'two-hours-later') loadMontage(); if (id === 'title' || id === 'rooftop-call') loadIntro(); if (id === 'plaza-walk' || id === 'elevator-ride') loadElevator(); if (id === 'title' || id === 'rooftop-call') loadAmbFile('roof'); if (id === 'rooftop-walk' || id === 'rooftop-jump' || id === 'street-subway') loadAmbFile('street'); if (id === 'street-subway' || id === 'subway-ride' || id === 'subway-wink') loadAmbFile('subway'); if (id === 'elevator-ride' || id === 'ops-plea') loadAmbFile('office'); if (id === 'ops-plea' || id === 'how' || id === 'window-exit') loadSfxFile('glass'); });
+      JG.on('beat', function (id) {
+        if (id === 'desk-sit' || id === 'montage') { loadMontage(); loadMusicFile('montageInstrumental'); }
+        if (id === 'title' || id === 'rooftop-call') { loadMusicFile('intro'); loadAmbFile('roof'); }
+        if (id === 'plaza-walk' || id === 'elevator-ride') loadMusicFile('elevator');
+        if (id === 'window-exit' || id === 'subway-wink') loadMusicFile('ending');
+        if (id === 'rooftop-walk' || id === 'rooftop-jump' || id === 'street-subway') loadAmbFile('street');
+        if (id === 'street-subway' || id === 'subway-ride' || id === 'subway-wink') loadAmbFile('subway');
+        if (id === 'elevator-ride' || id === 'ops-plea') loadAmbFile('office');
+        if (id === 'ops-plea' || id === 'how' || id === 'window-exit') loadSfxFile('glass');
+      });
     }
   });
 
@@ -661,7 +666,7 @@
   api.music = {
     play: guard('music.play', function (id, o) {
       o = o || {};
-      if (id === 'intro') loadIntro();
+      if (MUSIC_FILES[id]) loadMusicFile(id);
       else if (!JG.musicLib || JG.musicLib.ids.indexOf(id) < 0) { warn('music-unknown:' + id, 'JG.audio.music: unknown id "' + id + '"'); return { duration: Infinity, stop: noop }; }
       if (id === 'montage') loadMontage();
       var M = st.music;
@@ -685,9 +690,16 @@
       syncFx();
       return { duration: st.music.fxFade, stop: noop };
     }),
+    position: guard('music.position', function (id) {
+      var cur = st.music.cur;
+      if (!cur || !cur.file || cur.id !== id || st.music.want !== id || st.ctx.state !== 'running') return null;
+      var elapsed = Math.max(0, st.ctx.currentTime - cur.startedAt);
+      if (cur.src.loop) return elapsed % cur.duration;
+      return elapsed < cur.duration ? elapsed : null;
+    }, null),
     source: guard('music.source', function (id) {
-      if ((id || 'montage') !== 'montage') return 'standin';
-      return st.montage.state === 'file' ? 'file' : 'standin';
+      var slot = !id || id === 'montage' ? st.montage : st.musicFiles[id];
+      return slot && slot.state === 'file' ? 'file' : 'standin';
     }, 'standin')
   };
 

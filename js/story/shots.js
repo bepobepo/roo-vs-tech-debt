@@ -63,7 +63,11 @@
     'subway-ride.lady': { rel: 'subway.ladySeat', pos: [-0.59, 1.16, 1.09], look: [0.055, 1.04, -0.12], fov: 33, fit: ['oldlady.head', 'oldlady.chest'] },
     'subway-wink.wide': { rel: 'subway.rooSeat', pos: [2.4, 1.35, 1.0], look: [0, 0.9, 1.0], fov: 52 },
     'subway-wink.knitting': { rel: 'subway.ladySeat', pos: [-0.3, 1.05, 1.6], look: [0, 0.95, 0], fov: 36 },
-    'subway-wink.close': { rel: 'subway.rooSeat', pos: [0.15, 1.15, 2.0], look: [0, 1.0, 0], fov: 34 },
+    'subway-wink.close': function () {
+      // The end card shares the right side of a landscape frame. Keep the wink clear of it and both ears in the panel.
+      var aimX = JG.loop.stageRect().portrait ? 0 : 0.13;
+      return { rel: 'subway.rooSeat', pos: [0.08, 1.46, 1.36], look: [aimX, 1.45, -0.07], fov: 31 };
+    },
 
     // ---------------------------------------------------------------- office / elevator
     'elevator-ride.corner': { rel: 'office.elevatorMark', pos: [0.85, 1.95, 0.95], look: [0, 1.3, 0], fov: 62 },
@@ -134,7 +138,8 @@
     'desk-sit.typed': { rel: 'office.chair', pos: [0.85, 1.42, 0.2], look: [0.2, 1.2, 0.83], fov: 32 },
     'desk-sit.monitor': { rel: 'office.chair', pos: [-0.45, 1.5, -0.4], look: [0, 1.05, 1.1], fov: 36 },
     'montage.bob': { rel: 'office.chair', pos: [-1.9, 1.4, 0.9], look: [0, 1.15, 0], fov: 40, fit: ['roo.head'] },
-    'montage.push': { rel: 'office.chair', pos: [-0.25, 1.3, 0.2], look: [0, 1.1, 1.1], fov: 30 },
+    // The earcup and cape frame the left edge. His muzzle stays outside the monitor bezel as he types.
+    'montage.shoulder': { rel: 'office.chair', pos: [-0.67, 1.44, -0.73], look: [-0.06, 1.12, 0.74], fov: 26 },
     'two-hours-later.wide': { rel: 'office.chair', pos: [-2.2, 1.8, -2.6], look: [0, 1.0, 1.0], fov: 44 },
     'two-hours-later.close': { rel: 'office.chair', pos: [-0.9, 1.55, 1.0], look: [0, 1.4, 0], fov: 36, fit: ['roo.head', 'roo.chest'] },
     'all-clear.monitor': { rel: 'office.chair', pos: [-0.45, 1.5, -0.4], look: [0, 1.05, 1.1], fov: 36 },
@@ -143,6 +148,7 @@
     'how.two': { rel: 'office.chair', pos: [-1.0, 1.6, -3.0], look: [-1.2, 1.15, 0], fov: 42, fit: ['roo.head', 'exec.head'] },
     'how.exec': { rel: 'office.execStand', pos: [0.4, 1.45, 2.9], look: [0, 1.5, 0], fov: 34 },
     'how.roo': { rel: 'roo', pos: [0.35, 1.35, 1.5], look: [0, 1.25, 0], fov: 34, fit: ['roo.head'] },
+    'how.rise': { rel: 'office.chair', pos: [-0.62, 1.12, -3.05], look: [-0.05, 1.04, 0], fov: 44 },
     'how.salute': { rel: 'roo', pos: [-0.5, 1.55, 2.3], look: [0, 1.45, 0], fov: 36 },
     'window-exit.run': { rel: 'office.windowRun', pos: [3.5, 1.6, -4], look: [0, 1.2, 1], fov: 50 },
     'window-exit.dive': { rel: 'office.windowHole', pos: [-2.2, 0.6, -2.4], look: [0, 0, 0.3], fov: 50 },

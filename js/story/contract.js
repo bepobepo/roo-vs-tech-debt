@@ -63,7 +63,7 @@
       'scan_sweep', 'scan_beep', 'glug', 'brew', 'sip'],
     loops: ['ringtone', 'sob', 'fallwind'],
     ambience: ['roof', 'street', 'subway', 'elevator', 'office'],
-    music: ['theme', 'elevator', 'montage', 'intro'],
+    music: ['theme', 'elevator', 'montage', 'montageInstrumental', 'intro', 'ending'],
     musicFx: ['muffled', 'leak'],
 
     // VO ids: the keys of JG.LINES (site/js/story/lines.js), in manifest order

@@ -142,7 +142,7 @@
     replay: 'Play again',
     credits: 'Credits',
     prompts: { jump: 'Press X to jump', calm: 'Push X to calm down', getOn: 'Press Y to get on with it', sit: 'Push X to sit down', keepPlaying: 'Push X to continue playing',
-      scan: 'Push Y to scan your face', drink: 'Push Y for a drink', coffee: 'Push Y to make a coffee', window: 'Push Y to check the windows' },
+      scan: 'Push Y to scan your face', drink: 'Push Y for a drink', coffee: 'Push Y to make a coffee', window: 'Push Y to check the windows', fix: 'Let June identify and fix' },
     objectives: {
       'rooftop-walk': 'Get to the edge of the roof',
       'street-subway': 'Take the subway',
