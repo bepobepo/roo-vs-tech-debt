@@ -244,7 +244,7 @@
   function tv() { var c = JG.world && JG.world.current; return c && c.props && c.props.tv ? c.props.tv : null; }
 
   // Track the flight from the plaza side of the facade. The final push-in leaves Roo's
-  // raised glove beside his face with room for the speech balloon.
+  // raised glove beside his face as he points toward the subway.
   function rooftopFlightShot(t, p, ledge) {
     var smooth = window.THREE.MathUtils.smoothstep;
     var x = p.x, y = p.y, z = p.z, k;

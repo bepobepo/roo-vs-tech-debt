@@ -249,7 +249,7 @@
       function speakAt(time, id) {
         return async function (w2) {
           await w2.wait(time);
-          await w2.say(id, { actor: roo, balloon: true, gap: 0 });
+          await w2.say(id, { actor: roo, gap: 0 });
         };
       }
       await w.parallel(
